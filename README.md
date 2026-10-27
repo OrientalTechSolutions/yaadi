@@ -15,9 +15,18 @@ Milestone 1 is in progress. Built so far:
   demo;
 - the item model (bills, appointments, expiry dates, medicine times, tasks),
   repositories with revision checks and undo, and the schema v1 migration
-  harness.
+  harness;
+- the Today logic: Overdue, Today, Next 7 days and Later groups, medicine
+  times marked one by one, Paid, Done and Snooze that roll repeating items
+  forward (month ends and leap years included) and catch up missed months,
+  and a morning summary in English and Urdu;
+- offline search that understands English, Urdu script and Roman Urdu
+  ("bijli ka bill", "ammi ki dawai", "شناختی کارڈ"), with typo tolerance and
+  highlights that never split a letter from its marks.
 
-Adding items, the Today groups, search and the demo households come next.
+These are pure Dart with table-driven tests, wired into Riverpod providers.
+The screens that use them (the Today groups, the item editor, the search
+screen) and the demo households come next.
 [ARCHITECTURE.md](ARCHITECTURE.md) describes the whole design and its
 trade-offs.
 

@@ -54,5 +54,15 @@
   "vaultBuildErrorTitle": "یہ بلڈ آپ کی چیزوں کی حفاظت نہیں کر سکتا",
   "vaultBuildErrorBody": "یادی کے اس بلڈ میں انکرپشن نہیں ہے، اس لیے یہ آپ کا والٹ نہ کھولے گا نہ بنائے گا۔ سرکاری بلڈ انسٹال کریں۔",
   "demoBadge": "ڈیمو",
-  "webDemoNotice": "فرضی خاندانوں کے ساتھ ڈیمو۔ آپ جو لکھیں وہ اسی براؤزر میں رہتا ہے، انکرپٹ نہیں ہوتا اور ہمیں نہیں بھیجا جاتا۔ اصلی شناختی نمبر نہ لکھیں۔ یہ ڈیمو GitHub Pages پر ہے، جو معیاری رسائی لاگ رکھتا ہے۔"
+  "webDemoNotice": "فرضی خاندانوں کے ساتھ ڈیمو۔ آپ جو لکھیں وہ اسی براؤزر میں رہتا ہے، انکرپٹ نہیں ہوتا اور ہمیں نہیں بھیجا جاتا۔ اصلی شناختی نمبر نہ لکھیں۔ یہ ڈیمو GitHub Pages پر ہے، جو معیاری رسائی لاگ رکھتا ہے۔",
+  "morningSummaryTitle": "صبح کا خلاصہ",
+  "summaryQuietToday": "آج کچھ واجب نہیں",
+  "summaryOverdue": "{others, plural, =0{زائد المیعاد: {title}} =1{زائد المیعاد: {title} اور 1 مزید} other{زائد المیعاد: {title} اور {others} مزید}}",
+  "summaryToConfirm": "{count, plural, =1{تصدیق باقی: 1 گزری چیز} other{تصدیق باقی: {count} گزری چیزیں}}",
+  "summaryToday": "آج: {details}",
+  "summaryMoreToday": "{count, plural, =1{آج: 1 مزید} other{آج: {count} مزید}}",
+  "summaryDoses": "{count, plural, =1{دوا: آج 1 وقت} other{دوا: آج {count} اوقات}}",
+  "summaryComingUp": "آگے: {title} · {date}",
+  "summaryToPay": "{date} تک ادائیگی: {amounts}",
+  "summaryUnknownAmounts": "{count, plural, =1{1 رقم ابھی معلوم نہیں} other{{count} رقمیں ابھی معلوم نہیں}}"
 }

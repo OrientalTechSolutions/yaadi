@@ -20,3 +20,20 @@ Milestone 1, in progress.
   contract test suite: revision checks, one completion per occurrence and
   undo.
 - Schema v1 snapshot and migration test harness.
+- Today logic: Overdue, Today, Next 7 days and Later groups with a "Did these
+  happen?" group for past appointments, a 30-day window for expiry dates,
+  and medicine courses expanded into each day's times, marked in any order
+  and never shown as overdue.
+- Paid, Done and Snooze: repeating items roll forward from the rule's date
+  (31 January to 28 or 29 February and back to 31 March), `until` ends a
+  series, variable bills clear their amount, and missed occurrences are
+  caught up by bill type, with the alternatives offered. Double taps apply
+  once and every action can be undone.
+- A deterministic morning summary in English and Urdu (the Urdu text is a
+  draft until reviewed).
+- Offline search over English, Urdu script and Roman Urdu: letter-variant and
+  harakat folding, Roman Urdu spellings, a bilingual household lexicon with
+  billers per country, prefix and one-typo matching, field-weighted ranking
+  and grapheme-safe highlights.
+- Today's date now moves on by itself at midnight, after a time-zone change
+  and when the app resumes.

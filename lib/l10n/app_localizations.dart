@@ -427,6 +427,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Demo with made-up families. What you type stays in this browser, is not encrypted and is not sent to us. Do not enter real ID numbers. The demo is hosted on GitHub Pages, which keeps standard access logs.'**
   String get webDemoNotice;
+
+  /// Heading of the card on the Today screen that sums up the day.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning summary'**
+  String get morningSummaryTitle;
+
+  /// Morning summary line when nothing is overdue, due today or waiting to be confirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing due today'**
+  String get summaryQuietToday;
+
+  /// Morning summary line naming the oldest overdue item and counting the rest. Written as a label so the sentence never has to agree with the title.
+  ///
+  /// In en, this message translates to:
+  /// **'{others, plural, =0{Overdue: {title}} =1{Overdue: {title} and 1 more} other{Overdue: {title} and {others} more}}'**
+  String summaryOverdue(int others, String title);
+
+  /// Morning summary line counting past appointments the user has not yet marked as done or rescheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{To confirm: 1 past item} other{To confirm: {count} past items}}'**
+  String summaryToConfirm(int count);
+
+  /// Morning summary line for one item due today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today: {details}'**
+  String summaryToday(String details);
+
+  /// Morning summary line counting items due today beyond the three named one by one.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Today: 1 more} other{Today: {count} more}}'**
+  String summaryMoreToday(int count);
+
+  /// Morning summary line counting today's medicine times the user entered. Neutral wording: never advice.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Medicine: 1 time today} other{Medicine: {count} times today}}'**
+  String summaryDoses(int count);
+
+  /// Morning summary line naming the next item in the coming seven days.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming up: {title}, {date}'**
+  String summaryComingUp(DateTime date, String title);
+
+  /// Morning summary line with what overdue bills and bills due in the next seven days add up to.
+  ///
+  /// In en, this message translates to:
+  /// **'To pay by {date}: {amounts}'**
+  String summaryToPay(String amounts, DateTime date);
+
+  /// Morning summary line counting bills in the totals whose amount is not known yet, such as an electricity bill before the paper arrives.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 amount not known yet} other{{count} amounts not known yet}}'**
+  String summaryUnknownAmounts(int count);
 }
 
 class _AppLocalizationsDelegate

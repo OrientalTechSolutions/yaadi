@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show Bidi;
 
+import '../text/script.dart';
 import '../theme/app_theme.dart';
 
 /// Text the user typed, which may be Urdu, English or both in any UI
@@ -88,20 +89,10 @@ List<ScriptRun> scriptRuns(String text) {
 
 /// True for Arabic script, false for other letters, null for neutrals.
 bool? _scriptOf(int rune) {
-  if (_isArabicScript(rune)) return true;
+  if (isArabicScript(rune)) return true;
   final char = String.fromCharCode(rune);
   if (_letter.hasMatch(char)) return false;
   return null;
 }
-
-bool _isArabicScript(int rune) =>
-    (rune >= 0x0600 && rune <= 0x06FF && !_isArabicDigit(rune)) ||
-    (rune >= 0x0750 && rune <= 0x077F) ||
-    (rune >= 0x08A0 && rune <= 0x08FF) ||
-    (rune >= 0xFB50 && rune <= 0xFDFF) ||
-    (rune >= 0xFE70 && rune <= 0xFEFF);
-
-bool _isArabicDigit(int rune) =>
-    (rune >= 0x0660 && rune <= 0x0669) || (rune >= 0x06F0 && rune <= 0x06F9);
 
 final _letter = RegExp(r'\p{L}', unicode: true);

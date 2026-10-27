@@ -114,6 +114,21 @@ final class Item {
 
   bool get isOpen => status == ItemStatus.open;
 
+  /// The date the item is shown under: the snooze date while it is today or
+  /// later, otherwise the due date. Null for an undated task.
+  LocalDate? effectiveOn(LocalDate today) {
+    final snoozed = snoozedUntil;
+    if (snoozed != null && !snoozed.isBefore(today)) return snoozed;
+    return dueOn;
+  }
+
+  /// The times of a medicine course, whose doses are derived day by day
+  /// instead of rolling forward; null for everything else.
+  DoseTimes? get doseTimes => switch (recurrence) {
+    final DoseTimes doses => doses,
+    _ => null,
+  };
+
   /// Every rule this item breaks; empty for a valid item.
   Set<ItemViolation> get violations {
     final notes = this.notes;

@@ -66,7 +66,20 @@ final class LocalDate implements Comparable<LocalDate> {
   }
 
   /// Whole days from this date to [other]; negative when [other] is earlier.
-  int daysUntil(LocalDate other) => other._utc.difference(_utc).inDays;
+  int daysUntil(LocalDate other) => other._epochDay - _epochDay;
+
+  /// Days since 1970-01-01, computed with Howard Hinnant's days_from_civil
+  /// so that comparing dates, which Today and search do for every item,
+  /// allocates nothing.
+  int get _epochDay {
+    final y = month <= 2 ? year - 1 : year;
+    final era = y ~/ 400;
+    final yearOfEra = y - era * 400;
+    final dayOfYear = (153 * ((month + 9) % 12) + 2) ~/ 5 + day - 1;
+    final dayOfEra =
+        yearOfEra * 365 + yearOfEra ~/ 4 - yearOfEra ~/ 100 + dayOfYear;
+    return era * 146097 + dayOfEra - 719468;
+  }
 
   bool isBefore(LocalDate other) => compareTo(other) < 0;
 

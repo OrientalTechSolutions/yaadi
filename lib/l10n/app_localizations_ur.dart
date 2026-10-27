@@ -197,4 +197,87 @@ class AppLocalizationsUr extends AppLocalizations {
   @override
   String get webDemoNotice =>
       'فرضی خاندانوں کے ساتھ ڈیمو۔ آپ جو لکھیں وہ اسی براؤزر میں رہتا ہے، انکرپٹ نہیں ہوتا اور ہمیں نہیں بھیجا جاتا۔ اصلی شناختی نمبر نہ لکھیں۔ یہ ڈیمو GitHub Pages پر ہے، جو معیاری رسائی لاگ رکھتا ہے۔';
+
+  @override
+  String get morningSummaryTitle => 'صبح کا خلاصہ';
+
+  @override
+  String get summaryQuietToday => 'آج کچھ واجب نہیں';
+
+  @override
+  String summaryOverdue(int others, String title) {
+    String _temp0 = intl.Intl.pluralLogic(
+      others,
+      locale: localeName,
+      other: 'زائد المیعاد: $title اور $others مزید',
+      one: 'زائد المیعاد: $title اور 1 مزید',
+      zero: 'زائد المیعاد: $title',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryToConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تصدیق باقی: $count گزری چیزیں',
+      one: 'تصدیق باقی: 1 گزری چیز',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryToday(String details) {
+    return 'آج: $details';
+  }
+
+  @override
+  String summaryMoreToday(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'آج: $count مزید',
+      one: 'آج: 1 مزید',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryDoses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'دوا: آج $count اوقات',
+      one: 'دوا: آج 1 وقت',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryComingUp(DateTime date, String title) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'آگے: $title · $dateString';
+  }
+
+  @override
+  String summaryToPay(String amounts, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString تک ادائیگی: $amounts';
+  }
+
+  @override
+  String summaryUnknownAmounts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count رقمیں ابھی معلوم نہیں',
+      one: '1 رقم ابھی معلوم نہیں',
+    );
+    return '$_temp0';
+  }
 }

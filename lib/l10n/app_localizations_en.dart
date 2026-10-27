@@ -197,4 +197,87 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get webDemoNotice =>
       'Demo with made-up families. What you type stays in this browser, is not encrypted and is not sent to us. Do not enter real ID numbers. The demo is hosted on GitHub Pages, which keeps standard access logs.';
+
+  @override
+  String get morningSummaryTitle => 'Morning summary';
+
+  @override
+  String get summaryQuietToday => 'Nothing due today';
+
+  @override
+  String summaryOverdue(int others, String title) {
+    String _temp0 = intl.Intl.pluralLogic(
+      others,
+      locale: localeName,
+      other: 'Overdue: $title and $others more',
+      one: 'Overdue: $title and 1 more',
+      zero: 'Overdue: $title',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryToConfirm(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'To confirm: $count past items',
+      one: 'To confirm: 1 past item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryToday(String details) {
+    return 'Today: $details';
+  }
+
+  @override
+  String summaryMoreToday(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Today: $count more',
+      one: 'Today: 1 more',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryDoses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Medicine: $count times today',
+      one: 'Medicine: 1 time today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryComingUp(DateTime date, String title) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Coming up: $title, $dateString';
+  }
+
+  @override
+  String summaryToPay(String amounts, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'To pay by $dateString: $amounts';
+  }
+
+  @override
+  String summaryUnknownAmounts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count amounts not known yet',
+      one: '1 amount not known yet',
+    );
+    return '$_temp0';
+  }
 }

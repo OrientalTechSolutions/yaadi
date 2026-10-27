@@ -232,5 +232,107 @@
   "webDemoNotice": "Demo with made-up families. What you type stays in this browser, is not encrypted and is not sent to us. Do not enter real ID numbers. The demo is hosted on GitHub Pages, which keeps standard access logs.",
   "@webDemoNotice": {
     "description": "Permanent notice on the web demo. Must match the privacy text in ARCHITECTURE.md section 8."
+  },
+  "morningSummaryTitle": "Morning summary",
+  "@morningSummaryTitle": {
+    "description": "Heading of the card on the Today screen that sums up the day."
+  },
+  "summaryQuietToday": "Nothing due today",
+  "@summaryQuietToday": {
+    "description": "Morning summary line when nothing is overdue, due today or waiting to be confirmed."
+  },
+  "summaryOverdue": "{others, plural, =0{Overdue: {title}} =1{Overdue: {title} and 1 more} other{Overdue: {title} and {others} more}}",
+  "@summaryOverdue": {
+    "description": "Morning summary line naming the oldest overdue item and counting the rest. Written as a label so the sentence never has to agree with the title.",
+    "placeholders": {
+      "others": {
+        "type": "int",
+        "description": "How many other items are overdue."
+      },
+      "title": {
+        "type": "String",
+        "description": "Title of the oldest overdue item, as the user typed it."
+      }
+    }
+  },
+  "summaryToConfirm": "{count, plural, =1{To confirm: 1 past item} other{To confirm: {count} past items}}",
+  "@summaryToConfirm": {
+    "description": "Morning summary line counting past appointments the user has not yet marked as done or rescheduled.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many past items wait for confirmation."
+      }
+    }
+  },
+  "summaryToday": "Today: {details}",
+  "@summaryToday": {
+    "description": "Morning summary line for one item due today.",
+    "placeholders": {
+      "details": {
+        "type": "String",
+        "description": "The item's title, then its time and amount when known, separated by middle dots."
+      }
+    }
+  },
+  "summaryMoreToday": "{count, plural, =1{Today: 1 more} other{Today: {count} more}}",
+  "@summaryMoreToday": {
+    "description": "Morning summary line counting items due today beyond the three named one by one.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many more items are due today."
+      }
+    }
+  },
+  "summaryDoses": "{count, plural, =1{Medicine: 1 time today} other{Medicine: {count} times today}}",
+  "@summaryDoses": {
+    "description": "Morning summary line counting today's medicine times the user entered. Neutral wording: never advice.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many medicine times there are today."
+      }
+    }
+  },
+  "summaryComingUp": "Coming up: {title}, {date}",
+  "@summaryComingUp": {
+    "description": "Morning summary line naming the next item in the coming seven days.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "MMMEd",
+        "description": "When the item is due, with the weekday."
+      },
+      "title": {
+        "type": "String",
+        "description": "Title of the item, as the user typed it."
+      }
+    }
+  },
+  "summaryToPay": "To pay by {date}: {amounts}",
+  "@summaryToPay": {
+    "description": "Morning summary line with what overdue bills and bills due in the next seven days add up to.",
+    "placeholders": {
+      "amounts": {
+        "type": "String",
+        "description": "One formatted total per currency, separated by middle dots."
+      },
+      "date": {
+        "type": "DateTime",
+        "format": "MMMEd",
+        "description": "The last day the totals cover, seven days from today."
+      }
+    }
+  },
+  "summaryUnknownAmounts": "{count, plural, =1{1 amount not known yet} other{{count} amounts not known yet}}",
+  "@summaryUnknownAmounts": {
+    "description": "Morning summary line counting bills in the totals whose amount is not known yet, such as an electricity bill before the paper arrives.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many bills have no amount yet."
+      }
+    }
   }
 }

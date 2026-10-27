@@ -8,6 +8,37 @@ import 'package:yaadi/features/items/domain/recurrence.dart';
 
 final createdAt = DateTime.utc(2026, 10, 27, 9, 30);
 
+/// Any valid open item; every field a test may care about can be set.
+Item item(
+  String id, {
+  ItemKind kind = ItemKind.task,
+  String? title,
+  ItemCategory category = ItemCategory.other,
+  LocalDate? due,
+  LocalDate? scheduled,
+  int? minute,
+  Recurrence recurrence = Recurrence.none,
+  Money? amount,
+  bool? amountIsFixed,
+  String? notes,
+  LocalDate? snoozedUntil,
+}) => Item(
+  id: id,
+  kind: kind,
+  title: title ?? id,
+  category: category,
+  amount: amount,
+  amountIsFixed: amountIsFixed,
+  scheduledOn: scheduled,
+  dueOn: due,
+  dueMinute: minute,
+  recurrence: recurrence,
+  notes: notes,
+  snoozedUntil: snoozedUntil,
+  createdAt: createdAt,
+  updatedAt: createdAt,
+);
+
 /// A valid open bill; override what a test cares about.
 Item bill({
   String id = 'bill-1',

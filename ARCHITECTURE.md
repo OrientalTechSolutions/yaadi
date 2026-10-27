@@ -34,7 +34,7 @@ One decision is still open: whether the build may download the hash-pinned SQLCi
 | Web demo storage | `web` 1.1.2 | `window.sessionStorage` only |
 | Fonts | Noto Nastaliq Urdu (OFL), Roboto (Apache-2.0) | Nastaliq from the official Noto/Google Fonts GitHub. Roboto is copied from the pinned Flutter SDK's `material_fonts` artifact with its licence, so it needs no download |
 | Icons | `cupertino_icons` | Kept: without it the probe's `flutter build web` warned about the CupertinoIcons font that framework widgets reference |
-| Tooling | `build_runner` 2.17.1, `flutter_lints` 6, `flutter_launcher_icons` | The starter's `analysis_options.yaml` (strict casts plus its extra rules) |
+| Tooling | `build_runner` 2.17.1, `flutter_lints` 6, `flutter_launcher_icons`, `fake_async` | The starter's `analysis_options.yaml` (strict casts plus its extra rules); `fake_async` drives the midnight ticker in tests |
 
 Deliberately not used:
 
@@ -63,9 +63,10 @@ lib/
   app.dart                       MaterialApp: locale, themes, text scale
   home_shell.dart                tabs, web demo notice
   core/
-    time/                        LocalDate, clock provider, midnight and time-zone ticker
+    ids.dart                     UUIDv7 generator provider
+    time/                        LocalDate, clock provider, midnight and time-zone ticker, time-of-day format
     money/                       Money (minor units + currency), formatting, decimal parsing
-    text/                        digit and mark normalization shared by input and search
+    text/                        digits, bidi controls and script detection shared by input and search
     theme/                       Material 3 light/dark, Urdu typography and metrics
     widgets/                     UserText, AutoDirectionField
     platform/                    session_store (conditional web/memory), iOS backup exclusion
@@ -89,10 +90,10 @@ lib/
                 data: tables, ItemRepository, DriftItemRepository, MemoryItemRepository
                 application: items controller (save, delete, undo)
                 presentation: list, editor, detail, reference field
-    today/      domain: TodayGrouper, dose expansion, roll-forward, catch-up, snooze, MorningSummary
-                application, presentation
-    search/     domain: tokenizer, TextNormalizer, Roman Urdu folding, HouseholdLexicon, SearchIndex
-                application, presentation (highlighted results)
+    today/      domain: TodayView (grouping), doses, roll-forward and catch-up, snooze, MorningSummary
+                application: today providers, quick actions, morning summary text; presentation
+    search/     domain: tokenizer and normalizer, household terms and lexicon, query, index, highlights
+                application: search providers; presentation (highlighted results)
     settings/   domain, data (SettingsRepository: vault and session), application, presentation
     demo/       data: Khan family (Lahore), Taylor family (Manchester); application
 test/                            mirrors lib/; test/drift/vault/ holds the migration harness
@@ -806,3 +807,14 @@ Where building M1 changed or refined something above, and why.
 | The v1 test schemas come from `drift_dev schema generate` | With a single schema version, `make-migrations` writes the snapshot but no test schemas. Verification and CI run both commands so the files stay reproducible; from v2 on, `make-migrations` writes them itself. |
 | The SQLCipher and OpenSSL licence notices are not registered yet | Their texts ship with the binaries whose download waits on section 5.1, and M1 has no phone build. |
 | No golden step in CI yet | `flutter test --tags golden` fails when no test carries the tag, so the step arrives with the first golden test. |
+| `TodayGrouper` is `TodayView.build`, with `sectionOf` and `canSnooze` beside it | One factory builds the screen's groups; the two functions answer the same questions for the quick-action controller without building a view. |
+| A medicine item without a dose rule moves to "Did these happen?" once its date passes, like an appointment | Section 11 keeps doses out of Overdue. A one-off medicine time is still a dose, and "overdue" would read as a nudge to take it. |
+| Billers are a fourth concept type, `Concept.biller`, instead of region-tagged category terms | An item that names LESCO must be found by "bijli", yet a search for "lesco" must not find IESCO (section 12's query table). A biller tags its items with the category too, while a query naming it looks for that biller only. |
+| The last query word also completes lexicon terms and phrases | "daw" finds "امی کی دوائی" and "shanakhti ca" finds the CNIC while the word is still being typed, at the prefix tier. |
+| Where a word matched literally, its concept span is not highlighted as well | Typing "scho" highlights "scho" in "school", not the whole word. Arabic-script words are still highlighted whole. |
+| Search documents are reused while the item is unchanged (compared whole), and a shared vocabulary numbers distinct words | The demo households are rebuilt from their seed with the same ids and revisions but new dates, so `(id, revision)` alone would keep stale documents. The vocabulary lets a query decide once per distinct word instead of once per occurrence. Measured in the debug test VM on the development laptop: 4 to 13 ms per query over 5,000 generated items (up to 3,333 matches), under 1 ms over 500, and about 0.5 s to index 5,000 items once. Highlights are tidied lazily, only for results that are shown. |
+| Dose marks retry when another dose of the same course wins the revision race | Every mark bumps the item's revision, so two doses tapped in quick succession would otherwise turn the second into a silent no-op. Retries are bounded by the eight-dose maximum; the same dose twice is still refused by the occurrence check. |
+| The morning summary totals cover overdue bills and bills due in the next 7 days ("To pay by ...") | Section 11 left the window open; one week matches the Next 7 days group. |
+| `todayProvider` re-reads the clock every minute and when the app resumes | One ticker covers midnight and time-zone changes alike, with no separate zone listener. |
+| `LocalDate.daysUntil` uses day-number arithmetic | Today grouping and search ranking compare dates for every item; the result is tested against `DateTime.utc` from year 1 to 9999. |
+| `characters` is a direct dependency and `fake_async` a dev dependency | Grapheme-safe highlights (section 12) and the midnight ticker tests. Both were already in the lock file through Flutter. |

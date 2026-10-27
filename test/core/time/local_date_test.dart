@@ -73,6 +73,32 @@ void main() {
       expect(LocalDate(2026, 1, 10).daysUntil(LocalDate(2026, 1, 3)), -7);
     });
 
+    test('counts days exactly as UTC DateTime does, across centuries', () {
+      final origin = LocalDate(2026, 11, 2);
+      for (final date in [
+        LocalDate(1, 1, 1),
+        LocalDate(1600, 2, 29),
+        LocalDate(1900, 3, 1),
+        LocalDate(1970, 1, 1),
+        LocalDate(2000, 2, 29),
+        LocalDate(2026, 3, 29),
+        LocalDate(2100, 2, 28),
+        LocalDate(9999, 12, 31),
+      ]) {
+        final expected = DateTime.utc(
+          date.year,
+          date.month,
+          date.day,
+        ).difference(DateTime.utc(2026, 11, 2)).inDays;
+        expect(origin.daysUntil(date), expected, reason: '$date');
+      }
+      var day = LocalDate(2027, 12, 31);
+      for (var i = 0; i < 800; i++) {
+        expect(origin.daysUntil(day), 424 - i, reason: '$day');
+        day = day.addDays(-1);
+      }
+    });
+
     test('adds months on a day, clamped to short months', () {
       final jan31 = LocalDate(2026, 1, 31);
       expect(jan31.addMonths(1), LocalDate(2026, 2, 28));
