@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  app:
+    name: Flutter app
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.8
+          channel: stable
+          cache: true
+
+      # Tests use the system SQLite until ARCHITECTURE.md section 5.1 is
+      # approved; the sqlite3 build hook then downloads nothing.
+      - run: sudo apt-get install -y libsqlite3-dev
+      - run: flutter pub get
+
+      - name: Generated code is up to date
+        run: |
+          flutter gen-l10n
+          dart run build_runner build
+          dart run drift_dev make-migrations
+          dart run drift_dev schema generate --data-classes --companions drift_schemas/vault/ test/drift/vault/generated/
+          git status --porcelain
+          test -z "$(git status --porcelain)"
+          if [ -s build/l10n_untranslated.json ] && [ "$(tr -d ' \n{}' < build/l10n_untranslated.json)" != "" ]; then
+            cat build/l10n_untranslated.json
+            exit 1
+          fi
+
+      - run: dart format --output=none --set-exit-if-changed lib test
+      - run: flutter analyze
+      - run: flutter test --coverage
+
+      # Dart on Windows ignores TZ, so real time zones are only tested here.
+      - name: Time tests in other zones
+        run: |
+          for zone in Europe/London America/New_York Asia/Karachi; do
+            TZ=$zone flutter test test/core/time
+          done
+
+      - run: flutter build web --release --no-web-resources-cdn --base-href /yaadi/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-demo
+          path: build/web

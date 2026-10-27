@@ -1,0 +1,90 @@
+name: yaadi
+description: >-
+  Yaadi turns household papers into reminders: bills, appointments, expiry
+  dates, medicine times and tasks, in English and Urdu, offline.
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  crypto: ^3.0.8
+  cupertino_icons: ^1.0.9
+  drift: ^2.35.3
+  drift_flutter: ^0.3.1
+  flutter_riverpod: ^3.4.3
+  flutter_secure_storage: ^11.2.0
+  intl: ^0.20.3
+  meta: ^1.18.0
+  path: ^1.9.1
+  path_provider: ^2.1.6
+  sqlite3: ^3.8.0
+  uuid: ^4.6.0
+  web: ^1.1.2
+
+dev_dependencies:
+  build_runner: ^2.17.1
+  drift_dev: ^2.35.2
+  flutter_launcher_icons: ^0.14.4
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/fonts/noto_nastaliq_urdu/OFL.txt
+    - assets/fonts/roboto/LICENSE.txt
+  fonts:
+    # Bundled under the engine's own family name, so the web build never
+    # fetches Roboto from Google (ARCHITECTURE.md section 10).
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/roboto/Roboto-Regular.ttf
+        - asset: assets/fonts/roboto/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/roboto/Roboto-Bold.ttf
+          weight: 700
+    - family: NotoNastaliqUrdu
+      fonts:
+        - asset: assets/fonts/noto_nastaliq_urdu/NotoNastaliqUrdu-Regular.ttf
+        - asset: assets/fonts/noto_nastaliq_urdu/NotoNastaliqUrdu-Bold.ttf
+          weight: 700
+
+# Regenerate the launcher icons with: dart run flutter_launcher_icons
+flutter_launcher_icons:
+  image_path: assets/icon/app_icon.png
+  android: true
+  adaptive_icon_background: "#0F766E"
+  adaptive_icon_foreground: assets/icon/app_icon_foreground.png
+  adaptive_icon_monochrome: assets/icon/app_icon_foreground.png
+  ios: true
+  # iOS rounds the corners itself, so it gets the full-bleed version.
+  image_path_ios: assets/icon/app_icon_ios.png
+  remove_alpha_ios: true
+  web:
+    generate: true
+    # Full-bleed, because the manifest also serves it as a maskable icon.
+    image_path: assets/icon/app_icon_ios.png
+    background_color: "#FFFFFF"
+    theme_color: "#0F766E"
+
+# Phones are set up for SQLCipher; tests use the operating system's SQLite so
+# the sqlite3 build hook downloads nothing until ARCHITECTURE.md section 5.1
+# is approved.
+hooks:
+  user_defines:
+    sqlite3:
+      source:
+        android: sqlcipher
+        ios: sqlcipher
+        default: system
+      name:
+        windows: winsqlite3

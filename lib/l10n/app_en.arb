@@ -1,0 +1,236 @@
+{
+  "@@locale": "en",
+  "appTitle": "Yaadi",
+  "@appTitle": {
+    "description": "App name shown in the app bar and the task switcher."
+  },
+  "navToday": "Today",
+  "@navToday": {
+    "description": "Bottom navigation label for the Today screen."
+  },
+  "navSettings": "Settings",
+  "@navSettings": {
+    "description": "Bottom navigation label for the Settings screen."
+  },
+  "todayEmptyTitle": "Nothing here yet",
+  "@todayEmptyTitle": {
+    "description": "Heading on the Today screen when there are no items."
+  },
+  "todayEmptyBody": "Bills, appointments, expiry dates, medicine times and tasks you add will show up here.",
+  "@todayEmptyBody": {
+    "description": "Explanation on the Today screen when there are no items."
+  },
+  "itemsLoadFailed": "Your items could not be loaded.",
+  "@itemsLoadFailed": {
+    "description": "Shown instead of the list when reading items failed."
+  },
+  "itemCount": "{count, plural, =0{No items} =1{1 item} other{{count} items}}",
+  "@itemCount": {
+    "description": "Number of items in a list.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many items there are."
+      }
+    }
+  },
+  "dueOn": "Due {date}",
+  "@dueOn": {
+    "description": "When an item is due, as a short label.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd",
+        "description": "The due date, formatted for the locale."
+      }
+    }
+  },
+  "noDueDate": "No date",
+  "@noDueDate": {
+    "description": "Label for a task that has no due date."
+  },
+  "kindBill": "Bill",
+  "@kindBill": {
+    "description": "Item kind: a bill to pay."
+  },
+  "kindAppointment": "Appointment",
+  "@kindAppointment": {
+    "description": "Item kind: an appointment, such as a doctor or dentist visit."
+  },
+  "kindExpiry": "Expiry date",
+  "@kindExpiry": {
+    "description": "Item kind: something that expires, such as an ID card, passport or warranty."
+  },
+  "kindMedicine": "Medicine",
+  "@kindMedicine": {
+    "description": "Item kind: medicine times the user typed in."
+  },
+  "kindTask": "Task",
+  "@kindTask": {
+    "description": "Item kind: a general task."
+  },
+  "categoryElectricity": "Electricity",
+  "@categoryElectricity": {
+    "description": "Item category."
+  },
+  "categoryGas": "Gas",
+  "@categoryGas": {
+    "description": "Item category."
+  },
+  "categoryWater": "Water",
+  "@categoryWater": {
+    "description": "Item category."
+  },
+  "categoryInternet": "Internet",
+  "@categoryInternet": {
+    "description": "Item category."
+  },
+  "categoryPhone": "Phone",
+  "@categoryPhone": {
+    "description": "Item category: mobile or landline phone bills."
+  },
+  "categorySchool": "School",
+  "@categorySchool": {
+    "description": "Item category."
+  },
+  "categoryRent": "Rent",
+  "@categoryRent": {
+    "description": "Item category."
+  },
+  "categoryHealth": "Health",
+  "@categoryHealth": {
+    "description": "Item category."
+  },
+  "categoryIdDocument": "ID document",
+  "@categoryIdDocument": {
+    "description": "Item category: identity documents such as a CNIC or passport."
+  },
+  "categoryWarranty": "Warranty",
+  "@categoryWarranty": {
+    "description": "Item category."
+  },
+  "categoryOther": "Other",
+  "@categoryOther": {
+    "description": "Item category for anything else."
+  },
+  "settingsLanguage": "Language",
+  "@settingsLanguage": {
+    "description": "Settings section for the app language."
+  },
+  "languageDevice": "Same as phone",
+  "@languageDevice": {
+    "description": "Language option that follows the phone's language."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "The English language, written in English in every locale."
+  },
+  "languageUrdu": "اردو",
+  "@languageUrdu": {
+    "description": "The Urdu language, written in Urdu in every locale."
+  },
+  "settingsTheme": "Theme",
+  "@settingsTheme": {
+    "description": "Settings section for light or dark colours."
+  },
+  "themeSystem": "Same as phone",
+  "@themeSystem": {
+    "description": "Theme option that follows the phone's light or dark setting."
+  },
+  "themeLight": "Light",
+  "@themeLight": {
+    "description": "Light theme option."
+  },
+  "themeDark": "Dark",
+  "@themeDark": {
+    "description": "Dark theme option."
+  },
+  "settingsLargeText": "Large text",
+  "@settingsLargeText": {
+    "description": "Switch that makes all text larger."
+  },
+  "settingsLargeTextHint": "Makes text 30% larger than the phone setting",
+  "@settingsLargeTextHint": {
+    "description": "Explains the Large text switch."
+  },
+  "settingsLicenses": "Open-source licences",
+  "@settingsLicenses": {
+    "description": "Opens the list of open-source licences for fonts and packages."
+  },
+  "vaultOpening": "Opening your items",
+  "@vaultOpening": {
+    "description": "Spoken label for the progress indicator while the encrypted vault opens."
+  },
+  "vaultTryAgainTitle": "Yaadi could not open your items",
+  "@vaultTryAgainTitle": {
+    "description": "Heading when the vault could not be opened but nothing is lost."
+  },
+  "vaultKeyUnavailableBody": "Your phone's secure key storage did not respond. This is usually temporary. Your items have not been changed.",
+  "@vaultKeyUnavailableBody": {
+    "description": "Explains that the keystore did not answer."
+  },
+  "vaultUnexpectedBody": "Something went wrong while opening your items. Your items have not been changed.",
+  "@vaultUnexpectedBody": {
+    "description": "Explains an unexpected failure while opening the vault."
+  },
+  "vaultTryAgain": "Try again",
+  "@vaultTryAgain": {
+    "description": "Button that tries to open the vault again."
+  },
+  "vaultRecoveryTitle": "Your items cannot be opened",
+  "@vaultRecoveryTitle": {
+    "description": "Heading when the saved items can never be read again."
+  },
+  "vaultKeyMissingBody": "The key that unlocks your saved items is no longer on this phone. This happens when Yaadi's data is restored onto a new phone or the phone's key storage was cleared. These items cannot be recovered.",
+  "@vaultKeyMissingBody": {
+    "description": "Explains that the key is gone while the database is still there."
+  },
+  "vaultWrongKeyBody": "Your saved items could not be read with this phone's key. The file may be damaged. These items cannot be recovered.",
+  "@vaultWrongKeyBody": {
+    "description": "Explains that the key does not open the database, or the file is damaged."
+  },
+  "vaultReset": "Delete and start again",
+  "@vaultReset": {
+    "description": "Button that erases the unreadable vault and starts with an empty one."
+  },
+  "vaultResetConfirmTitle": "Delete everything?",
+  "@vaultResetConfirmTitle": {
+    "description": "Heading of the confirmation before erasing the vault."
+  },
+  "vaultResetConfirmBody": "This permanently deletes every item saved in Yaadi on this phone. It cannot be undone.",
+  "@vaultResetConfirmBody": {
+    "description": "Body of the confirmation before erasing the vault."
+  },
+  "vaultResetConfirm": "Delete everything",
+  "@vaultResetConfirm": {
+    "description": "Confirms erasing the vault."
+  },
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Closes a dialog without doing anything."
+  },
+  "vaultUpdateTitle": "Update Yaadi",
+  "@vaultUpdateTitle": {
+    "description": "Heading when the vault was saved by a newer version of the app."
+  },
+  "vaultUpdateBody": "Your items were saved by a newer version of Yaadi. Install the latest version to open them. Nothing has been deleted.",
+  "@vaultUpdateBody": {
+    "description": "Explains that an older app cannot open a newer vault."
+  },
+  "vaultBuildErrorTitle": "This build cannot protect your items",
+  "@vaultBuildErrorTitle": {
+    "description": "Heading when the app was built without encryption."
+  },
+  "vaultBuildErrorBody": "This build of Yaadi has no encryption, so it will not open or create your vault. Install an official build.",
+  "@vaultBuildErrorBody": {
+    "description": "Explains that the app refuses to store items without encryption."
+  },
+  "demoBadge": "Demo",
+  "@demoBadge": {
+    "description": "Badge shown in the app bar while demo data is shown."
+  },
+  "webDemoNotice": "Demo with made-up families. What you type stays in this browser, is not encrypted and is not sent to us. Do not enter real ID numbers. The demo is hosted on GitHub Pages, which keeps standard access logs.",
+  "@webDemoNotice": {
+    "description": "Permanent notice on the web demo. Must match the privacy text in ARCHITECTURE.md section 8."
+  }
+}

@@ -1,0 +1,5 @@
+tags:
+  sqlcipher:
+    description: Needs the SQLCipher test library (ARCHITECTURE.md section 5.1).
+  golden:
+    description: Golden images, rendered on Linux CI only.
