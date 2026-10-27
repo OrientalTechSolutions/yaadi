@@ -128,7 +128,7 @@ hooks:
         default: sqlcipher
 ```
 
-Tests, CI and phones load the same release's SQLCipher build: SQLCipher 4.19.0 community on SQLite 3.53.4, from the `sqlite3-3.8.0` release. The phones keep their own entries so a change to `default` never reaches them. Each platform gets its own file, fetched on first use into `.dart_tool/hooks_runner/shared/sqlite3/build/download-<hash>/` and checked against the pinned sha256 before use, also when the file is already there. A mismatch fails the build.
+Tests load, and CI and phone builds are configured to load, the same release's SQLCipher build: SQLCipher 4.19.0 community on SQLite 3.53.4, from the `sqlite3-3.8.0` release. The phones keep their own entries so a change to `default` never reaches them. Each platform gets its own file, fetched on first use into `.dart_tool/hooks_runner/shared/sqlite3/build/download-<hash>/` and checked against the pinned sha256 before use, also when the file is already there. A mismatch fails the build.
 
 - **Windows VM tests** (verified): `sqlcipher.x64.windows.dll`, 4,688,896 bytes, sha256 `3a2f228b…7595`, as pinned. OpenSSL 4.0.3 is linked in statically; the DLL imports only Windows system libraries.
 - **Linux CI:** `libsqlcipher.x64.linux.so`. CI caches the download directory, so the hook checks the cached file's hash again before use, and runs `gh attestation verify --repo simolus3/sqlite3.dart` after a fresh download.

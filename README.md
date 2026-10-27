@@ -61,7 +61,7 @@ The two links in Settings open GitHub and Upwork in your browser; the app itself
 
 ## Run it
 
-You need Flutter 3.47.8 (Dart 3.13.7). The first test run or desktop build downloads the SQLCipher library for your machine from the [sqlite3 package's GitHub release](https://github.com/simolus3/sqlite3.dart/releases) and checks its sha256 hash against the one shipped in the package. After that it is cached under `.dart_tool`.
+You need Flutter 3.47.8 (Dart 3.13.7). The first test run downloads the SQLCipher library for your machine from the [sqlite3 package's GitHub release](https://github.com/simolus3/sqlite3.dart/releases) and checks its sha256 hash against the one shipped in the package. After that it is cached under `.dart_tool`.
 
 ```sh
 flutter pub get

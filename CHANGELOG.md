@@ -6,7 +6,7 @@ Encryption at rest is switched on for tests and tested on the desktop test runne
 
 ### Vault
 
-- Tests, CI and phones all load the SQLCipher build of the `sqlite3` hook: SQLCipher 4.19.0 community on SQLite 3.53.4, from the `sqlite3` 3.8.0 release, checked against the sha256 hashes shipped in the pub.dev package. The Windows build reports OpenSSL 4.0.3, linked in statically. Tests no longer use the operating system's SQLite.
+- Tests load the SQLCipher build of the `sqlite3` hook, and CI and phone builds are configured to load the same one: SQLCipher 4.19.0 community on SQLite 3.53.4, from the `sqlite3` 3.8.0 release, checked against the sha256 hashes shipped in the pub.dev package. The Windows build reports OpenSSL 4.0.3, linked in statically. Tests no longer use the operating system's SQLite.
 - The encryption tests run on every test run and never skip. They cover: no plaintext in the vault file, its header or its WAL; "not a database" without the key; a wrong key, a missing key or a plaintext file landing on Recovery with the file untouched; and the production open path applying every vault setting.
 - An encrypted schema v1 vault, `test/fixtures/vault_v1.sqlite`, is opened through the startup path on every run, so a library upgrade that cannot read existing vaults fails CI.
 - The fail-closed open is still tested on every run, now against a simulated build without SQLCipher.
