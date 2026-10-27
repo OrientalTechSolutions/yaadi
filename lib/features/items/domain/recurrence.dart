@@ -71,6 +71,10 @@ sealed class Recurrence {
   /// the rule does not step through dates or that date is past [until].
   LocalDate? nextAfter(LocalDate scheduled);
 
+  /// The same rule and anchor ending on [until] instead. Changing when a
+  /// series ends must not move the day it repeats on.
+  Recurrence withUntil(LocalDate? until);
+
   String encode() => jsonEncode({
     ..._fields(),
     if (until case final until?) 'until': until.toIso(),
@@ -142,6 +146,9 @@ final class NoRepeat extends Recurrence {
   LocalDate? nextAfter(LocalDate scheduled) => null;
 
   @override
+  Recurrence withUntil(LocalDate? until) => this;
+
+  @override
   Map<String, Object> _fields() => const {'type': 'none'};
 
   @override
@@ -163,6 +170,9 @@ final class DailyRepeat extends Recurrence {
   @override
   LocalDate? nextAfter(LocalDate scheduled) =>
       _withinUntil(scheduled.addDays(1));
+
+  @override
+  Recurrence withUntil(LocalDate? until) => DailyRepeat(until: until);
 
   @override
   Map<String, Object> _fields() => const {'type': 'daily'};
@@ -194,6 +204,9 @@ final class WeeklyRepeat extends Recurrence {
     final ahead = (weekday - scheduled.weekday) % 7;
     return _withinUntil(scheduled.addDays(ahead == 0 ? 7 : ahead));
   }
+
+  @override
+  Recurrence withUntil(LocalDate? until) => WeeklyRepeat(weekday, until: until);
 
   @override
   Map<String, Object> _fields() => {'type': 'weekly', 'weekday': weekday};
@@ -228,6 +241,9 @@ final class MonthlyRepeat extends Recurrence {
         : scheduled.addMonths(1, onDay: day);
     return _withinUntil(next);
   }
+
+  @override
+  Recurrence withUntil(LocalDate? until) => MonthlyRepeat(day, until: until);
 
   @override
   Map<String, Object> _fields() => {'type': 'monthly', 'day': day};
@@ -277,6 +293,10 @@ final class YearlyRepeat extends Recurrence {
         : inYear(scheduled.year + 1);
     return _withinUntil(next);
   }
+
+  @override
+  Recurrence withUntil(LocalDate? until) =>
+      YearlyRepeat(month, day, until: until);
 
   @override
   Map<String, Object> _fields() => {
@@ -329,6 +349,9 @@ final class DoseTimes extends Recurrence {
   LocalDate? nextAfter(LocalDate scheduled) => null;
 
   @override
+  Recurrence withUntil(LocalDate? until) => DoseTimes._(minutes, until: until);
+
+  @override
   Map<String, Object> _fields() => {'type': 'doses', 'minutes': minutes};
 
   @override
@@ -367,6 +390,11 @@ final class UnsupportedRepeat extends Recurrence {
 
   @override
   LocalDate? nextAfter(LocalDate scheduled) => null;
+
+  /// Kept as it was read: this version cannot rewrite a rule it does not
+  /// understand.
+  @override
+  Recurrence withUntil(LocalDate? until) => this;
 
   @override
   String encode() => raw;

@@ -334,5 +334,1045 @@
         "description": "How many bills have no amount yet."
       }
     }
+  },
+  "navItems": "Items",
+  "@navItems": {
+    "description": "Navigation label for the list of all items, open and finished."
+  },
+  "navSearch": "Search",
+  "@navSearch": {
+    "description": "Navigation label for the search screen."
+  },
+  "addItem": "Add item",
+  "@addItem": {
+    "description": "Button and screen title for adding a new bill, appointment, expiry date, medicine or task."
+  },
+  "editItem": "Edit item",
+  "@editItem": {
+    "description": "Screen title when changing an existing item."
+  },
+  "todayAllDoneTitle": "All caught up",
+  "@todayAllDoneTitle": {
+    "description": "Heading on the Today screen when there are items but none is open."
+  },
+  "todayAllDoneBody": "Nothing is open right now. Paid and done items are under Items.",
+  "@todayAllDoneBody": {
+    "description": "Explanation on the Today screen when everything is paid or done."
+  },
+  "tryDemo": "Try a demo household",
+  "@tryDemo": {
+    "description": "Button that shows a made-up family's items instead of the user's own."
+  },
+  "sectionToConfirm": "Did these happen?",
+  "@sectionToConfirm": {
+    "description": "Today screen group for appointments whose date has passed. Asked as a question, never called overdue."
+  },
+  "sectionOverdue": "Overdue",
+  "@sectionOverdue": {
+    "description": "Today screen group for bills, tasks and expiry dates whose date has passed."
+  },
+  "sectionToday": "Today",
+  "@sectionToday": {
+    "description": "Today screen group for items due today and today's medicine times."
+  },
+  "sectionNextWeek": "Next 7 days",
+  "@sectionNextWeek": {
+    "description": "Today screen group for items due in the coming week, and expiry dates in the coming 30 days."
+  },
+  "sectionLater": "Later",
+  "@sectionLater": {
+    "description": "Today screen group for items due after next week, and tasks without a date."
+  },
+  "sectionLabel": "{title}: {count, plural, =1{1 item} other{{count} items}}",
+  "@sectionLabel": {
+    "description": "What screen readers announce for a Today group heading.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The group's name, such as Overdue."
+      },
+      "count": {
+        "type": "int",
+        "description": "How many items the group holds."
+      }
+    }
+  },
+  "amountNotKnown": "Amount not known yet",
+  "@amountNotKnown": {
+    "description": "Shown for a bill whose amount the user has not entered yet, such as an electricity bill before the paper arrives."
+  },
+  "dosesToday": "Medicine times today",
+  "@dosesToday": {
+    "description": "Label on a medicine card above today's times. Neutral wording: never advice."
+  },
+  "startsOn": "Starts {date}",
+  "@startsOn": {
+    "description": "When a medicine course begins, for a course that has not started yet.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "MMMEd",
+        "description": "The first day of the course."
+      }
+    }
+  },
+  "snoozedTo": "Snoozed to {date} · due {due}",
+  "@snoozedTo": {
+    "description": "A snoozed item's card. The real due date is always shown next to the snooze date.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "MMMEd",
+        "description": "The day the item shows again."
+      },
+      "due": {
+        "type": "DateTime",
+        "format": "MMMd",
+        "description": "The item's real due date."
+      }
+    }
+  },
+  "expiredDaysAgo": "{days, plural, =1{Expired yesterday} other{Expired {days} days ago}}",
+  "@expiredDaysAgo": {
+    "description": "An ID card, passport or warranty that has already expired.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "description": "Days since it expired."
+      }
+    }
+  },
+  "expiresToday": "Expires today",
+  "@expiresToday": {
+    "description": "Something that expires today."
+  },
+  "expiresInDays": "{days, plural, =1{Expires tomorrow} other{Expires in {days} days}}",
+  "@expiresInDays": {
+    "description": "Something that expires soon.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "description": "Days until it expires."
+      }
+    }
+  },
+  "wasYesterday": "Was yesterday",
+  "@wasYesterday": {
+    "description": "A past appointment from yesterday, waiting for the user to confirm it happened."
+  },
+  "wasOn": "Was on {date}",
+  "@wasOn": {
+    "description": "A past appointment waiting for the user to confirm it happened.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "MMMEd",
+        "description": "The appointment's date."
+      }
+    }
+  },
+  "overdueByDays": "{days, plural, =1{Overdue by 1 day} other{Overdue by {days} days}}",
+  "@overdueByDays": {
+    "description": "A bill or task whose date has passed.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "description": "Days since the due date."
+      }
+    }
+  },
+  "dueToday": "Due today",
+  "@dueToday": {
+    "description": "A bill due today."
+  },
+  "whenToday": "Today",
+  "@whenToday": {
+    "description": "An appointment or task on today's date."
+  },
+  "dueTomorrow": "Due tomorrow",
+  "@dueTomorrow": {
+    "description": "A bill due tomorrow."
+  },
+  "whenTomorrow": "Tomorrow",
+  "@whenTomorrow": {
+    "description": "An appointment or task on tomorrow's date."
+  },
+  "inDays": "In {days} days · {date}",
+  "@inDays": {
+    "description": "An item due within the coming week, two or more days away.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "description": "Days until the date, at least 2."
+      },
+      "date": {
+        "type": "DateTime",
+        "format": "MMMEd",
+        "description": "The date, with the weekday."
+      }
+    }
+  },
+  "onDate": "{date}",
+  "@onDate": {
+    "description": "An item due later this year.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "MMMEd",
+        "description": "The date, with the weekday."
+      }
+    }
+  },
+  "onDateWithYear": "{date}",
+  "@onDateWithYear": {
+    "description": "An item due in another year.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMEd",
+        "description": "The date, with the weekday and year."
+      }
+    }
+  },
+  "actionPaid": "Paid",
+  "@actionPaid": {
+    "description": "Quick action on a bill: records it as paid."
+  },
+  "actionDone": "Done",
+  "@actionDone": {
+    "description": "Quick action on an appointment, expiry date or task: records it as done."
+  },
+  "actionSnooze": "Snooze",
+  "@actionSnooze": {
+    "description": "Quick action that shows an item again in a few days. Opens a menu of durations."
+  },
+  "actionReschedule": "Reschedule",
+  "@actionReschedule": {
+    "description": "Quick action on a past appointment: moves it to another day."
+  },
+  "markPaidLabel": "Mark {title} as paid",
+  "@markPaidLabel": {
+    "description": "What screen readers announce for the Paid button.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The item's title, as the user typed it."
+      }
+    }
+  },
+  "markDoneLabel": "Mark {title} as done",
+  "@markDoneLabel": {
+    "description": "What screen readers announce for the Done button.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The item's title, as the user typed it."
+      }
+    }
+  },
+  "snoozeLabel": "Snooze {title}",
+  "@snoozeLabel": {
+    "description": "What screen readers announce for the Snooze button.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The item's title, as the user typed it."
+      }
+    }
+  },
+  "rescheduleLabel": "Reschedule {title}",
+  "@rescheduleLabel": {
+    "description": "What screen readers announce for the Reschedule button.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The item's title, as the user typed it."
+      }
+    }
+  },
+  "rescheduleTo": "Move to which day?",
+  "@rescheduleTo": {
+    "description": "Heading of the date picker when rescheduling a past appointment."
+  },
+  "movedTo": "Moved to {date}",
+  "@movedTo": {
+    "description": "Confirmation after rescheduling.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "MMMEd",
+        "description": "The new date."
+      }
+    }
+  },
+  "snoozedUntil": "Snoozed until {date}",
+  "@snoozedUntil": {
+    "description": "Confirmation after snoozing.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "MMMEd",
+        "description": "The day the item shows again."
+      }
+    }
+  },
+  "snoozeDays": "{days, plural, =1{1 day} other{{days} days}}",
+  "@snoozeDays": {
+    "description": "A choice in the Snooze menu.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "description": "How many days to snooze: 1 or 3."
+      }
+    }
+  },
+  "snoozeWeek": "1 week",
+  "@snoozeWeek": {
+    "description": "A choice in the Snooze menu: seven days."
+  },
+  "markedPaid": "Marked as paid",
+  "@markedPaid": {
+    "description": "Confirmation after Paid, shown with an Undo button."
+  },
+  "markedDone": "Marked as done",
+  "@markedDone": {
+    "description": "Confirmation after Done, shown with an Undo button."
+  },
+  "doseMarked": "{time} marked",
+  "@doseMarked": {
+    "description": "Confirmation after the user marks one of today's medicine times. Neutral wording: never advice.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "description": "The medicine time, such as 8:00 AM."
+      }
+    }
+  },
+  "doseMarkedLabel": "{title}, {time}, marked",
+  "@doseMarkedLabel": {
+    "description": "What screen readers announce for a medicine time that is marked.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The medicine item's title, as the user typed it."
+      },
+      "time": {
+        "type": "String",
+        "description": "The medicine time, such as 8:00 AM."
+      }
+    }
+  },
+  "doseNotMarkedLabel": "{title}, {time}, not marked yet",
+  "@doseNotMarkedLabel": {
+    "description": "What screen readers announce for a medicine time that is not marked. Neutral wording: never missed or late.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The medicine item's title, as the user typed it."
+      },
+      "time": {
+        "type": "String",
+        "description": "The medicine time, such as 8:00 AM."
+      }
+    }
+  },
+  "undo": "Undo",
+  "@undo": {
+    "description": "Button that reverses the last change."
+  },
+  "undoRefused": "Changed since, so it was not undone",
+  "@undoRefused": {
+    "description": "Shown when Undo is refused because the item was changed again in the meantime."
+  },
+  "notSaved": "Could not save. Try again.",
+  "@notSaved": {
+    "description": "Shown when storage refused a change. Nothing was changed."
+  },
+  "catchUpChange": "Change",
+  "@catchUpChange": {
+    "description": "Button after paying an old bill that opens the other ways to handle the missed months."
+  },
+  "catchUpMarkedPaid": "{count, plural, =1{1 earlier bill recorded as paid.} other{{count} earlier bills recorded as paid.}}",
+  "@catchUpMarkedPaid": {
+    "description": "After paying an old utility bill: the missed months in between were recorded as paid, without amounts.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many missed months were recorded."
+      }
+    }
+  },
+  "catchUpSkipped": "{count, plural, =1{1 earlier one skipped.} other{{count} earlier ones skipped.}}",
+  "@catchUpSkipped": {
+    "description": "After paying an old instalment: the missed ones in between were skipped.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many were skipped."
+      }
+    }
+  },
+  "catchUpStillOwed": "{count, plural, =1{1 more is still to pay.} other{{count} more are still to pay.}}",
+  "@catchUpStillOwed": {
+    "description": "After paying an old instalment such as rent: the missed ones are still owed.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many are still owed."
+      }
+    }
+  },
+  "catchUpKeepUnpaid": "{count, plural, =1{Keep the earlier one unpaid} other{Keep {count} earlier ones unpaid}}",
+  "@catchUpKeepUnpaid": {
+    "description": "Choice: leave the missed months as still owed.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many missed months there are."
+      }
+    }
+  },
+  "catchUpMarkEarlierPaid": "{count, plural, =1{Mark the earlier one as paid} other{Mark {count} earlier ones as paid}}",
+  "@catchUpMarkEarlierPaid": {
+    "description": "Choice: record the missed instalments as paid.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many missed instalments there are."
+      }
+    }
+  },
+  "catchUpSkipToCurrent": "Skip to the current one",
+  "@catchUpSkipToCurrent": {
+    "description": "Choice: record the missed instalments as skipped and move to the current one."
+  },
+  "catchUpQuestion": "{count, plural, =1{What about the 1 missed in between?} other{What about the {count} missed in between?}}",
+  "@catchUpQuestion": {
+    "description": "Heading of the sheet with the ways to handle missed months.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many were missed."
+      }
+    }
+  },
+  "catchUpUpdated": "Updated",
+  "@catchUpUpdated": {
+    "description": "Confirmation after choosing another way to handle missed months."
+  },
+  "itemsEmpty": "No items yet",
+  "@itemsEmpty": {
+    "description": "Items screen when there are no items at all."
+  },
+  "itemsNoMatch": "No items match these filters",
+  "@itemsNoMatch": {
+    "description": "Items screen when the chosen filters hide everything."
+  },
+  "filterOpen": "Open",
+  "@filterOpen": {
+    "description": "Items filter: items still to pay or do."
+  },
+  "filterClosed": "Paid and done",
+  "@filterClosed": {
+    "description": "Items filter: finished items."
+  },
+  "filterAll": "All",
+  "@filterAll": {
+    "description": "Items filter: open and finished items."
+  },
+  "filterAllKinds": "All kinds",
+  "@filterAllKinds": {
+    "description": "Items filter: bills, appointments, expiry dates, medicine and tasks together."
+  },
+  "statusOpen": "Open",
+  "@statusOpen": {
+    "description": "Item status: still to pay or do."
+  },
+  "statusPaid": "Paid",
+  "@statusPaid": {
+    "description": "Item or history status: paid."
+  },
+  "statusDone": "Done",
+  "@statusDone": {
+    "description": "Item or history status: done."
+  },
+  "outcomeSkipped": "Skipped",
+  "@outcomeSkipped": {
+    "description": "History entry for an instalment the user chose to skip."
+  },
+  "repeatNone": "Does not repeat",
+  "@repeatNone": {
+    "description": "Repeat choice: a one-off item."
+  },
+  "repeatDaily": "Every day",
+  "@repeatDaily": {
+    "description": "Repeat choice."
+  },
+  "repeatWeekly": "Every week",
+  "@repeatWeekly": {
+    "description": "Repeat choice."
+  },
+  "repeatMonthly": "Every month",
+  "@repeatMonthly": {
+    "description": "Repeat choice."
+  },
+  "repeatYearly": "Every year",
+  "@repeatYearly": {
+    "description": "Repeat choice."
+  },
+  "repeatDoses": "Medicine times every day",
+  "@repeatDoses": {
+    "description": "How a medicine item repeats: on the times the user typed, every day."
+  },
+  "repeatWeeklyOn": "Every week on {weekday}",
+  "@repeatWeeklyOn": {
+    "description": "A weekly item, with its day.",
+    "placeholders": {
+      "weekday": {
+        "type": "String",
+        "description": "The day's name, such as Thursday."
+      }
+    }
+  },
+  "repeatMonthlyOn": "Every month on day {day}",
+  "@repeatMonthlyOn": {
+    "description": "A monthly item, with its day of the month.",
+    "placeholders": {
+      "day": {
+        "type": "int",
+        "description": "The day of the month, 1 to 28."
+      }
+    }
+  },
+  "repeatMonthlyOnLate": "Every month on day {day}, or the last day of shorter months",
+  "@repeatMonthlyOnLate": {
+    "description": "A monthly item on the 29th, 30th or 31st, which falls on the last day of shorter months.",
+    "placeholders": {
+      "day": {
+        "type": "int",
+        "description": "The day of the month, 29 to 31."
+      }
+    }
+  },
+  "repeatYearlyOn": "Every year on {date}",
+  "@repeatYearlyOn": {
+    "description": "A yearly item, with its date.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "MMMMd",
+        "description": "The day and month."
+      }
+    }
+  },
+  "repeatDosesAt": "Every day at {times}",
+  "@repeatDosesAt": {
+    "description": "A medicine item's times.",
+    "placeholders": {
+      "times": {
+        "type": "String",
+        "description": "The times the user typed, separated by commas."
+      }
+    }
+  },
+  "repeatUnsupported": "Repeats in a way this version cannot show",
+  "@repeatUnsupported": {
+    "description": "An item saved by a newer version of Yaadi with a rule this version does not know."
+  },
+  "repeatUntil": "{rule}, until {date}",
+  "@repeatUntil": {
+    "description": "A repeating item that ends on a date.",
+    "placeholders": {
+      "rule": {
+        "type": "String",
+        "description": "How it repeats, such as Every month on day 10."
+      },
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd",
+        "description": "The last date it repeats on."
+      }
+    }
+  },
+  "itemGone": "This item has been deleted",
+  "@itemGone": {
+    "description": "Shown on an item's page after the item was deleted."
+  },
+  "edit": "Edit",
+  "@edit": {
+    "description": "Button that opens the editor for an item."
+  },
+  "delete": "Delete",
+  "@delete": {
+    "description": "Button that deletes an item. An Undo follows."
+  },
+  "repeatUnsupportedNotice": "Made by a newer version of Yaadi. Update the app to change it.",
+  "@repeatUnsupportedNotice": {
+    "description": "On the page of an item this version can show but not change."
+  },
+  "factMoved": "Moved",
+  "@factMoved": {
+    "description": "Label on an item's page when this occurrence's date was moved."
+  },
+  "movedFrom": "This time only, from {date}",
+  "@movedFrom": {
+    "description": "Explains that a repeating item's date was moved for this occurrence only.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd",
+        "description": "The date the rule gave."
+      }
+    }
+  },
+  "factSnoozed": "Snoozed until",
+  "@factSnoozed": {
+    "description": "Label on an item's page for the snooze date."
+  },
+  "factRepeat": "Repeats",
+  "@factRepeat": {
+    "description": "Label on an item's page for how it repeats."
+  },
+  "fieldAmount": "Amount",
+  "@fieldAmount": {
+    "description": "A bill's amount."
+  },
+  "amountVaries": "Changes each time",
+  "@amountVaries": {
+    "description": "A bill whose amount changes every time, such as electricity."
+  },
+  "fieldNotes": "Notes",
+  "@fieldNotes": {
+    "description": "Free text the user adds to an item."
+  },
+  "fieldReference": "Reference number",
+  "@fieldReference": {
+    "description": "A consumer number, CNIC number or similar ID, hidden until the user taps Show."
+  },
+  "markPaidButton": "Mark as paid",
+  "@markPaidButton": {
+    "description": "Button on a bill's page."
+  },
+  "markDoneButton": "Mark as done",
+  "@markDoneButton": {
+    "description": "Button on an item's page."
+  },
+  "historyTitle": "History",
+  "@historyTitle": {
+    "description": "Heading above an item's past payments and completions."
+  },
+  "addedAndChanged": "Added {created} · Changed {changed}",
+  "@addedAndChanged": {
+    "description": "When an item was created and last changed.",
+    "placeholders": {
+      "created": {
+        "type": "DateTime",
+        "format": "yMMMd",
+        "description": "When it was added."
+      },
+      "changed": {
+        "type": "DateTime",
+        "format": "yMMMd",
+        "description": "When it was last changed."
+      }
+    }
+  },
+  "fieldDueDate": "Due date",
+  "@fieldDueDate": {
+    "description": "A bill's due date."
+  },
+  "fieldExpiresOn": "Expires on",
+  "@fieldExpiresOn": {
+    "description": "The date an ID card, passport or warranty expires."
+  },
+  "fieldFirstDay": "First day",
+  "@fieldFirstDay": {
+    "description": "The first day of a medicine course."
+  },
+  "fieldDate": "Date",
+  "@fieldDate": {
+    "description": "An appointment's or task's date."
+  },
+  "fieldDateOptional": "Date (optional)",
+  "@fieldDateOptional": {
+    "description": "A task's date, which may be left empty."
+  },
+  "deleted": "Deleted",
+  "@deleted": {
+    "description": "Confirmation after deleting an item, shown with an Undo button."
+  },
+  "changedSince": "This item changed since you opened it. Nothing was deleted.",
+  "@changedSince": {
+    "description": "Shown when a delete is refused because the item changed in the meantime."
+  },
+  "referenceShownLabel": "Reference {reference}, double-tap to hide",
+  "@referenceShownLabel": {
+    "description": "What screen readers announce for a shown reference number.",
+    "placeholders": {
+      "reference": {
+        "type": "String",
+        "description": "The reference number."
+      }
+    }
+  },
+  "referenceHiddenLabel": "Reference hidden, double-tap to show",
+  "@referenceHiddenLabel": {
+    "description": "What screen readers announce for a hidden reference number. Never includes the number."
+  },
+  "referenceShow": "Show",
+  "@referenceShow": {
+    "description": "Button that shows a hidden reference number for a short time."
+  },
+  "referenceHide": "Hide",
+  "@referenceHide": {
+    "description": "Button that hides a reference number again."
+  },
+  "referenceHint": "Consumer number, CNIC or similar. Hidden until you tap Show.",
+  "@referenceHint": {
+    "description": "Help under the Reference number field."
+  },
+  "referenceDemoHint": "Demo: use a made-up number.",
+  "@referenceDemoHint": {
+    "description": "Help under the Reference number field in the web demo."
+  },
+  "fieldKind": "What is it?",
+  "@fieldKind": {
+    "description": "Label above the choice of bill, appointment, expiry date, medicine or task."
+  },
+  "fieldTitle": "Title",
+  "@fieldTitle": {
+    "description": "An item's title."
+  },
+  "titleHintBill": "For example, LESCO bill",
+  "@titleHintBill": {
+    "description": "Example title for a bill."
+  },
+  "titleHintAppointment": "For example, dentist",
+  "@titleHintAppointment": {
+    "description": "Example title for an appointment."
+  },
+  "titleHintExpiry": "For example, Abbu's CNIC",
+  "@titleHintExpiry": {
+    "description": "Example title for an expiry date."
+  },
+  "titleHintMedicine": "For example, Ammi's tablets",
+  "@titleHintMedicine": {
+    "description": "Example title for medicine times."
+  },
+  "titleHintTask": "For example, renew the library card",
+  "@titleHintTask": {
+    "description": "Example title for a task."
+  },
+  "fieldCategory": "Category",
+  "@fieldCategory": {
+    "description": "An item's category, such as Electricity or School."
+  },
+  "fieldCurrency": "Currency",
+  "@fieldCurrency": {
+    "description": "The currency of a bill's amount."
+  },
+  "amountHint": "Leave empty if not known yet",
+  "@amountHint": {
+    "description": "Help under the amount field."
+  },
+  "amountVariesSwitch": "Amount changes each time",
+  "@amountVariesSwitch": {
+    "description": "Switch for bills whose amount changes every time."
+  },
+  "amountVariesHint": "Like electricity or gas. Each new bill needs its own amount.",
+  "@amountVariesHint": {
+    "description": "Explains the switch for bills whose amount changes."
+  },
+  "chooseDate": "Not chosen yet",
+  "@chooseDate": {
+    "description": "Placeholder in a date field with no date yet."
+  },
+  "moveSeriesTitle": "Repeat from the new date",
+  "@moveSeriesTitle": {
+    "description": "Switch shown after changing a repeating item's date: also move future dates."
+  },
+  "moveSeriesHint": "When off, only this time moves. It still repeats: {rule}.",
+  "@moveSeriesHint": {
+    "description": "Explains the switch for moving a repeating item's future dates.",
+    "placeholders": {
+      "rule": {
+        "type": "String",
+        "description": "How it repeats now, such as Every month on day 10."
+      }
+    }
+  },
+  "fieldTime": "Time",
+  "@fieldTime": {
+    "description": "An item's time of day."
+  },
+  "noTime": "No time",
+  "@noTime": {
+    "description": "Placeholder in a time field with no time."
+  },
+  "fieldRepeat": "Repeat",
+  "@fieldRepeat": {
+    "description": "How often an item comes back."
+  },
+  "fieldLastDay": "Last day (optional)",
+  "@fieldLastDay": {
+    "description": "The last day of a medicine course."
+  },
+  "fieldEndsOn": "Ends on (optional)",
+  "@fieldEndsOn": {
+    "description": "The last date a repeating item comes back."
+  },
+  "noEndDate": "No end date",
+  "@noEndDate": {
+    "description": "Placeholder when a repeating item has no end date."
+  },
+  "fieldDoseTimes": "Times each day",
+  "@fieldDoseTimes": {
+    "description": "Label above the medicine times the user types."
+  },
+  "removeTime": "Remove {time}",
+  "@removeTime": {
+    "description": "Tooltip on the button that removes a medicine time.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "description": "The time, such as 8:00 AM."
+      }
+    }
+  },
+  "addTime": "Add a time",
+  "@addTime": {
+    "description": "Button that adds a medicine time."
+  },
+  "doseTimesNote": "Yaadi reminds you of the times you type. It never suggests a medicine, a dose or a time.",
+  "@doseTimesNote": {
+    "description": "Note under the medicine times: the app is an organiser and gives no medical advice."
+  },
+  "save": "Save",
+  "@save": {
+    "description": "Button that saves the item being edited."
+  },
+  "added": "Added",
+  "@added": {
+    "description": "Confirmation after adding an item, shown with an Undo button."
+  },
+  "saved": "Saved",
+  "@saved": {
+    "description": "Confirmation after changing an item, shown with an Undo button."
+  },
+  "saveConflict": "This item changed while you were editing. Your changes were not saved.",
+  "@saveConflict": {
+    "description": "Shown when a save is refused because the item changed in the meantime."
+  },
+  "misplacedTitle": "Move this number to Reference?",
+  "@misplacedTitle": {
+    "description": "Heading of the offer to move an ID or account number into the hidden Reference field."
+  },
+  "misplacedInTitle": "The title seems to contain an ID or account number. In Reference it stays hidden until you tap Show.",
+  "@misplacedInTitle": {
+    "description": "Explains why moving a number out of the title helps."
+  },
+  "misplacedInNotes": "The notes seem to contain an ID or account number. In Reference it stays hidden until you tap Show.",
+  "@misplacedInNotes": {
+    "description": "Explains why moving a number out of the notes helps."
+  },
+  "misplacedKeep": "Leave it there",
+  "@misplacedKeep": {
+    "description": "Saves without moving the number."
+  },
+  "misplacedMove": "Move to Reference",
+  "@misplacedMove": {
+    "description": "Moves the number into the hidden Reference field and saves."
+  },
+  "discardTitle": "Discard your changes?",
+  "@discardTitle": {
+    "description": "Asked when leaving the editor with unsaved changes."
+  },
+  "keepEditing": "Keep editing",
+  "@keepEditing": {
+    "description": "Stays in the editor."
+  },
+  "discard": "Discard",
+  "@discard": {
+    "description": "Leaves the editor without saving."
+  },
+  "problemTitleRequired": "Enter a title",
+  "@problemTitleRequired": {
+    "description": "Error when the title is empty."
+  },
+  "problemDoseTimesRequired": "Add at least one time",
+  "@problemDoseTimesRequired": {
+    "description": "Error when a medicine item has no times."
+  },
+  "problemDateRequired": "Choose a date",
+  "@problemDateRequired": {
+    "description": "Error when a date is needed."
+  },
+  "problemTooLong": "This is too long",
+  "@problemTooLong": {
+    "description": "Error when text is longer than allowed."
+  },
+  "problemAmount": "Enter an amount like {example}",
+  "@problemAmount": {
+    "description": "Error when the amount cannot be read.",
+    "placeholders": {
+      "example": {
+        "type": "String",
+        "description": "An example amount in the chosen currency, such as 4250 or 12.50."
+      }
+    }
+  },
+  "problemEndBeforeStart": "The end date is before the first date",
+  "@problemEndBeforeStart": {
+    "description": "Error when a repeating item would end before it starts."
+  },
+  "clearField": "Clear {label}",
+  "@clearField": {
+    "description": "Tooltip on the button that empties a date or time field.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "description": "The field's name, such as Time."
+      }
+    }
+  },
+  "searchHint": "Search: bijli, گیس, school fee",
+  "@searchHint": {
+    "description": "Placeholder in the search field, with examples in Roman Urdu, Urdu and English. Keep the examples."
+  },
+  "clearSearch": "Clear search",
+  "@clearSearch": {
+    "description": "Tooltip on the button that empties the search field."
+  },
+  "searchNoResults": "Nothing found",
+  "@searchNoResults": {
+    "description": "Heading when a search finds nothing."
+  },
+  "searchNoResultsHint": "Try another spelling, or the same word in Urdu or English.",
+  "@searchNoResultsHint": {
+    "description": "Suggestion when a search finds nothing."
+  },
+  "searchResultCount": "{count, plural, =1{1 result} other{{count} results}}",
+  "@searchResultCount": {
+    "description": "Number of search results, also announced to screen readers.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many items matched."
+      }
+    }
+  },
+  "searchExplain": "Search works offline and understands English, Urdu and Roman Urdu: bijli, بجلی and electricity all find the electricity bill.",
+  "@searchExplain": {
+    "description": "Shown on the search screen before anything is typed. Keep the three example words."
+  },
+  "searchTry": "Try",
+  "@searchTry": {
+    "description": "Heading above example searches."
+  },
+  "phoneDemoNotice": "You are looking at the {household} demo. Changes are not kept, and your own items are untouched.",
+  "@phoneDemoNotice": {
+    "description": "Strip at the top of every screen while a demo household is shown on a phone.",
+    "placeholders": {
+      "household": {
+        "type": "String",
+        "description": "The household's name, such as Khan family, Lahore."
+      }
+    }
+  },
+  "leaveDemo": "Leave demo",
+  "@leaveDemo": {
+    "description": "Button that goes back from a demo household to the user's own items."
+  },
+  "householdKhan": "Khan family, Lahore",
+  "@householdKhan": {
+    "description": "Name of a made-up demo household in Pakistan."
+  },
+  "householdTaylor": "Taylor family, Manchester",
+  "@householdTaylor": {
+    "description": "Name of a made-up demo household in England."
+  },
+  "householdKhanDescription": "Bills, a school fee, an ID card and Ammi's medicine times, in Urdu and English. Rupees.",
+  "@householdKhanDescription": {
+    "description": "What the Khan demo household contains."
+  },
+  "householdTaylorDescription": "Council tax, energy, the dentist, a passport and prescription times. Pounds.",
+  "@householdTaylorDescription": {
+    "description": "What the Taylor demo household contains."
+  },
+  "pickerTitle": "Try Yaadi with a made-up family",
+  "@pickerTitle": {
+    "description": "Heading of the web demo's first screen."
+  },
+  "pickerBody": "Pick a household to see how Yaadi keeps bills, appointments, expiry dates and medicine times. Everyone in it is invented.",
+  "@pickerBody": {
+    "description": "Explanation on the web demo's first screen."
+  },
+  "demoExplain": "Demo households are made up. While one is shown, your own items stay as they are, and nothing you change in the demo is kept.",
+  "@demoExplain": {
+    "description": "Explains demo households on a phone."
+  },
+  "webDemoExplain": "This web demo shows a made-up family. Switching household starts it again from the beginning.",
+  "@webDemoExplain": {
+    "description": "Explains demo households in the web demo."
+  },
+  "settingsDemo": "Demo households",
+  "@settingsDemo": {
+    "description": "Settings section for the made-up families."
+  },
+  "demoOwnItems": "My own items",
+  "@demoOwnItems": {
+    "description": "Choice that shows the user's own items instead of a demo household."
+  },
+  "clearDemo": "Clear demo data",
+  "@clearDemo": {
+    "description": "Button that removes the demo household in one tap."
+  },
+  "settingsYourData": "Your data",
+  "@settingsYourData": {
+    "description": "Settings section for deleting the user's items."
+  },
+  "deleteAll": "Delete all my items",
+  "@deleteAll": {
+    "description": "Button that erases everything Yaadi keeps on the phone, after confirmation."
+  },
+  "deleteAllHint": "Permanently deletes everything Yaadi keeps on this phone",
+  "@deleteAllHint": {
+    "description": "Explains the Delete all button."
+  },
+  "settingsAbout": "About",
+  "@settingsAbout": {
+    "description": "Settings section about the app and who built it."
+  },
+  "aboutVersion": "Yaadi {version}",
+  "@aboutVersion": {
+    "description": "The app's name and version.",
+    "placeholders": {
+      "version": {
+        "type": "String",
+        "description": "The version number, such as 0.1.0."
+      }
+    }
+  },
+  "aboutBody": "Paper to reminder. Bills, appointments, expiry dates and medicine times, offline, in English and Urdu.",
+  "@aboutBody": {
+    "description": "One line about what the app does."
+  },
+  "aboutMaker": "Built by {maker}",
+  "@aboutMaker": {
+    "description": "Who built the app; opens their GitHub page.",
+    "placeholders": {
+      "maker": {
+        "type": "String",
+        "description": "The company's name."
+      }
+    }
+  },
+  "aboutHire": "Hire us on Upwork",
+  "@aboutHire": {
+    "description": "Opens the maker's Upwork profile."
+  },
+  "linkFailed": "The link could not be opened.",
+  "@linkFailed": {
+    "description": "Shown when no browser could open a link."
   }
 }

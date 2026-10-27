@@ -1,31 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
+import '../../../core/widgets/content_width.dart';
+import '../../../core/widgets/message_view.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../demo/application/demo_providers.dart';
 import '../../demo/presentation/demo_badge.dart';
+import '../../demo/presentation/demo_picker.dart';
 import '../../items/application/items_providers.dart';
-import '../../items/domain/item.dart';
-import '../../items/presentation/item_tile.dart';
+import '../../items/presentation/item_routes.dart';
+import '../application/today_providers.dart';
+import '../domain/today_view.dart';
+import 'morning_summary_card.dart';
+import 'today_entry_card.dart';
 
-/// Open items in due order.
+/// What needs attention: the morning summary, then past appointments to
+/// confirm, overdue items, today, the next 7 days and later.
 class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final items = ref.watch(itemsProvider);
+    final view = ref.watch(todayViewProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.navToday), actions: const [DemoBadge()]),
-      body: switch (items) {
-        AsyncData(:final value) => _OpenItems(
-          items: [
-            for (final item in value)
-              if (item.isOpen) item,
-          ],
-        ),
-        AsyncError() => _Message(
+      body: switch (view) {
+        AsyncData(:final value) when value.isEmpty => const _NothingToday(),
+        AsyncData(:final value) => _TodayList(view: value),
+        AsyncError() => MessageView(
           icon: Icons.error_outline,
           title: l10n.itemsLoadFailed,
         ),
@@ -35,65 +40,114 @@ class TodayScreen extends ConsumerWidget {
   }
 }
 
-class _OpenItems extends StatelessWidget {
-  const _OpenItems({required this.items});
+class _TodayList extends StatelessWidget {
+  const _TodayList({required this.view});
 
-  final List<Item> items;
+  final TodayView view;
 
   @override
   Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      final l10n = AppLocalizations.of(context);
-      return _Message(
-        icon: Icons.inbox_outlined,
-        title: l10n.todayEmptyTitle,
-        body: l10n.todayEmptyBody,
-      );
-    }
-    return ListView.builder(
-      itemCount: items.length,
-      itemBuilder: (context, index) => ItemTile(item: items[index]),
+    final l10n = AppLocalizations.of(context);
+    return ContentListView(
+      // Room for the Add button.
+      bottom: 96,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.only(top: 4, bottom: 4),
+          child: Text(
+            DateFormat.MMMMEEEEd(l10n.localeName)
+                .format(view.today.toDateTime()),
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        const MorningSummaryCard(),
+        for (final section in TodaySection.values)
+          if (view[section].isNotEmpty) ...[
+            _SectionHeader(section: section, count: view[section].length),
+            for (final entry in view[section])
+              TodayEntryCard(
+                key: ValueKey(entry.item.id),
+                entry: entry,
+                today: view.today,
+              ),
+          ],
+      ],
     );
   }
 }
 
-class _Message extends StatelessWidget {
-  const _Message({required this.icon, required this.title, this.body});
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.section, required this.count});
 
-  final IconData icon;
-  final String title;
-  final String? body;
+  final TodaySection section;
+  final int count;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final body = this.body;
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 48, color: theme.colorScheme.onSurfaceVariant),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: theme.textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            if (body != null) ...[
-              const SizedBox(height: 8),
-              Text(
-                body,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ],
+    final title = switch (section) {
+      TodaySection.toConfirm => l10n.sectionToConfirm,
+      TodaySection.overdue => l10n.sectionOverdue,
+      TodaySection.today => l10n.sectionToday,
+      TodaySection.nextWeek => l10n.sectionNextWeek,
+      TodaySection.later => l10n.sectionLater,
+    };
+    final color = section == TodaySection.overdue
+        ? theme.colorScheme.error
+        : theme.colorScheme.primary;
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(top: 20, bottom: 4),
+      child: Semantics(
+        header: true,
+        label: l10n.sectionLabel(title, count),
+        excludeSemantics: true,
+        child: Text(
+          '$title · $count',
+          style: theme.textTheme.titleSmall?.copyWith(color: color),
         ),
       ),
+    );
+  }
+}
+
+/// Nothing open: either no items at all, with a way to start, or everything
+/// is paid and done.
+class _NothingToday extends ConsumerWidget {
+  const _NothingToday();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final hasItems = ref.watch(
+      itemsProvider.select((items) => items.value?.isNotEmpty ?? false),
+    );
+    if (hasItems) {
+      return MessageView(
+        icon: Icons.done_all,
+        title: l10n.todayAllDoneTitle,
+        body: l10n.todayAllDoneBody,
+      );
+    }
+    return MessageView(
+      icon: Icons.inbox_outlined,
+      title: l10n.todayEmptyTitle,
+      body: l10n.todayEmptyBody,
+      actions: [
+        FilledButton.icon(
+          onPressed: () => openItemEditor(context),
+          icon: const Icon(Icons.add),
+          label: Text(l10n.addItem),
+        ),
+        if (!ref.watch(showingDemoProvider))
+          OutlinedButton.icon(
+            onPressed: () => showDemoPicker(context),
+            icon: const Icon(Icons.family_restroom_outlined),
+            label: Text(l10n.tryDemo),
+          ),
+      ],
     );
   }
 }

@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/app_info.dart';
+import '../../../core/widgets/content_width.dart';
+import '../../../core/widgets/snack_bars.dart';
 import '../../../core/widgets/user_text.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../vault/app_storage.dart';
+import '../../demo/application/demo_controller.dart';
+import '../../demo/application/demo_providers.dart';
+import '../../demo/domain/demo_household.dart';
 import '../../demo/presentation/demo_badge.dart';
 import '../application/settings_controller.dart';
 import '../domain/app_settings.dart';
@@ -19,13 +26,15 @@ class SettingsScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final settings = ref.watch(appSettingsProvider);
     final controller = ref.read(settingsProvider.notifier);
+    final web = ref.watch(isWebDemoProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.navSettings),
         actions: const [DemoBadge()],
       ),
-      body: ListView(
+      body: ContentListView(
+        top: 0,
         children: [
           _SectionHeader(l10n.settingsLanguage),
           RadioGroup<_LanguageChoice>(
@@ -84,16 +93,180 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: Text(l10n.settingsLargeTextHint),
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.description_outlined),
-            title: Text(l10n.settingsLicenses),
-            onTap: () => showLicensePage(
-              context: context,
-              applicationName: l10n.appTitle,
+          const _DemoSection(),
+          if (!web && settings.demoHousehold == null) ...[
+            const Divider(),
+            _SectionHeader(l10n.settingsYourData),
+            ListTile(
+              leading: Icon(
+                Icons.delete_forever_outlined,
+                color: Theme.of(context).colorScheme.error,
+              ),
+              title: Text(l10n.deleteAll),
+              subtitle: Text(l10n.deleteAllHint),
+              onTap: () => _confirmDeleteAll(context, ref),
             ),
+          ],
+          const Divider(),
+          const _AboutSection(),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmDeleteAll(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.vaultResetConfirmTitle),
+        content: Text(l10n.vaultResetConfirmBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.vaultResetConfirm),
           ),
         ],
       ),
+    );
+    if (confirmed ?? false) {
+      await ref.read(storageProvider.notifier).eraseAndReopen();
+    }
+  }
+}
+
+/// A radio group cannot select null either: "my own items" is a choice too.
+enum _DemoChoice { own, khan, taylor }
+
+class _DemoSection extends ConsumerWidget {
+  const _DemoSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final web = ref.watch(isWebDemoProvider);
+    final household = ref.watch(demoHouseholdProvider);
+    final busy = ref.watch(demoControllerProvider);
+    final demo = ref.read(demoControllerProvider.notifier);
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SectionHeader(l10n.settingsDemo),
+        Padding(
+          padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 4),
+          child: Text(
+            web ? l10n.webDemoExplain : l10n.demoExplain,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+          ),
+        ),
+        RadioGroup<_DemoChoice>(
+          groupValue: switch (household) {
+            null => _DemoChoice.own,
+            DemoHousehold.khan => _DemoChoice.khan,
+            DemoHousehold.taylor => _DemoChoice.taylor,
+          },
+          onChanged: (choice) {
+            if (busy) return;
+            switch (choice) {
+              case _DemoChoice.khan:
+                demo.show(DemoHousehold.khan);
+              case _DemoChoice.taylor:
+                demo.show(DemoHousehold.taylor);
+              case _DemoChoice.own || null:
+                demo.clear();
+            }
+          },
+          child: Column(
+            children: [
+              if (!web)
+                RadioListTile(
+                  value: _DemoChoice.own,
+                  title: Text(l10n.demoOwnItems),
+                ),
+              for (final (choice, option) in [
+                (_DemoChoice.khan, DemoHousehold.khan),
+                (_DemoChoice.taylor, DemoHousehold.taylor),
+              ])
+                RadioListTile(
+                  value: choice,
+                  title: Text(householdName(l10n, option)),
+                  subtitle: Text(householdDescription(l10n, option)),
+                ),
+            ],
+          ),
+        ),
+        if (web || household != null)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 16, 8),
+            child: FilledButton.tonalIcon(
+              onPressed: busy ? null : demo.clear,
+              icon: const Icon(Icons.cleaning_services_outlined),
+              label: Text(l10n.clearDemo),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _AboutSection extends ConsumerWidget {
+  const _AboutSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+
+    Future<void> open(Uri uri) async {
+      final messenger = Messenger.of(context);
+      if (!await ref.read(linkOpenerProvider)(uri)) {
+        messenger.show(l10n.linkFailed);
+      }
+    }
+
+    return Column(
+      children: [
+        _SectionHeader(l10n.settingsAbout),
+        ListTile(
+          leading: const Icon(Icons.info_outline),
+          title: Text(l10n.aboutVersion(AppInfo.version)),
+          subtitle: Text(l10n.aboutBody),
+        ),
+        ListTile(
+          leading: const Icon(Icons.business_outlined),
+          title: Text(l10n.aboutMaker(AppInfo.maker)),
+          subtitle: const Text('github.com/OrientalTechSolutions'),
+          trailing: const Icon(Icons.open_in_new),
+          onTap: () => open(AppInfo.github),
+        ),
+        ListTile(
+          leading: const Icon(Icons.work_outline),
+          title: Text(l10n.aboutHire),
+          subtitle: const Text('upwork.com/freelancers/attaullahhazarvi'),
+          trailing: const Icon(Icons.open_in_new),
+          onTap: () => open(AppInfo.upwork),
+        ),
+        ListTile(
+          leading: const Icon(Icons.description_outlined),
+          title: Text(l10n.settingsLicenses),
+          onTap: () => showLicensePage(
+            context: context,
+            applicationName: l10n.appTitle,
+            applicationVersion: AppInfo.version,
+          ),
+        ),
+      ],
     );
   }
 }

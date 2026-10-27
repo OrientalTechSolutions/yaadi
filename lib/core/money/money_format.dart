@@ -22,6 +22,17 @@ String formatMoney(Money money, String locale) {
   return buffer.toString();
 }
 
+/// [money] as the editor shows it for changing: plain digits with no symbol
+/// or grouping, `4250` or `12.50`, which [parseMoney] reads back in any
+/// locale.
+String formatMoneyInput(Money money) {
+  final info = money.info;
+  final whole = money.minorUnits ~/ info.minorPerMajor;
+  final fraction = money.minorUnits % info.minorPerMajor;
+  if (fraction == 0) return '$whole';
+  return '$whole.${fraction.toString().padLeft(info.fractionDigits, '0')}';
+}
+
 /// Parses an amount the user typed in [currency], or returns null when it is
 /// not one. Accepts Urdu and ASCII digits and the locale's separators. PKR
 /// takes whole rupees only; GBP and USD take up to two decimals.

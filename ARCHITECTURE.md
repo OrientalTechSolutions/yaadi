@@ -34,6 +34,7 @@ One decision is still open: whether the build may download the hash-pinned SQLCi
 | Web demo storage | `web` 1.1.2 | `window.sessionStorage` only |
 | Fonts | Noto Nastaliq Urdu (OFL), Roboto (Apache-2.0) | Nastaliq from the official Noto/Google Fonts GitHub. Roboto is copied from the pinned Flutter SDK's `material_fonts` artifact with its licence, so it needs no download |
 | Icons | `cupertino_icons` | Kept: without it the probe's `flutter build web` warned about the CupertinoIcons font that framework widgets reference |
+| Links | `url_launcher` 6.3.3 | The two About links in Settings open in the browser; the app itself still makes no request |
 | Tooling | `build_runner` 2.17.1, `flutter_lints` 6, `flutter_launcher_icons`, `fake_async` | The starter's `analysis_options.yaml` (strict casts plus its extra rules); `fake_async` drives the midnight ticker in tests |
 
 Deliberately not used:
@@ -60,15 +61,16 @@ flowchart LR
 ```text
 lib/
   main.dart                      ProviderScope, licence registration, then the vault gate
-  app.dart                       MaterialApp: locale, themes, text scale
-  home_shell.dart                tabs, web demo notice
+  app.dart                       MaterialApp: locale, themes, text scale; vault gate, demo gate, shell
+  home_shell.dart                Today, Items, Search, Settings: bottom bar on phones, rail from 640 px
   core/
+    app_info.dart                version, maker and links; the link opener provider
     ids.dart                     UUIDv7 generator provider
     time/                        LocalDate, clock provider, midnight and time-zone ticker, time-of-day format
-    money/                       Money (minor units + currency), formatting, decimal parsing
+    money/                       Money (minor units + currency), formatting, decimal parsing, editor input
     text/                        digits, bidi controls and script detection shared by input and search
     theme/                       Material 3 light/dark, Urdu typography and metrics
-    widgets/                     UserText, AutoDirectionField
+    widgets/                     UserText (with highlights), AutoDirectionField, ContentListView, MessageView, Messenger
     platform/                    session_store (conditional web/memory), iOS backup exclusion
     storage/                     StorageFailure: result codes only, no SQL text
   vault/
@@ -86,17 +88,21 @@ lib/
     vault_gate.dart              opening / ready / try again / recovery / update screens
   l10n/                          app_en.arb, app_ur.arb, generated app_localizations*.dart
   features/
-    items/      domain: Item, ItemKind, ItemCategory, ItemStatus, Recurrence, ItemDraft validation, UndoSnapshot
-                data: tables, ItemRepository, DriftItemRepository, MemoryItemRepository
-                application: items controller (save, delete, undo)
-                presentation: list, editor, detail, reference field
+    items/      domain: Item, ItemKind, ItemCategory, ItemStatus, Recurrence, ItemDraft validation, Reference mask
+                        and misplaced numbers, UndoSnapshot
+                data: tables, ItemRepository, DriftItemRepository, MemoryItemRepository, session repository
+                application: items providers, items controller (save, delete, undo), list filter
+                presentation: Items list, editor, item page, reference view and field, labels, routes
     today/      domain: TodayView (grouping), doses, roll-forward and catch-up, snooze, MorningSummary
-                application: today providers, quick actions, morning summary text; presentation
+                application: today providers, quick actions, morning summary text
+                presentation: Today screen, cards and dose chips, relative dates, summary card, action feedback
     search/     domain: tokenizer and normalizer, household terms and lexicon, query, index, highlights
-                application: search providers; presentation (highlighted results)
+                application: search providers; presentation: search screen, highlighted results, snippets
     settings/   domain, data (SettingsRepository: vault and session), application, presentation
-    demo/       data: Khan family (Lahore), Taylor family (Manchester); application
+    demo/       domain: DemoHousehold; data: Khan family (Lahore), Taylor family (Manchester) seeds
+                application: demo providers and controller; presentation: badge, notice, picker, web gate
 test/                            mirrors lib/; test/drift/vault/ holds the migration harness
+test/support/                    fixtures, fake storage, pumpApp with a fixed clock and phone or wide size
 test/flutter_test_config.dart    loads Roboto and Noto Nastaliq Urdu for widget and golden tests
 test/fixtures/                   encrypted fixture database (once section 5.1 is approved)
 drift_schemas/vault/             drift_schema_vN.json, one per schema version
@@ -650,7 +656,8 @@ All items are loaded into memory. That is cheap at household scale (thousands of
 | Vault | Migrations; startup matrix; failure mapping; wipe crash points; the pinned `AndroidOptions.toMap()` | The `make-migrations` harness for every version pair; the fake key store and a temp directory for every cell of section 5.3 |
 | Vault, `sqlcipher` tag | Header is not `SQLite format 3`; a wrong key gives `WrongKeyOrCorrupt` through the real background-isolate path; plain SQLite is refused; the fixture opens; first-run and missing-key flows on a real encrypted file | Skipped until section 5.1 is approved, then mandatory in CI |
 | Errors and logs | No key hex or seeded reference in error text; redacted `toString()`; no `print` or `debugPrint` in `lib/`; no Flutter or Drift imports in `domain/` | Unit and source tests |
-| Widgets | Today groups, dose rows, quick actions with undo and disabled-while-pending, editor validation, the Reference field (masked by default, after `inactive`, in semantics), language switch, demo badge, web banner | English and Urdu, with Roboto and Noto Nastaliq Urdu loaded through `FontLoader` in `test/flutter_test_config.dart`, RTL layout checks, large text at 2.0, and the accessibility guidelines |
+| Widgets | Today groups, dose rows, quick actions with undo and disabled-while-pending, catch-up choices, Reschedule, editor validation and the misplaced-number offer, the Reference field (masked by default, after `inactive`, after 30 seconds, in semantics), delete with undo, search highlights, Items filters, demo households on a phone and on the web, Delete all, About links, language switch, demo badge, web banner, phone and wide layouts | English and Urdu, with Roboto and Noto Nastaliq Urdu loaded through `FontLoader` in `test/flutter_test_config.dart`, RTL layout checks, large text at 2.0, and the accessibility guidelines on six screens in both languages and themes (contrast measured on the English ones, section 22) |
+| Theme | Every text and background colour pair the screens use reaches 4.5:1, light and dark | Pure computation from the colour scheme |
 | Goldens, `golden` tag | Today and Editor in English and Urdu, light and dark, plus both screens at 2.0 in each language: 12 images | Linux CI only, with a tolerant comparator for small antialiasing differences between runner images; skipped on Windows |
 
 Without real fonts every Urdu glyph renders as a box in widget tests, and Nastaliq's real failure mode, ink clipped vertically inside chips, the navigation bar and text fields, never raises an overflow error. That is why the widget tests load the real fonts and why the golden set exists. Golden baselines come from a `workflow_dispatch` job that renders them on Ubuntu and uploads them for a reviewed commit. The repository is published after M1, so until the first baseline is committed the README does not claim screenshot tests. A long-list Urdu scroll check on a low-end phone joins the M2 device tests.
@@ -719,7 +726,7 @@ Not verified yet:
 
 - The SQLCipher open path: `PRAGMA key`, the header check, the wrong-key mapping and the fixture. The probe pointed the test host at the OS SQLite (`source: system`), so nothing was downloaded. This waits on section 5.1.
 - Android data-extraction rules, the iOS backup exclusion and the Keystore options on real devices (M2).
-- The web demo's network requests (Verify phase).
+- The web demo's network requests, as a recorded check. While the screens were built, the release web build was served locally and driven in headless Edge through the DevTools protocol: opening the demo, choosing a household and visiting Today, Items, Search and Settings made 16 requests, all same-origin. The Verify phase repeats this with the screenshot run.
 - Golden baselines (first CI run after the repository is published).
 
 ## 20. Trade-offs
@@ -818,3 +825,17 @@ Where building M1 changed or refined something above, and why.
 | `todayProvider` re-reads the clock every minute and when the app resumes | One ticker covers midnight and time-zone changes alike, with no separate zone listener. |
 | `LocalDate.daysUntil` uses day-number arithmetic | Today grouping and search ranking compare dates for every item; the result is tested against `DateTime.utc` from year 1 to 9999. |
 | `characters` is a direct dependency and `fake_async` a dev dependency | Grapheme-safe highlights (section 12) and the midnight ticker tests. Both were already in the lock file through Flutter. |
+| On a phone, `itemRepositoryProvider` switches to an in-memory repository built from the seed while the `demo_household` setting is set | That keeps the vault unwritten (section 14) without a second storage backend. The seed is read once when the household is chosen, so midnight does not rebuild it and lose the visitor's changes. |
+| On the web, the demo controller replaces the session repository's items before it sets the household, and Clear demo data removes the items and the household but keeps language and theme | The web build has a single session store, so the household's items live in it and survive a reload. Clearing everything with `sessionStorage.clear()` would also throw a visitor who chose Urdu back to the phone's language. |
+| `ItemRepository.readAll()` joins `watchAll()` | Replacing the web demo's items needs one read. Riverpod 3 pauses a provider nobody listens to, so reading `itemsProvider.future` on the household picker never completed, and `watchAll().first` completes its cancellation through a root-zone future that widget tests never flush. The contract suite checks that both agree. |
+| The search region and the editor's default currency come from `AppSettings.householdCurrency` | A demo household brings its own currency (PKR or GBP), and with it whose billers search knows. |
+| The editor offers "Repeat from the new date" when a repeating item's date changes | Section 4 derives the anchor only when the Repeat choice changes, so moving a bill from the 10th to the 13th is a one-off. The switch, off by default, is the explicit way to move every later date as well. |
+| Delete happens at once and offers Undo instead of asking first | The undo snapshot puts back the item and its whole history, so a confirmation would only add a tap. Delete all, which cannot be undone, still asks. |
+| The editor asks before discarding changes, and saves only after the misplaced-number offer is answered | Leaving with typed text is easy on a phone; a dismissed offer saves nothing rather than guessing. |
+| Urdu times name the part of the day (صبح 8:00, رات 9:00) instead of using `intl`'s pattern | `intl`'s Urdu data writes AM and PM as a bare "a" and "p". The words are part of the Urdu text awaiting review (section 13). |
+| `UserText` aligns with the surrounding layout unless told otherwise | An Urdu title in an English list now starts on the left like its subtitle while still reading right-to-left; aligned to its own direction it sat alone at the far edge of the row. |
+| The mask keeps the last four letters or digits and skips separators | A CNIC masked as `•••• •••• 12-3` showed the separator instead of the digits people recognise. |
+| The pixel-sampling contrast guideline runs on the English screens only; the colour roles are checked numerically for both themes | The guideline takes the most common darker shade as the text colour. Thin Nastaliq strokes in tall Urdu lines are mostly anti-aliased, so it reads near-background greys as text and fails correct screens. The Urdu screens use the same roles, and `theme_contrast_test.dart` checks every text and background pair at 4.5:1. Tap target and label guidelines run in both languages and themes. |
+| Undo snack bars stay six seconds, and until dismissed when a screen reader is on | Flutter 3.47 keeps any snack bar with an action open by default; a short timeout keeps the screen clear, and `accessibleNavigation` gives screen reader users the time they need. |
+| Four destinations (Today, Items, Search, Settings) with a navigation rail from 640 px and content capped at 720 px | Search earns a tab of its own in a showcase, and wide web windows read better in a centred column. |
+| `url_launcher` is a dependency | For the GitHub and Upwork links in Settings. Opening a browser is not a request by the app, so section 8's wording still holds. |

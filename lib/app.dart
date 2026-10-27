@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme/app_theme.dart';
 import 'core/theme/app_typography.dart';
+import 'features/demo/presentation/demo_picker.dart';
 import 'features/settings/application/settings_controller.dart';
 import 'features/settings/domain/app_settings.dart';
 import 'home_shell.dart';
@@ -37,7 +38,7 @@ class YaadiApp extends ConsumerWidget {
       },
       builder: (context, child) =>
           AppTypography(largeText: settings.largeText, child: child!),
-      home: const VaultGate(child: HomeShell()),
+      home: const VaultGate(child: DemoGate(child: HomeShell())),
     );
   }
 }

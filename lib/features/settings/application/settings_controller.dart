@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../vault/app_storage.dart';
+import '../../demo/domain/demo_household.dart';
 import '../data/settings_repository.dart';
 import '../domain/app_settings.dart';
 
@@ -43,6 +44,14 @@ class SettingsController extends AsyncNotifier<AppSettings> {
     (settings) => settings.copyWith(largeText: enabled),
     SettingKeys.largeText,
     '$enabled',
+  );
+
+  /// Null goes back to the user's own items. Only the demo controller calls
+  /// this, because the web demo must replace its items first.
+  Future<void> setDemoHousehold(DemoHousehold? household) => _save(
+    (settings) => settings.copyWith(demoHousehold: household),
+    SettingKeys.demoHousehold,
+    household?.name,
   );
 
   /// Shows the change at once, then stores it. A failed write puts the

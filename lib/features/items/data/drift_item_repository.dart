@@ -28,6 +28,12 @@ final class DriftItemRepository implements ItemRepository {
       .transform(_asStorageFailures());
 
   @override
+  Future<List<Item>> readAll() => _guard(() async {
+    final rows = await _db.select(_db.items).get();
+    return rows.map(_toItem).toList()..sort(compareByDue);
+  });
+
+  @override
   Future<Item?> find(String id) => _guard(() async {
     final row = await _findRow(id);
     return row == null ? null : _toItem(row);

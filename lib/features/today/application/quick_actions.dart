@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/ids.dart';
+import '../../../core/storage/storage_failure.dart';
 import '../../../core/time/clock.dart';
 import '../../../core/time/local_date.dart';
 import '../../items/application/items_providers.dart';
@@ -33,6 +34,11 @@ final class ActionApplied extends ActionResult {
 /// the item changed since the screen showed it.
 final class AlreadyApplied extends ActionResult {
   const AlreadyApplied();
+}
+
+/// Storage refused the write; nothing changed.
+final class ActionNotSaved extends ActionResult {
+  const ActionNotSaved();
 }
 
 /// A write in flight: the item, and the dose time for a dose mark.
@@ -81,6 +87,24 @@ class QuickActionsController extends Notifier<Set<PendingAction>> {
           change: ItemChange.update(
             item.snoozed(snooze, today: today, now: _now()),
           ),
+          catchUp: null,
+        );
+      });
+
+  /// Moves the current occurrence to [date]: a past appointment that is
+  /// happening another day. A repeating item keeps its rule's date, so only
+  /// this occurrence moves.
+  Future<ActionResult> reschedule(String itemId, LocalDate date) =>
+      _write(itemId, () async {
+        final item = await _items.find(itemId);
+        if (item == null ||
+            !item.isOpen ||
+            item.doseTimes != null ||
+            !item.recurrence.isSupported) {
+          return null;
+        }
+        return (
+          change: ItemChange.update(item.movedTo(date, now: _now())),
           catchUp: null,
         );
       });
@@ -194,6 +218,8 @@ class QuickActionsController extends Notifier<Set<PendingAction>> {
     state = {...state, pending};
     try {
       return await action();
+    } on StorageFailure {
+      return const ActionNotSaved();
     } finally {
       if (ref.mounted) state = {...state}..remove(pending);
     }

@@ -13,6 +13,11 @@ abstract interface class ItemRepository {
   /// Every item in [compareByDue] order, again after each write.
   Stream<List<Item>> watchAll();
 
+  /// Every item in [compareByDue] order, once. For one-off jobs such as
+  /// replacing the web demo's household, which must not depend on anyone
+  /// listening to [watchAll].
+  Future<List<Item>> readAll();
+
   Future<Item?> find(String id);
 
   /// The item's history in [compareCompletions] order.

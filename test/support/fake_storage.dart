@@ -1,4 +1,5 @@
 import 'package:yaadi/features/items/data/memory_item_repository.dart';
+import 'package:yaadi/features/items/domain/completion.dart';
 import 'package:yaadi/features/items/domain/item.dart';
 import 'package:yaadi/features/settings/data/settings_repository.dart';
 import 'package:yaadi/vault/app_storage.dart';
@@ -9,10 +10,11 @@ final class FakeStorageBackend implements StorageBackend {
   FakeStorageBackend({
     this.kind = StorageKind.vault,
     List<Item> items = const [],
+    List<Completion> completions = const [],
     Map<String, String> settings = const {},
     List<VaultFailureKind> failures = const [],
   }) : _failures = [...failures],
-       items = MemoryItemRepository(items: items),
+       items = MemoryItemRepository(items: items, completions: completions),
        settings = MemorySettingsRepository(initial: settings);
 
   final StorageKind kind;

@@ -280,4 +280,775 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get navItems => 'Items';
+
+  @override
+  String get navSearch => 'Search';
+
+  @override
+  String get addItem => 'Add item';
+
+  @override
+  String get editItem => 'Edit item';
+
+  @override
+  String get todayAllDoneTitle => 'All caught up';
+
+  @override
+  String get todayAllDoneBody =>
+      'Nothing is open right now. Paid and done items are under Items.';
+
+  @override
+  String get tryDemo => 'Try a demo household';
+
+  @override
+  String get sectionToConfirm => 'Did these happen?';
+
+  @override
+  String get sectionOverdue => 'Overdue';
+
+  @override
+  String get sectionToday => 'Today';
+
+  @override
+  String get sectionNextWeek => 'Next 7 days';
+
+  @override
+  String get sectionLater => 'Later';
+
+  @override
+  String sectionLabel(String title, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$title: $_temp0';
+  }
+
+  @override
+  String get amountNotKnown => 'Amount not known yet';
+
+  @override
+  String get dosesToday => 'Medicine times today';
+
+  @override
+  String startsOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Starts $dateString';
+  }
+
+  @override
+  String snoozedTo(DateTime date, DateTime due) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+    final intl.DateFormat dueDateFormat = intl.DateFormat.MMMd(localeName);
+    final String dueString = dueDateFormat.format(due);
+
+    return 'Snoozed to $dateString · due $dueString';
+  }
+
+  @override
+  String expiredDaysAgo(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Expired $days days ago',
+      one: 'Expired yesterday',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get expiresToday => 'Expires today';
+
+  @override
+  String expiresInDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Expires in $days days',
+      one: 'Expires tomorrow',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get wasYesterday => 'Was yesterday';
+
+  @override
+  String wasOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Was on $dateString';
+  }
+
+  @override
+  String overdueByDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Overdue by $days days',
+      one: 'Overdue by 1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get dueToday => 'Due today';
+
+  @override
+  String get whenToday => 'Today';
+
+  @override
+  String get dueTomorrow => 'Due tomorrow';
+
+  @override
+  String get whenTomorrow => 'Tomorrow';
+
+  @override
+  String inDays(int days, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'In $days days · $dateString';
+  }
+
+  @override
+  String onDate(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String onDateWithYear(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String get actionPaid => 'Paid';
+
+  @override
+  String get actionDone => 'Done';
+
+  @override
+  String get actionSnooze => 'Snooze';
+
+  @override
+  String get actionReschedule => 'Reschedule';
+
+  @override
+  String markPaidLabel(String title) {
+    return 'Mark $title as paid';
+  }
+
+  @override
+  String markDoneLabel(String title) {
+    return 'Mark $title as done';
+  }
+
+  @override
+  String snoozeLabel(String title) {
+    return 'Snooze $title';
+  }
+
+  @override
+  String rescheduleLabel(String title) {
+    return 'Reschedule $title';
+  }
+
+  @override
+  String get rescheduleTo => 'Move to which day?';
+
+  @override
+  String movedTo(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Moved to $dateString';
+  }
+
+  @override
+  String snoozedUntil(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Snoozed until $dateString';
+  }
+
+  @override
+  String snoozeDays(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get snoozeWeek => '1 week';
+
+  @override
+  String get markedPaid => 'Marked as paid';
+
+  @override
+  String get markedDone => 'Marked as done';
+
+  @override
+  String doseMarked(String time) {
+    return '$time marked';
+  }
+
+  @override
+  String doseMarkedLabel(String title, String time) {
+    return '$title, $time, marked';
+  }
+
+  @override
+  String doseNotMarkedLabel(String title, String time) {
+    return '$title, $time, not marked yet';
+  }
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get undoRefused => 'Changed since, so it was not undone';
+
+  @override
+  String get notSaved => 'Could not save. Try again.';
+
+  @override
+  String get catchUpChange => 'Change';
+
+  @override
+  String catchUpMarkedPaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count earlier bills recorded as paid.',
+      one: '1 earlier bill recorded as paid.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catchUpSkipped(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count earlier ones skipped.',
+      one: '1 earlier one skipped.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catchUpStillOwed(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count more are still to pay.',
+      one: '1 more is still to pay.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catchUpKeepUnpaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Keep $count earlier ones unpaid',
+      one: 'Keep the earlier one unpaid',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String catchUpMarkEarlierPaid(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Mark $count earlier ones as paid',
+      one: 'Mark the earlier one as paid',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get catchUpSkipToCurrent => 'Skip to the current one';
+
+  @override
+  String catchUpQuestion(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'What about the $count missed in between?',
+      one: 'What about the 1 missed in between?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get catchUpUpdated => 'Updated';
+
+  @override
+  String get itemsEmpty => 'No items yet';
+
+  @override
+  String get itemsNoMatch => 'No items match these filters';
+
+  @override
+  String get filterOpen => 'Open';
+
+  @override
+  String get filterClosed => 'Paid and done';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get filterAllKinds => 'All kinds';
+
+  @override
+  String get statusOpen => 'Open';
+
+  @override
+  String get statusPaid => 'Paid';
+
+  @override
+  String get statusDone => 'Done';
+
+  @override
+  String get outcomeSkipped => 'Skipped';
+
+  @override
+  String get repeatNone => 'Does not repeat';
+
+  @override
+  String get repeatDaily => 'Every day';
+
+  @override
+  String get repeatWeekly => 'Every week';
+
+  @override
+  String get repeatMonthly => 'Every month';
+
+  @override
+  String get repeatYearly => 'Every year';
+
+  @override
+  String get repeatDoses => 'Medicine times every day';
+
+  @override
+  String repeatWeeklyOn(String weekday) {
+    return 'Every week on $weekday';
+  }
+
+  @override
+  String repeatMonthlyOn(int day) {
+    return 'Every month on day $day';
+  }
+
+  @override
+  String repeatMonthlyOnLate(int day) {
+    return 'Every month on day $day, or the last day of shorter months';
+  }
+
+  @override
+  String repeatYearlyOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Every year on $dateString';
+  }
+
+  @override
+  String repeatDosesAt(String times) {
+    return 'Every day at $times';
+  }
+
+  @override
+  String get repeatUnsupported => 'Repeats in a way this version cannot show';
+
+  @override
+  String repeatUntil(String rule, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$rule, until $dateString';
+  }
+
+  @override
+  String get itemGone => 'This item has been deleted';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get repeatUnsupportedNotice =>
+      'Made by a newer version of Yaadi. Update the app to change it.';
+
+  @override
+  String get factMoved => 'Moved';
+
+  @override
+  String movedFrom(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'This time only, from $dateString';
+  }
+
+  @override
+  String get factSnoozed => 'Snoozed until';
+
+  @override
+  String get factRepeat => 'Repeats';
+
+  @override
+  String get fieldAmount => 'Amount';
+
+  @override
+  String get amountVaries => 'Changes each time';
+
+  @override
+  String get fieldNotes => 'Notes';
+
+  @override
+  String get fieldReference => 'Reference number';
+
+  @override
+  String get markPaidButton => 'Mark as paid';
+
+  @override
+  String get markDoneButton => 'Mark as done';
+
+  @override
+  String get historyTitle => 'History';
+
+  @override
+  String addedAndChanged(DateTime created, DateTime changed) {
+    final intl.DateFormat createdDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String createdString = createdDateFormat.format(created);
+    final intl.DateFormat changedDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String changedString = changedDateFormat.format(changed);
+
+    return 'Added $createdString · Changed $changedString';
+  }
+
+  @override
+  String get fieldDueDate => 'Due date';
+
+  @override
+  String get fieldExpiresOn => 'Expires on';
+
+  @override
+  String get fieldFirstDay => 'First day';
+
+  @override
+  String get fieldDate => 'Date';
+
+  @override
+  String get fieldDateOptional => 'Date (optional)';
+
+  @override
+  String get deleted => 'Deleted';
+
+  @override
+  String get changedSince =>
+      'This item changed since you opened it. Nothing was deleted.';
+
+  @override
+  String referenceShownLabel(String reference) {
+    return 'Reference $reference, double-tap to hide';
+  }
+
+  @override
+  String get referenceHiddenLabel => 'Reference hidden, double-tap to show';
+
+  @override
+  String get referenceShow => 'Show';
+
+  @override
+  String get referenceHide => 'Hide';
+
+  @override
+  String get referenceHint =>
+      'Consumer number, CNIC or similar. Hidden until you tap Show.';
+
+  @override
+  String get referenceDemoHint => 'Demo: use a made-up number.';
+
+  @override
+  String get fieldKind => 'What is it?';
+
+  @override
+  String get fieldTitle => 'Title';
+
+  @override
+  String get titleHintBill => 'For example, LESCO bill';
+
+  @override
+  String get titleHintAppointment => 'For example, dentist';
+
+  @override
+  String get titleHintExpiry => 'For example, Abbu\'s CNIC';
+
+  @override
+  String get titleHintMedicine => 'For example, Ammi\'s tablets';
+
+  @override
+  String get titleHintTask => 'For example, renew the library card';
+
+  @override
+  String get fieldCategory => 'Category';
+
+  @override
+  String get fieldCurrency => 'Currency';
+
+  @override
+  String get amountHint => 'Leave empty if not known yet';
+
+  @override
+  String get amountVariesSwitch => 'Amount changes each time';
+
+  @override
+  String get amountVariesHint =>
+      'Like electricity or gas. Each new bill needs its own amount.';
+
+  @override
+  String get chooseDate => 'Not chosen yet';
+
+  @override
+  String get moveSeriesTitle => 'Repeat from the new date';
+
+  @override
+  String moveSeriesHint(String rule) {
+    return 'When off, only this time moves. It still repeats: $rule.';
+  }
+
+  @override
+  String get fieldTime => 'Time';
+
+  @override
+  String get noTime => 'No time';
+
+  @override
+  String get fieldRepeat => 'Repeat';
+
+  @override
+  String get fieldLastDay => 'Last day (optional)';
+
+  @override
+  String get fieldEndsOn => 'Ends on (optional)';
+
+  @override
+  String get noEndDate => 'No end date';
+
+  @override
+  String get fieldDoseTimes => 'Times each day';
+
+  @override
+  String removeTime(String time) {
+    return 'Remove $time';
+  }
+
+  @override
+  String get addTime => 'Add a time';
+
+  @override
+  String get doseTimesNote =>
+      'Yaadi reminds you of the times you type. It never suggests a medicine, a dose or a time.';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get added => 'Added';
+
+  @override
+  String get saved => 'Saved';
+
+  @override
+  String get saveConflict =>
+      'This item changed while you were editing. Your changes were not saved.';
+
+  @override
+  String get misplacedTitle => 'Move this number to Reference?';
+
+  @override
+  String get misplacedInTitle =>
+      'The title seems to contain an ID or account number. In Reference it stays hidden until you tap Show.';
+
+  @override
+  String get misplacedInNotes =>
+      'The notes seem to contain an ID or account number. In Reference it stays hidden until you tap Show.';
+
+  @override
+  String get misplacedKeep => 'Leave it there';
+
+  @override
+  String get misplacedMove => 'Move to Reference';
+
+  @override
+  String get discardTitle => 'Discard your changes?';
+
+  @override
+  String get keepEditing => 'Keep editing';
+
+  @override
+  String get discard => 'Discard';
+
+  @override
+  String get problemTitleRequired => 'Enter a title';
+
+  @override
+  String get problemDoseTimesRequired => 'Add at least one time';
+
+  @override
+  String get problemDateRequired => 'Choose a date';
+
+  @override
+  String get problemTooLong => 'This is too long';
+
+  @override
+  String problemAmount(String example) {
+    return 'Enter an amount like $example';
+  }
+
+  @override
+  String get problemEndBeforeStart => 'The end date is before the first date';
+
+  @override
+  String clearField(String label) {
+    return 'Clear $label';
+  }
+
+  @override
+  String get searchHint => 'Search: bijli, گیس, school fee';
+
+  @override
+  String get clearSearch => 'Clear search';
+
+  @override
+  String get searchNoResults => 'Nothing found';
+
+  @override
+  String get searchNoResultsHint =>
+      'Try another spelling, or the same word in Urdu or English.';
+
+  @override
+  String searchResultCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results',
+      one: '1 result',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get searchExplain =>
+      'Search works offline and understands English, Urdu and Roman Urdu: bijli, بجلی and electricity all find the electricity bill.';
+
+  @override
+  String get searchTry => 'Try';
+
+  @override
+  String phoneDemoNotice(String household) {
+    return 'You are looking at the $household demo. Changes are not kept, and your own items are untouched.';
+  }
+
+  @override
+  String get leaveDemo => 'Leave demo';
+
+  @override
+  String get householdKhan => 'Khan family, Lahore';
+
+  @override
+  String get householdTaylor => 'Taylor family, Manchester';
+
+  @override
+  String get householdKhanDescription =>
+      'Bills, a school fee, an ID card and Ammi\'s medicine times, in Urdu and English. Rupees.';
+
+  @override
+  String get householdTaylorDescription =>
+      'Council tax, energy, the dentist, a passport and prescription times. Pounds.';
+
+  @override
+  String get pickerTitle => 'Try Yaadi with a made-up family';
+
+  @override
+  String get pickerBody =>
+      'Pick a household to see how Yaadi keeps bills, appointments, expiry dates and medicine times. Everyone in it is invented.';
+
+  @override
+  String get demoExplain =>
+      'Demo households are made up. While one is shown, your own items stay as they are, and nothing you change in the demo is kept.';
+
+  @override
+  String get webDemoExplain =>
+      'This web demo shows a made-up family. Switching household starts it again from the beginning.';
+
+  @override
+  String get settingsDemo => 'Demo households';
+
+  @override
+  String get demoOwnItems => 'My own items';
+
+  @override
+  String get clearDemo => 'Clear demo data';
+
+  @override
+  String get settingsYourData => 'Your data';
+
+  @override
+  String get deleteAll => 'Delete all my items';
+
+  @override
+  String get deleteAllHint =>
+      'Permanently deletes everything Yaadi keeps on this phone';
+
+  @override
+  String get settingsAbout => 'About';
+
+  @override
+  String aboutVersion(String version) {
+    return 'Yaadi $version';
+  }
+
+  @override
+  String get aboutBody =>
+      'Paper to reminder. Bills, appointments, expiry dates and medicine times, offline, in English and Urdu.';
+
+  @override
+  String aboutMaker(String maker) {
+    return 'Built by $maker';
+  }
+
+  @override
+  String get aboutHire => 'Hire us on Upwork';
+
+  @override
+  String get linkFailed => 'The link could not be opened.';
 }

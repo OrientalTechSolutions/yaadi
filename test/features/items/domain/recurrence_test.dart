@@ -204,4 +204,27 @@ void main() {
       });
     }
   });
+
+  group('withUntil', () {
+    final end = d(2027, 1, 31);
+    final cases = <(Recurrence, Recurrence)>[
+      (Recurrence.none, Recurrence.none),
+      (const DailyRepeat(), DailyRepeat(until: end)),
+      (WeeklyRepeat(4), WeeklyRepeat(4, until: end)),
+      (MonthlyRepeat(31), MonthlyRepeat(31, until: end)),
+      (YearlyRepeat(2, 29), YearlyRepeat(2, 29, until: end)),
+      (DoseTimes([1200, 480]), DoseTimes([480, 1200], until: end)),
+    ];
+    for (final (rule, ended) in cases) {
+      test('$rule keeps its anchor', () {
+        expect(rule.withUntil(end), ended);
+        expect(rule.withUntil(end).withUntil(null), rule);
+      });
+    }
+
+    test('a rule from a newer version is left alone', () {
+      const rule = UnsupportedRepeat('{"type":"lunar"}');
+      expect(rule.withUntil(end), same(rule));
+    });
+  });
 }

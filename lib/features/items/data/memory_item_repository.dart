@@ -41,6 +41,9 @@ final class MemoryItemRepository implements ItemRepository {
   Stream<List<Item>> watchAll() => _watch(_sortedItems);
 
   @override
+  Future<List<Item>> readAll() async => _sortedItems();
+
+  @override
   Future<Item?> find(String id) async => _items[id];
 
   @override

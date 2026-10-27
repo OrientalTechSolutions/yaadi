@@ -487,6 +487,1116 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 amount not known yet} other{{count} amounts not known yet}}'**
   String summaryUnknownAmounts(int count);
+
+  /// Navigation label for the list of all items, open and finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Items'**
+  String get navItems;
+
+  /// Navigation label for the search screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get navSearch;
+
+  /// Button and screen title for adding a new bill, appointment, expiry date, medicine or task.
+  ///
+  /// In en, this message translates to:
+  /// **'Add item'**
+  String get addItem;
+
+  /// Screen title when changing an existing item.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit item'**
+  String get editItem;
+
+  /// Heading on the Today screen when there are items but none is open.
+  ///
+  /// In en, this message translates to:
+  /// **'All caught up'**
+  String get todayAllDoneTitle;
+
+  /// Explanation on the Today screen when everything is paid or done.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing is open right now. Paid and done items are under Items.'**
+  String get todayAllDoneBody;
+
+  /// Button that shows a made-up family's items instead of the user's own.
+  ///
+  /// In en, this message translates to:
+  /// **'Try a demo household'**
+  String get tryDemo;
+
+  /// Today screen group for appointments whose date has passed. Asked as a question, never called overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Did these happen?'**
+  String get sectionToConfirm;
+
+  /// Today screen group for bills, tasks and expiry dates whose date has passed.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get sectionOverdue;
+
+  /// Today screen group for items due today and today's medicine times.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get sectionToday;
+
+  /// Today screen group for items due in the coming week, and expiry dates in the coming 30 days.
+  ///
+  /// In en, this message translates to:
+  /// **'Next 7 days'**
+  String get sectionNextWeek;
+
+  /// Today screen group for items due after next week, and tasks without a date.
+  ///
+  /// In en, this message translates to:
+  /// **'Later'**
+  String get sectionLater;
+
+  /// What screen readers announce for a Today group heading.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}: {count, plural, =1{1 item} other{{count} items}}'**
+  String sectionLabel(String title, int count);
+
+  /// Shown for a bill whose amount the user has not entered yet, such as an electricity bill before the paper arrives.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount not known yet'**
+  String get amountNotKnown;
+
+  /// Label on a medicine card above today's times. Neutral wording: never advice.
+  ///
+  /// In en, this message translates to:
+  /// **'Medicine times today'**
+  String get dosesToday;
+
+  /// When a medicine course begins, for a course that has not started yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts {date}'**
+  String startsOn(DateTime date);
+
+  /// A snoozed item's card. The real due date is always shown next to the snooze date.
+  ///
+  /// In en, this message translates to:
+  /// **'Snoozed to {date} · due {due}'**
+  String snoozedTo(DateTime date, DateTime due);
+
+  /// An ID card, passport or warranty that has already expired.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Expired yesterday} other{Expired {days} days ago}}'**
+  String expiredDaysAgo(int days);
+
+  /// Something that expires today.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires today'**
+  String get expiresToday;
+
+  /// Something that expires soon.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Expires tomorrow} other{Expires in {days} days}}'**
+  String expiresInDays(int days);
+
+  /// A past appointment from yesterday, waiting for the user to confirm it happened.
+  ///
+  /// In en, this message translates to:
+  /// **'Was yesterday'**
+  String get wasYesterday;
+
+  /// A past appointment waiting for the user to confirm it happened.
+  ///
+  /// In en, this message translates to:
+  /// **'Was on {date}'**
+  String wasOn(DateTime date);
+
+  /// A bill or task whose date has passed.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{Overdue by 1 day} other{Overdue by {days} days}}'**
+  String overdueByDays(int days);
+
+  /// A bill due today.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get dueToday;
+
+  /// An appointment or task on today's date.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get whenToday;
+
+  /// A bill due tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Due tomorrow'**
+  String get dueTomorrow;
+
+  /// An appointment or task on tomorrow's date.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get whenTomorrow;
+
+  /// An item due within the coming week, two or more days away.
+  ///
+  /// In en, this message translates to:
+  /// **'In {days} days · {date}'**
+  String inDays(int days, DateTime date);
+
+  /// An item due later this year.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}'**
+  String onDate(DateTime date);
+
+  /// An item due in another year.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}'**
+  String onDateWithYear(DateTime date);
+
+  /// Quick action on a bill: records it as paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get actionPaid;
+
+  /// Quick action on an appointment, expiry date or task: records it as done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get actionDone;
+
+  /// Quick action that shows an item again in a few days. Opens a menu of durations.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze'**
+  String get actionSnooze;
+
+  /// Quick action on a past appointment: moves it to another day.
+  ///
+  /// In en, this message translates to:
+  /// **'Reschedule'**
+  String get actionReschedule;
+
+  /// What screen readers announce for the Paid button.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {title} as paid'**
+  String markPaidLabel(String title);
+
+  /// What screen readers announce for the Done button.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark {title} as done'**
+  String markDoneLabel(String title);
+
+  /// What screen readers announce for the Snooze button.
+  ///
+  /// In en, this message translates to:
+  /// **'Snooze {title}'**
+  String snoozeLabel(String title);
+
+  /// What screen readers announce for the Reschedule button.
+  ///
+  /// In en, this message translates to:
+  /// **'Reschedule {title}'**
+  String rescheduleLabel(String title);
+
+  /// Heading of the date picker when rescheduling a past appointment.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to which day?'**
+  String get rescheduleTo;
+
+  /// Confirmation after rescheduling.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved to {date}'**
+  String movedTo(DateTime date);
+
+  /// Confirmation after snoozing.
+  ///
+  /// In en, this message translates to:
+  /// **'Snoozed until {date}'**
+  String snoozedUntil(DateTime date);
+
+  /// A choice in the Snooze menu.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =1{1 day} other{{days} days}}'**
+  String snoozeDays(int days);
+
+  /// A choice in the Snooze menu: seven days.
+  ///
+  /// In en, this message translates to:
+  /// **'1 week'**
+  String get snoozeWeek;
+
+  /// Confirmation after Paid, shown with an Undo button.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as paid'**
+  String get markedPaid;
+
+  /// Confirmation after Done, shown with an Undo button.
+  ///
+  /// In en, this message translates to:
+  /// **'Marked as done'**
+  String get markedDone;
+
+  /// Confirmation after the user marks one of today's medicine times. Neutral wording: never advice.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} marked'**
+  String doseMarked(String time);
+
+  /// What screen readers announce for a medicine time that is marked.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, {time}, marked'**
+  String doseMarkedLabel(String title, String time);
+
+  /// What screen readers announce for a medicine time that is not marked. Neutral wording: never missed or late.
+  ///
+  /// In en, this message translates to:
+  /// **'{title}, {time}, not marked yet'**
+  String doseNotMarkedLabel(String title, String time);
+
+  /// Button that reverses the last change.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// Shown when Undo is refused because the item was changed again in the meantime.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed since, so it was not undone'**
+  String get undoRefused;
+
+  /// Shown when storage refused a change. Nothing was changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save. Try again.'**
+  String get notSaved;
+
+  /// Button after paying an old bill that opens the other ways to handle the missed months.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get catchUpChange;
+
+  /// After paying an old utility bill: the missed months in between were recorded as paid, without amounts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 earlier bill recorded as paid.} other{{count} earlier bills recorded as paid.}}'**
+  String catchUpMarkedPaid(int count);
+
+  /// After paying an old instalment: the missed ones in between were skipped.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 earlier one skipped.} other{{count} earlier ones skipped.}}'**
+  String catchUpSkipped(int count);
+
+  /// After paying an old instalment such as rent: the missed ones are still owed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more is still to pay.} other{{count} more are still to pay.}}'**
+  String catchUpStillOwed(int count);
+
+  /// Choice: leave the missed months as still owed.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Keep the earlier one unpaid} other{Keep {count} earlier ones unpaid}}'**
+  String catchUpKeepUnpaid(int count);
+
+  /// Choice: record the missed instalments as paid.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Mark the earlier one as paid} other{Mark {count} earlier ones as paid}}'**
+  String catchUpMarkEarlierPaid(int count);
+
+  /// Choice: record the missed instalments as skipped and move to the current one.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip to the current one'**
+  String get catchUpSkipToCurrent;
+
+  /// Heading of the sheet with the ways to handle missed months.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{What about the 1 missed in between?} other{What about the {count} missed in between?}}'**
+  String catchUpQuestion(int count);
+
+  /// Confirmation after choosing another way to handle missed months.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated'**
+  String get catchUpUpdated;
+
+  /// Items screen when there are no items at all.
+  ///
+  /// In en, this message translates to:
+  /// **'No items yet'**
+  String get itemsEmpty;
+
+  /// Items screen when the chosen filters hide everything.
+  ///
+  /// In en, this message translates to:
+  /// **'No items match these filters'**
+  String get itemsNoMatch;
+
+  /// Items filter: items still to pay or do.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get filterOpen;
+
+  /// Items filter: finished items.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid and done'**
+  String get filterClosed;
+
+  /// Items filter: open and finished items.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get filterAll;
+
+  /// Items filter: bills, appointments, expiry dates, medicine and tasks together.
+  ///
+  /// In en, this message translates to:
+  /// **'All kinds'**
+  String get filterAllKinds;
+
+  /// Item status: still to pay or do.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get statusOpen;
+
+  /// Item or history status: paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get statusPaid;
+
+  /// Item or history status: done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get statusDone;
+
+  /// History entry for an instalment the user chose to skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skipped'**
+  String get outcomeSkipped;
+
+  /// Repeat choice: a one-off item.
+  ///
+  /// In en, this message translates to:
+  /// **'Does not repeat'**
+  String get repeatNone;
+
+  /// Repeat choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get repeatDaily;
+
+  /// Repeat choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week'**
+  String get repeatWeekly;
+
+  /// Repeat choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Every month'**
+  String get repeatMonthly;
+
+  /// Repeat choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Every year'**
+  String get repeatYearly;
+
+  /// How a medicine item repeats: on the times the user typed, every day.
+  ///
+  /// In en, this message translates to:
+  /// **'Medicine times every day'**
+  String get repeatDoses;
+
+  /// A weekly item, with its day.
+  ///
+  /// In en, this message translates to:
+  /// **'Every week on {weekday}'**
+  String repeatWeeklyOn(String weekday);
+
+  /// A monthly item, with its day of the month.
+  ///
+  /// In en, this message translates to:
+  /// **'Every month on day {day}'**
+  String repeatMonthlyOn(int day);
+
+  /// A monthly item on the 29th, 30th or 31st, which falls on the last day of shorter months.
+  ///
+  /// In en, this message translates to:
+  /// **'Every month on day {day}, or the last day of shorter months'**
+  String repeatMonthlyOnLate(int day);
+
+  /// A yearly item, with its date.
+  ///
+  /// In en, this message translates to:
+  /// **'Every year on {date}'**
+  String repeatYearlyOn(DateTime date);
+
+  /// A medicine item's times.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day at {times}'**
+  String repeatDosesAt(String times);
+
+  /// An item saved by a newer version of Yaadi with a rule this version does not know.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats in a way this version cannot show'**
+  String get repeatUnsupported;
+
+  /// A repeating item that ends on a date.
+  ///
+  /// In en, this message translates to:
+  /// **'{rule}, until {date}'**
+  String repeatUntil(String rule, DateTime date);
+
+  /// Shown on an item's page after the item was deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This item has been deleted'**
+  String get itemGone;
+
+  /// Button that opens the editor for an item.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get edit;
+
+  /// Button that deletes an item. An Undo follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// On the page of an item this version can show but not change.
+  ///
+  /// In en, this message translates to:
+  /// **'Made by a newer version of Yaadi. Update the app to change it.'**
+  String get repeatUnsupportedNotice;
+
+  /// Label on an item's page when this occurrence's date was moved.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved'**
+  String get factMoved;
+
+  /// Explains that a repeating item's date was moved for this occurrence only.
+  ///
+  /// In en, this message translates to:
+  /// **'This time only, from {date}'**
+  String movedFrom(DateTime date);
+
+  /// Label on an item's page for the snooze date.
+  ///
+  /// In en, this message translates to:
+  /// **'Snoozed until'**
+  String get factSnoozed;
+
+  /// Label on an item's page for how it repeats.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats'**
+  String get factRepeat;
+
+  /// A bill's amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get fieldAmount;
+
+  /// A bill whose amount changes every time, such as electricity.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes each time'**
+  String get amountVaries;
+
+  /// Free text the user adds to an item.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get fieldNotes;
+
+  /// A consumer number, CNIC number or similar ID, hidden until the user taps Show.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference number'**
+  String get fieldReference;
+
+  /// Button on a bill's page.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as paid'**
+  String get markPaidButton;
+
+  /// Button on an item's page.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as done'**
+  String get markDoneButton;
+
+  /// Heading above an item's past payments and completions.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get historyTitle;
+
+  /// When an item was created and last changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Added {created} · Changed {changed}'**
+  String addedAndChanged(DateTime created, DateTime changed);
+
+  /// A bill's due date.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date'**
+  String get fieldDueDate;
+
+  /// The date an ID card, passport or warranty expires.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires on'**
+  String get fieldExpiresOn;
+
+  /// The first day of a medicine course.
+  ///
+  /// In en, this message translates to:
+  /// **'First day'**
+  String get fieldFirstDay;
+
+  /// An appointment's or task's date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get fieldDate;
+
+  /// A task's date, which may be left empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Date (optional)'**
+  String get fieldDateOptional;
+
+  /// Confirmation after deleting an item, shown with an Undo button.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get deleted;
+
+  /// Shown when a delete is refused because the item changed in the meantime.
+  ///
+  /// In en, this message translates to:
+  /// **'This item changed since you opened it. Nothing was deleted.'**
+  String get changedSince;
+
+  /// What screen readers announce for a shown reference number.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference {reference}, double-tap to hide'**
+  String referenceShownLabel(String reference);
+
+  /// What screen readers announce for a hidden reference number. Never includes the number.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference hidden, double-tap to show'**
+  String get referenceHiddenLabel;
+
+  /// Button that shows a hidden reference number for a short time.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get referenceShow;
+
+  /// Button that hides a reference number again.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide'**
+  String get referenceHide;
+
+  /// Help under the Reference number field.
+  ///
+  /// In en, this message translates to:
+  /// **'Consumer number, CNIC or similar. Hidden until you tap Show.'**
+  String get referenceHint;
+
+  /// Help under the Reference number field in the web demo.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo: use a made-up number.'**
+  String get referenceDemoHint;
+
+  /// Label above the choice of bill, appointment, expiry date, medicine or task.
+  ///
+  /// In en, this message translates to:
+  /// **'What is it?'**
+  String get fieldKind;
+
+  /// An item's title.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get fieldTitle;
+
+  /// Example title for a bill.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, LESCO bill'**
+  String get titleHintBill;
+
+  /// Example title for an appointment.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, dentist'**
+  String get titleHintAppointment;
+
+  /// Example title for an expiry date.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, Abbu\'s CNIC'**
+  String get titleHintExpiry;
+
+  /// Example title for medicine times.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, Ammi\'s tablets'**
+  String get titleHintMedicine;
+
+  /// Example title for a task.
+  ///
+  /// In en, this message translates to:
+  /// **'For example, renew the library card'**
+  String get titleHintTask;
+
+  /// An item's category, such as Electricity or School.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get fieldCategory;
+
+  /// The currency of a bill's amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get fieldCurrency;
+
+  /// Help under the amount field.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave empty if not known yet'**
+  String get amountHint;
+
+  /// Switch for bills whose amount changes every time.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount changes each time'**
+  String get amountVariesSwitch;
+
+  /// Explains the switch for bills whose amount changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Like electricity or gas. Each new bill needs its own amount.'**
+  String get amountVariesHint;
+
+  /// Placeholder in a date field with no date yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not chosen yet'**
+  String get chooseDate;
+
+  /// Switch shown after changing a repeating item's date: also move future dates.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat from the new date'**
+  String get moveSeriesTitle;
+
+  /// Explains the switch for moving a repeating item's future dates.
+  ///
+  /// In en, this message translates to:
+  /// **'When off, only this time moves. It still repeats: {rule}.'**
+  String moveSeriesHint(String rule);
+
+  /// An item's time of day.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get fieldTime;
+
+  /// Placeholder in a time field with no time.
+  ///
+  /// In en, this message translates to:
+  /// **'No time'**
+  String get noTime;
+
+  /// How often an item comes back.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get fieldRepeat;
+
+  /// The last day of a medicine course.
+  ///
+  /// In en, this message translates to:
+  /// **'Last day (optional)'**
+  String get fieldLastDay;
+
+  /// The last date a repeating item comes back.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends on (optional)'**
+  String get fieldEndsOn;
+
+  /// Placeholder when a repeating item has no end date.
+  ///
+  /// In en, this message translates to:
+  /// **'No end date'**
+  String get noEndDate;
+
+  /// Label above the medicine times the user types.
+  ///
+  /// In en, this message translates to:
+  /// **'Times each day'**
+  String get fieldDoseTimes;
+
+  /// Tooltip on the button that removes a medicine time.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove {time}'**
+  String removeTime(String time);
+
+  /// Button that adds a medicine time.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a time'**
+  String get addTime;
+
+  /// Note under the medicine times: the app is an organiser and gives no medical advice.
+  ///
+  /// In en, this message translates to:
+  /// **'Yaadi reminds you of the times you type. It never suggests a medicine, a dose or a time.'**
+  String get doseTimesNote;
+
+  /// Button that saves the item being edited.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// Confirmation after adding an item, shown with an Undo button.
+  ///
+  /// In en, this message translates to:
+  /// **'Added'**
+  String get added;
+
+  /// Confirmation after changing an item, shown with an Undo button.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get saved;
+
+  /// Shown when a save is refused because the item changed in the meantime.
+  ///
+  /// In en, this message translates to:
+  /// **'This item changed while you were editing. Your changes were not saved.'**
+  String get saveConflict;
+
+  /// Heading of the offer to move an ID or account number into the hidden Reference field.
+  ///
+  /// In en, this message translates to:
+  /// **'Move this number to Reference?'**
+  String get misplacedTitle;
+
+  /// Explains why moving a number out of the title helps.
+  ///
+  /// In en, this message translates to:
+  /// **'The title seems to contain an ID or account number. In Reference it stays hidden until you tap Show.'**
+  String get misplacedInTitle;
+
+  /// Explains why moving a number out of the notes helps.
+  ///
+  /// In en, this message translates to:
+  /// **'The notes seem to contain an ID or account number. In Reference it stays hidden until you tap Show.'**
+  String get misplacedInNotes;
+
+  /// Saves without moving the number.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave it there'**
+  String get misplacedKeep;
+
+  /// Moves the number into the hidden Reference field and saves.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to Reference'**
+  String get misplacedMove;
+
+  /// Asked when leaving the editor with unsaved changes.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard your changes?'**
+  String get discardTitle;
+
+  /// Stays in the editor.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get keepEditing;
+
+  /// Leaves the editor without saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discard;
+
+  /// Error when the title is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a title'**
+  String get problemTitleRequired;
+
+  /// Error when a medicine item has no times.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one time'**
+  String get problemDoseTimesRequired;
+
+  /// Error when a date is needed.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a date'**
+  String get problemDateRequired;
+
+  /// Error when text is longer than allowed.
+  ///
+  /// In en, this message translates to:
+  /// **'This is too long'**
+  String get problemTooLong;
+
+  /// Error when the amount cannot be read.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an amount like {example}'**
+  String problemAmount(String example);
+
+  /// Error when a repeating item would end before it starts.
+  ///
+  /// In en, this message translates to:
+  /// **'The end date is before the first date'**
+  String get problemEndBeforeStart;
+
+  /// Tooltip on the button that empties a date or time field.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear {label}'**
+  String clearField(String label);
+
+  /// Placeholder in the search field, with examples in Roman Urdu, Urdu and English. Keep the examples.
+  ///
+  /// In en, this message translates to:
+  /// **'Search: bijli, گیس, school fee'**
+  String get searchHint;
+
+  /// Tooltip on the button that empties the search field.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear search'**
+  String get clearSearch;
+
+  /// Heading when a search finds nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing found'**
+  String get searchNoResults;
+
+  /// Suggestion when a search finds nothing.
+  ///
+  /// In en, this message translates to:
+  /// **'Try another spelling, or the same word in Urdu or English.'**
+  String get searchNoResultsHint;
+
+  /// Number of search results, also announced to screen readers.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 result} other{{count} results}}'**
+  String searchResultCount(int count);
+
+  /// Shown on the search screen before anything is typed. Keep the three example words.
+  ///
+  /// In en, this message translates to:
+  /// **'Search works offline and understands English, Urdu and Roman Urdu: bijli, بجلی and electricity all find the electricity bill.'**
+  String get searchExplain;
+
+  /// Heading above example searches.
+  ///
+  /// In en, this message translates to:
+  /// **'Try'**
+  String get searchTry;
+
+  /// Strip at the top of every screen while a demo household is shown on a phone.
+  ///
+  /// In en, this message translates to:
+  /// **'You are looking at the {household} demo. Changes are not kept, and your own items are untouched.'**
+  String phoneDemoNotice(String household);
+
+  /// Button that goes back from a demo household to the user's own items.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave demo'**
+  String get leaveDemo;
+
+  /// Name of a made-up demo household in Pakistan.
+  ///
+  /// In en, this message translates to:
+  /// **'Khan family, Lahore'**
+  String get householdKhan;
+
+  /// Name of a made-up demo household in England.
+  ///
+  /// In en, this message translates to:
+  /// **'Taylor family, Manchester'**
+  String get householdTaylor;
+
+  /// What the Khan demo household contains.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills, a school fee, an ID card and Ammi\'s medicine times, in Urdu and English. Rupees.'**
+  String get householdKhanDescription;
+
+  /// What the Taylor demo household contains.
+  ///
+  /// In en, this message translates to:
+  /// **'Council tax, energy, the dentist, a passport and prescription times. Pounds.'**
+  String get householdTaylorDescription;
+
+  /// Heading of the web demo's first screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Yaadi with a made-up family'**
+  String get pickerTitle;
+
+  /// Explanation on the web demo's first screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a household to see how Yaadi keeps bills, appointments, expiry dates and medicine times. Everyone in it is invented.'**
+  String get pickerBody;
+
+  /// Explains demo households on a phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo households are made up. While one is shown, your own items stay as they are, and nothing you change in the demo is kept.'**
+  String get demoExplain;
+
+  /// Explains demo households in the web demo.
+  ///
+  /// In en, this message translates to:
+  /// **'This web demo shows a made-up family. Switching household starts it again from the beginning.'**
+  String get webDemoExplain;
+
+  /// Settings section for the made-up families.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo households'**
+  String get settingsDemo;
+
+  /// Choice that shows the user's own items instead of a demo household.
+  ///
+  /// In en, this message translates to:
+  /// **'My own items'**
+  String get demoOwnItems;
+
+  /// Button that removes the demo household in one tap.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear demo data'**
+  String get clearDemo;
+
+  /// Settings section for deleting the user's items.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data'**
+  String get settingsYourData;
+
+  /// Button that erases everything Yaadi keeps on the phone, after confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all my items'**
+  String get deleteAll;
+
+  /// Explains the Delete all button.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently deletes everything Yaadi keeps on this phone'**
+  String get deleteAllHint;
+
+  /// Settings section about the app and who built it.
+  ///
+  /// In en, this message translates to:
+  /// **'About'**
+  String get settingsAbout;
+
+  /// The app's name and version.
+  ///
+  /// In en, this message translates to:
+  /// **'Yaadi {version}'**
+  String aboutVersion(String version);
+
+  /// One line about what the app does.
+  ///
+  /// In en, this message translates to:
+  /// **'Paper to reminder. Bills, appointments, expiry dates and medicine times, offline, in English and Urdu.'**
+  String get aboutBody;
+
+  /// Who built the app; opens their GitHub page.
+  ///
+  /// In en, this message translates to:
+  /// **'Built by {maker}'**
+  String aboutMaker(String maker);
+
+  /// Opens the maker's Upwork profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Hire us on Upwork'**
+  String get aboutHire;
+
+  /// Shown when no browser could open a link.
+  ///
+  /// In en, this message translates to:
+  /// **'The link could not be opened.'**
+  String get linkFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -117,9 +117,28 @@ void main() {
       expect(plain(formatMinute(1439, 'en')), '11:59 PM');
     });
 
+    test('Urdu names the part of the day instead of a bare a or p', () {
+      const cases = {
+        0: 'رات 12:00',
+        240: 'صبح 4:00',
+        480: 'صبح 8:00',
+        719: 'صبح 11:59',
+        720: 'دوپہر 12:00',
+        840: 'دوپہر 2:00',
+        1020: 'شام 5:00',
+        1140: 'رات 7:00',
+        1439: 'رات 11:59',
+      };
+      cases.forEach((minute, text) {
+        expect(formatMinute(minute, 'ur'), text, reason: '$minute');
+      });
+      expect(formatMinute(480, 'ur_PK'), 'صبح 8:00');
+    });
+
     test('reject minutes outside a day', () {
       expect(() => formatMinute(-1, 'en'), throwsRangeError);
       expect(() => formatMinute(1440, 'en'), throwsRangeError);
+      expect(() => formatMinute(1440, 'ur'), throwsRangeError);
     });
   });
 }

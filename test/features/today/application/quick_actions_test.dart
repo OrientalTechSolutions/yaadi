@@ -52,6 +52,12 @@ void main() {
           due: LocalDate(2026, 10, 27),
           recurrence: DoseTimes([480, 840, 1200]),
         ),
+        item(
+          'checkup',
+          kind: ItemKind.appointment,
+          due: LocalDate(2026, 11, 1),
+          minute: 1020,
+        ),
       ],
     );
     var nextId = 0;
@@ -151,6 +157,29 @@ void main() {
       isA<AlreadyApplied>(),
     );
     expect((await repository.find('soon'))?.snoozedUntil, isNull);
+  });
+
+  test('Reschedule moves a past appointment to another day', () async {
+    final moved = await actions.reschedule('checkup', LocalDate(2026, 11, 6));
+    expect(moved, isA<ActionApplied>());
+    final stored = await repository.find('checkup');
+    expect(stored?.dueOn, LocalDate(2026, 11, 6));
+    expect(stored?.scheduledOn, LocalDate(2026, 11, 6));
+    expect(stored?.dueMinute, 1020);
+
+    expect(
+      await actions.reschedule('ammi', LocalDate(2026, 11, 6)),
+      isA<AlreadyApplied>(),
+    );
+    await actions.undo((moved as ActionApplied).undo);
+    expect((await repository.find('checkup'))?.dueOn, LocalDate(2026, 11, 1));
+  });
+
+  test('a repeating bill rescheduled once keeps its rule date', () async {
+    await actions.reschedule('lesco', LocalDate(2026, 11, 13));
+    final stored = await repository.find('lesco');
+    expect(stored?.dueOn, LocalDate(2026, 11, 13));
+    expect(stored?.scheduledOn, LocalDate(2026, 11, 10));
   });
 
   test('doses tapped in quick succession are all marked', () async {

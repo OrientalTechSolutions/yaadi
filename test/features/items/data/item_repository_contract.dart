@@ -91,6 +91,7 @@ void runItemRepositoryContract(
 
       final ids = (await repository.watchAll().first).map((item) => item.id);
       expect(ids, ['timed', 'untimed', 'late', 'undated']);
+      expect(await repository.readAll(), await repository.watchAll().first);
     });
 
     test('emits again after each write', () async {

@@ -46,6 +46,15 @@ void main() {
     expect(offenders, isEmpty);
   });
 
+  test('lib/ has no TODO or FIXME notes: open work lives in the CHANGELOG', () {
+    final note = RegExp(r'//.*\b(TODO|FIXME|XXX)\b');
+    final offenders = [
+      for (final file in handWritten)
+        if (note.hasMatch(file.readAsStringSync())) file.path,
+    ];
+    expect(offenders, isEmpty);
+  });
+
   test('core/ never imports a feature', () {
     final core = handWritten.where(
       (file) => file.path.contains(

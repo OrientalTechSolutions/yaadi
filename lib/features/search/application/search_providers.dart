@@ -9,10 +9,10 @@ import '../domain/region.dart';
 import '../domain/search_index.dart';
 
 /// Whose billers and proper nouns search understands, from the household's
-/// currency.
+/// currency: a demo household's, or the user's own.
 final searchRegionProvider = Provider<Region>(
   (ref) => Region.forCurrency(
-    ref.watch(appSettingsProvider.select((s) => s.defaultCurrency)),
+    ref.watch(appSettingsProvider.select((s) => s.householdCurrency)),
   ),
 );
 

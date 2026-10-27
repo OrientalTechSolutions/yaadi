@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show Bidi;
 
@@ -18,12 +20,22 @@ class UserText extends StatelessWidget {
     this.style,
     this.maxLines,
     this.overflow,
+    this.textAlign,
+    this.highlights = const [],
+    this.highlightStyle,
   });
 
   final String text;
   final TextStyle? style;
   final int? maxLines;
   final TextOverflow? overflow;
+  final TextAlign? textAlign;
+
+  /// Stretches to emphasize, sorted and not overlapping, such as search
+  /// matches. Search keeps Arabic-script words whole, so a highlight never
+  /// breaks Nastaliq joining.
+  final List<TextRange> highlights;
+  final TextStyle? highlightStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -39,14 +51,52 @@ class UserText extends StatelessWidget {
       fontFamilyFallback: const [AppFonts.urdu],
     );
 
+    final spans = <TextSpan>[];
+    var offset = 0;
+    for (final run in scriptRuns(text)) {
+      final runStyle = run.isArabic ? urdu : latin;
+      final runEnd = offset + run.text.length;
+      var cursor = offset;
+      for (final range in highlights) {
+        if (range.end <= cursor || range.start >= runEnd) continue;
+        final start = math.max(range.start, cursor);
+        final end = math.min(range.end, runEnd);
+        if (start > cursor) {
+          spans.add(
+            TextSpan(text: text.substring(cursor, start), style: runStyle),
+          );
+        }
+        spans.add(
+          TextSpan(
+            text: text.substring(start, end),
+            style: runStyle.merge(highlightStyle),
+          ),
+        );
+        cursor = end;
+      }
+      if (cursor < runEnd) {
+        spans.add(
+          TextSpan(text: text.substring(cursor, runEnd), style: runStyle),
+        );
+      }
+      offset = runEnd;
+    }
+
+    final layout = Directionality.of(context);
+    final direction = textDirectionOf(text, layout);
     return Text.rich(
-      TextSpan(
-        children: [
-          for (final run in scriptRuns(text))
-            TextSpan(text: run.text, style: run.isArabic ? urdu : latin),
-        ],
-      ),
-      textDirection: textDirectionOf(text, Directionality.of(context)),
+      TextSpan(children: spans),
+      textDirection: direction,
+      // Flush with the rest of the row: an Urdu title in an English list
+      // starts on the left like its subtitle, while still reading
+      // right-to-left.
+      textAlign:
+          textAlign ??
+          (direction == layout
+              ? TextAlign.start
+              : layout == TextDirection.ltr
+              ? TextAlign.left
+              : TextAlign.right),
       maxLines: maxLines,
       overflow: overflow,
     );
@@ -60,6 +110,9 @@ TextDirection textDirectionOf(String text, TextDirection fallback) {
   if (Bidi.startsWithLtr(text)) return TextDirection.ltr;
   return fallback;
 }
+
+/// Whether [text] has any Arabic-script letter, and so needs Nastaliq.
+bool hasArabicScript(String text) => text.runes.any(isArabicScript);
 
 /// A stretch of text in one script.
 typedef ScriptRun = ({String text, bool isArabic});

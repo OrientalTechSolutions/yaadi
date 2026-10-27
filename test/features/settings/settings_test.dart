@@ -2,6 +2,7 @@ import 'package:drift/drift.dart' hide isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaadi/core/platform/session_store_memory.dart';
+import 'package:yaadi/features/demo/domain/demo_household.dart';
 import 'package:yaadi/features/settings/data/settings_repository.dart';
 import 'package:yaadi/features/settings/domain/app_settings.dart';
 import 'package:yaadi/vault/vault_database.dart';
@@ -98,6 +99,20 @@ void main() {
         'default_currency': 'rupees',
       });
       expect(settings, const AppSettings());
+    });
+
+    test('a demo household brings its own currency', () {
+      final khan = AppSettings.fromEntries(const {'demo_household': 'khan'});
+      expect(khan.demoHousehold, DemoHousehold.khan);
+      expect(khan.householdCurrency, 'PKR');
+
+      final taylor = khan.copyWith(demoHousehold: DemoHousehold.taylor);
+      expect(taylor.householdCurrency, 'GBP');
+      expect(taylor.copyWith(demoHousehold: null).householdCurrency, 'PKR');
+      expect(
+        AppSettings.fromEntries(const {'demo_household': 'smith'}),
+        const AppSettings(),
+      );
     });
 
     test('copyWith can return to following the phone', () {
