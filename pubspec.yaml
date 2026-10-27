@@ -45,6 +45,9 @@ flutter:
   assets:
     - assets/fonts/noto_nastaliq_urdu/OFL.txt
     - assets/fonts/roboto/LICENSE.txt
+    # The SQLCipher library the sqlite3 hook bundles, and OpenSSL inside it.
+    - assets/licenses/sqlcipher/LICENSE.txt
+    - assets/licenses/openssl/LICENSE.txt
   fonts:
     # Bundled under the engine's own family name, so the web build never
     # fetches Roboto from Google (ARCHITECTURE.md section 10).
@@ -79,15 +82,15 @@ flutter_launcher_icons:
     background_color: "#FFFFFF"
     theme_color: "#0F766E"
 
-# Phones are set up for SQLCipher. M1 tests run on the operating system's
-# SQLite; the SQLCipher build is switched on for tests in M2, when the
-# sqlcipher-tagged tests become mandatory (ARCHITECTURE.md section 5.1).
+# Tests, CI and phones all load the SQLCipher build the sqlite3 hook fetches
+# from the package's GitHub release and checks against the sha256 hashes
+# shipped in the pub.dev package (ARCHITECTURE.md section 5.1). The app
+# refuses to open the vault on any build without SQLCipher (section 5.4).
+# Phones are listed explicitly so a change to `default` never touches them.
 hooks:
   user_defines:
     sqlite3:
       source:
         android: sqlcipher
         ios: sqlcipher
-        default: system
-      name:
-        windows: winsqlite3
+        default: sqlcipher

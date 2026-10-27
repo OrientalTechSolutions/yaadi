@@ -17,6 +17,10 @@ jobs:
     name: Flutter app
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      # Lets gh attestation verify read the sqlite3 release's attestations.
+      attestations: read
     steps:
       - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
@@ -25,9 +29,18 @@ jobs:
           channel: stable
           cache: true
 
-      # M1 tests run on the system SQLite (pubspec.yaml hooks), so the sqlite3
-      # build hook downloads nothing for them.
-      - run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev lcov
+      # Tests load the SQLCipher library that the sqlite3 build hook downloads
+      # on first use and checks against the sha256 hashes in the pub.dev
+      # package (ARCHITECTURE.md section 5.1). The hook checks a restored file
+      # against the same hash before using it.
+      - name: Cache the SQLCipher library
+        id: sqlcipher-cache
+        uses: actions/cache@v4
+        with:
+          path: .dart_tool/hooks_runner/shared/sqlite3/build
+          key: sqlcipher-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
+
+      - run: sudo apt-get update && sudo apt-get install -y lcov
       - run: flutter pub get
 
       - name: Generated code is up to date
@@ -55,6 +68,30 @@ jobs:
             lcov --summary coverage/lcov.info 2>&1
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
+
+      # The encryption tests never skip. Run on their own with --run-skipped,
+      # they fail the job if SQLCipher is not loaded, if a skip creeps in (the
+      # test runs anyway) or if no test carries the tag any more (exit 79).
+      - name: Encryption tests on SQLCipher
+        run: flutter test --tags sqlcipher --run-skipped
+
+      # After a fresh download, also check that the library was built by the
+      # sqlite3 package's release workflow (SLSA provenance).
+      - name: Provenance of the SQLCipher library
+        if: steps.sqlcipher-cache.outputs.cache-hit != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          libraries=(.dart_tool/hooks_runner/shared/sqlite3/build/download-*/libsqlcipher.so)
+          if [ ${#libraries[@]} -eq 0 ]; then
+            echo "The sqlite3 hook downloaded no SQLCipher library"
+            exit 1
+          fi
+          for library in "${libraries[@]}"; do
+            sha256sum "$library"
+            gh attestation verify --repo simolus3/sqlite3.dart "$library"
+          done
 
       # Dart on Windows ignores TZ, so real time zones are only tested here.
       # Santiago moves its clocks at midnight, so local midnight can be missing.

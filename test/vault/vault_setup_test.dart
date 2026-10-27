@@ -10,17 +10,21 @@ import 'package:yaadi/vault/vault_database.dart';
 import 'package:yaadi/vault/vault_failure.dart';
 import 'package:yaadi/vault/vault_setup.dart';
 
+import '../support/plain_sqlite.dart';
+
 final _key = 'a1' * 32;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
 
+  // Tests run on the SQLCipher build, so a build without it is simulated
+  // with PlainSqliteView, which hides the cipher pragmas as plain SQLite does.
   group('on plain SQLite', () {
     test('the vault refuses to open instead of writing plaintext', () {
       final db = sqlite3.openInMemory();
       addTearDown(db.close);
       expect(
-        () => applyVaultSetup(db, _key),
+        () => applyVaultSetup(PlainSqliteView(db), _key),
         throwsA(
           isA<VaultOpenFailure>().having(
             (failure) => failure.kind,
@@ -52,7 +56,7 @@ void main() {
         final db = VaultDatabase(
           NativeDatabase.createInBackground(
             file,
-            setup: (raw) => applyVaultSetup(raw, _key),
+            setup: (raw) => applyVaultSetup(PlainSqliteView(raw), _key),
           ),
         );
 

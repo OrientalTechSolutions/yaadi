@@ -7,6 +7,6 @@ import 'core/licenses.dart';
 
 void main() {
   redactErrorsInRelease();
-  registerFontLicenses();
+  registerBundledLicenses();
   runApp(const ProviderScope(child: YaadiApp()));
 }

@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+Encryption at rest is switched on for tests and tested on the desktop test runner.
+
+### Vault
+
+- Tests, CI and phones all load the SQLCipher build of the `sqlite3` hook: SQLCipher 4.19.0 community on SQLite 3.53.4, from the `sqlite3` 3.8.0 release, checked against the sha256 hashes shipped in the pub.dev package. The Windows build reports OpenSSL 4.0.3, linked in statically. Tests no longer use the operating system's SQLite.
+- The encryption tests run on every test run and never skip. They cover: no plaintext in the vault file, its header or its WAL; "not a database" without the key; a wrong key, a missing key or a plaintext file landing on Recovery with the file untouched; and the production open path applying every vault setting.
+- An encrypted schema v1 vault, `test/fixtures/vault_v1.sqlite`, is opened through the startup path on every run, so a library upgrade that cannot read existing vaults fails CI.
+- The fail-closed open is still tested on every run, now against a simulated build without SQLCipher.
+- CI runs the encryption tests again on their own and fails if SQLCipher is not loaded. It caches the downloaded library and checks a fresh download with `gh attestation verify`.
+- The SQLCipher and OpenSSL licences ship in `assets/licenses` and appear on the in-app licence page of phone builds (OpenSSL on Android only).
+
+### Known limits
+
+- No phone build is part of this milestone yet. The Android and iOS SQLCipher libraries, Android Keystore, the iOS Keychain and the backup rules are checked on devices in M2.
+- The CI workflow first runs when the repository is pushed, so the Linux library, its cache and the provenance check have not run yet.
+
 ## 0.1.0 - 2026-10-28
 
 First version: items added by hand, the Today screen, offline search, English and Urdu, a vault set up for SQLCipher encryption on phones (not yet tested; see Known limits) and a web demo with two made-up households.

@@ -1,6 +1,6 @@
 # Yaadi architecture
 
-Yaadi turns household papers into reminders: bills, appointments, expiry dates, medicine times and tasks, in English and Urdu, on the phone and offline. This document covers Milestone 1 (a vault built for SQLCipher, items added by hand, the Today screen, offline search, a bilingual UI and demo households) and the decisions that leave room for later milestones:
+Yaadi turns household papers into reminders: bills, appointments, expiry dates, medicine times and tasks, in English and Urdu, on the phone and offline. This document covers Milestone 1 (a SQLCipher vault whose encryption at rest is tested on the test VM, items added by hand, the Today screen, offline search, a bilingual UI and demo households) and the decisions that leave room for later milestones:
 
 - **M2:** reminders that repair themselves after reboots and time-zone changes, and a home-screen widget.
 - **M3:** camera, PDF and share capture, using the server proxy from flutter-ai-chat-starter.
@@ -23,7 +23,7 @@ Versions and APIs were checked on Flutter 3.47.8 and Dart 3.13.7 by running them
 | --- | --- | --- |
 | State | `flutter_riverpod` 3.4.3 | Hand-written providers, as in the starter |
 | Database | `drift` 2.35, `drift_flutter` 0.3.1 | Background isolate and a `setup` hook for the key. `shareAcrossIsolates` stays off: it cannot reach the separate engines of M2's background callbacks |
-| SQLite / SQLCipher | `sqlite3` 3.8.0 | A build hook supplies the library (section 5.1) |
+| SQLite / SQLCipher | `sqlite3` 3.8.0 | Its build hook supplies SQLCipher 4.19.0 (SQLite 3.53.4) to tests and phones (section 5.1) |
 | Keys | `flutter_secure_storage` 11.2.0, `crypto` | Keystore and Keychain; HKDF-SHA256 in about 20 lines, tested against RFC 5869 |
 | Text and l10n | `characters`, `flutter_localizations`, `intl` 0.20.3 | Grapheme-safe highlights; gen-l10n with ARB files |
 | IDs | `uuid` 4.6.0 | UUIDv7, made offline |
@@ -58,7 +58,8 @@ lib/
     today/                   TodayView, roll-forward, reopen, MorningSummary; quick actions; screen
     search/                  normalizer, lexicon, query, index, highlights; screen
     settings/, demo/         preferences; households, seeds, badge, notice, web picker
-test/                        mirrors lib/; test/drift/vault/ holds the migration harness
+test/                        mirrors lib/; test/drift/vault/ holds the migration harness,
+                             test/fixtures/ the encrypted vault fixture (5.4)
 drift_schemas/vault/         one JSON snapshot per schema version
 ```
 
@@ -115,7 +116,7 @@ Every rule in `Item.violations` is also a SQL `CHECK`. A unique index on `(item_
 
 The `sqlite3` build hook does not compile SQLite. It fetches a prebuilt library from the package's GitHub releases, checks it against sha256 hashes shipped in the pub.dev package and bundles it; SLSA attestations are published for each file. Only `source: system` uses the operating system's copy, which Android cannot use.
 
-**Current configuration (M1):**
+**Configuration:**
 
 ```yaml
 hooks:
@@ -124,14 +125,18 @@ hooks:
       source:
         android: sqlcipher
         ios: sqlcipher
-        default: system
-      name:
-        windows: winsqlite3
+        default: sqlcipher
 ```
 
-Phones are set to SQLCipher; no M1 step builds them. VM tests run on the system SQLite, so they fetch nothing. The production open path is still tested on every run: `native_open_test.dart` drives drift_flutter's isolate, the key handed to `setup`, the vault directory and the backup exclusion, and shows that the build refuses to open on plain SQLite, leaving a 0-byte file and no key in the error. The encryption tests (`@Tags(['sqlcipher'])`) skip.
+Tests, CI and phones load the same release's SQLCipher build: SQLCipher 4.19.0 community on SQLite 3.53.4, from the `sqlite3-3.8.0` release. The phones keep their own entries so a change to `default` never reaches them. Each platform gets its own file, fetched on first use into `.dart_tool/hooks_runner/shared/sqlite3/build/download-<hash>/` and checked against the pinned sha256 before use, also when the file is already there. A mismatch fails the build.
 
-**Target configuration (M2):** `source: sqlcipher` everywhere, so tests and phones share one build. CI then sets `YAADI_REQUIRE_SQLCIPHER=1`, which turns the skip into a failure, caches the hook output and runs `gh attestation verify` on a cache miss. The SQLCipher and OpenSSL licences join the licence page and the README moves to the "tested" status line (section 8). SQLite3MultipleCiphers (MIT, no OpenSSL) is the fallback, chosen before the first store release because switching later means a rotation.
+- **Windows VM tests** (verified): `sqlcipher.x64.windows.dll`, 4,688,896 bytes, sha256 `3a2f228b…7595`, as pinned. OpenSSL 4.0.3 is linked in statically; the DLL imports only Windows system libraries.
+- **Linux CI:** `libsqlcipher.x64.linux.so`. CI caches the download directory, so the hook checks the cached file's hash again before use, and runs `gh attestation verify --repo simolus3/sqlite3.dart` after a fresh download.
+- **Phones:** the Android ABIs and `libsqlcipher.arm64.ios.dylib`, fetched when a device build first runs (M2). The Apple builds use Apple's own crypto library instead of OpenSSL.
+
+The encryption tests (`@Tags(['sqlcipher'])`, in `sqlcipher_test.dart` and `native_open_test.dart`) never skip. Without SQLCipher every one of them fails. CI also runs the tag on its own with `--run-skipped`, which fails if SQLCipher is missing, if a skip creeps in (the test runs anyway) or if no test carries the tag (exit 79). The fail-closed open (5.4) stays tested on every run: a test-only view hides the cipher pragmas the way plain SQLite does, both directly and inside a background isolate. The hook supplies one library per build, so real plain SQLite cannot run next to SQLCipher in the same test run.
+
+The SQLCipher and OpenSSL licences are on the licence page (section 17). SQLite3MultipleCiphers (MIT, no OpenSSL) is the fallback, chosen before the first store release because switching later means a rotation.
 
 ### 5.2 Key custody
 
@@ -158,7 +163,7 @@ An unexpected failure, such as a full or failing disk, offers Try again only: er
 
 `setup` runs in the Drift isolate: check the derived key is 64 hex characters (SQLCipher would silently run PBKDF2 on anything else); `PRAGMA key = "x'<hex>'"`, the raw-key form; require `PRAGMA cipher_version` to return a row, because plain SQLite ignores `PRAGMA key`; set `cipher_compatibility = 4`; read `sqlite_master` to check the key; then `temp_store = MEMORY`, `secure_delete = ON`, `foreign_keys = ON`, `busy_timeout = 5000` and `journal_mode = WAL`. After first creation the opener refuses a file that starts with `SQLite format 3`.
 
-Once tests run on SQLCipher (5.1), an encrypted fixture database made with that build is committed under `test/fixtures/` and opened on every run, so a format change in a `sqlite3` upgrade fails CI rather than phones.
+An encrypted fixture, `test/fixtures/vault_v1.sqlite`, is committed and opened on every run, so a format change in a `sqlite3` upgrade fails CI rather than phones. It is a schema v1 vault with a bill, an Urdu-titled medicine, a task, a payment and a setting. `make_vault_fixture.dart` wrote it once through the production open path, with the SQLCipher build above and a key derived by HKDF from a fixed test secret. The test copies it into a temporary vault directory, opens it through `VaultOpener` with that key and compares every row. It also checks that the fixture's bytes contain no plaintext and that a missing or different key reaches Recovery without the file changing. The generator refuses to overwrite a fixture; a new schema version adds its own file next to it.
 
 ### 5.5 Failure states
 
@@ -216,7 +221,7 @@ The README copies these texts word for word.
 
 > On Android and iPhone, Yaadi keeps your items in an encrypted database on the phone (SQLCipher, AES-256). The key is created on the phone, protected by Android Keystore or stored in the iOS Keychain, and never leaves it. This version makes no network requests and has no analytics or crash reporting. Encryption protects a copy of the database file on its own. It does not protect against someone who can unlock your phone and open Yaadi, a rooted or jailbroken phone, or malware. On a shared phone, the main protection is that the Reference field is hidden until you tap Show. There is no backup yet: if you lose or reset your phone, your Yaadi data cannot be recovered.
 
-**M1 status line**, above it. While tests run on the system SQLite: "The Android and iPhone builds are set up to use SQLCipher. Encryption itself is not tested yet: the tests are written and run once the SQLCipher build is switched on for tests in M2, together with on-device checks." Once they run on SQLCipher: "Encryption is tested on the desktop test runner with the same SQLCipher build the phones use. On-device checks come in M2."
+**Status line**, above it: "Encryption at rest is tested on the desktop test runner with SQLCipher 4.19.0, from the same sqlite3 release the Android and iPhone builds bundle. The phone builds themselves, with Android Keystore, the iOS Keychain and the backup rules, are checked on devices in M2." (It said "is not tested yet" until the tests moved to SQLCipher.)
 
 **Web demo**, on its first screen, in Settings and behind Details:
 
@@ -338,18 +343,18 @@ Controllers expose intents and track pending writes; widgets never call reposito
 | Domain | Dates, recurrence, roll-forward, catch-up, reopening, doses, groups, undo snapshots, validation, money, digits, the summary, HKDF vectors |
 | Search | Normalizer, lexicon and regions, tiers, typing rules, highlights, 90 queries, a 5,000-item budget |
 | Repository | One contract suite per repository type, run against Drift, memory and the session store, including a store that throws |
-| Vault | Migrations, enum names against the schema version, CHECKs, the WAL after a delete, the startup matrix, failure mapping, wipe crash points, the production open path failing closed |
-| Vault, `sqlcipher` tag | File and WAL never plaintext, no key means "not a database", a wrong key reaches Recovery, `cipher_version` 4.x; skips until tests run on SQLCipher (5.1) |
+| Vault | Migrations, enum names against the schema version, CHECKs, the WAL after a delete, the startup matrix, failure mapping, wipe crash points, the open failing closed without SQLCipher (simulated, 5.1) |
+| Vault, `sqlcipher` tag | SQLCipher 4.x with OpenSSL loaded; file and WAL never plaintext, with no plaintext header; no key means "not a database"; a wrong key or a plaintext file reaches Recovery untouched; the production open in drift_flutter's isolate applies every setting; startup creates the vault and reopens it with the stored key; the committed fixture opens through the startup path, and a missing or different key sends it to Recovery. Never skipped; CI also runs the tag on its own |
 | Widgets | Today, quick actions with Undo and stale feedback, the editor's rules and announcements, the Reference field, delete, taking a payment back, search, demo households on a phone and the web, the Urdu time picker, layouts, large text, accessibility guidelines on six screens |
 | Theme and sources | Colour pairs at 4.5:1, Urdu line heights at 1.0, 1.3 and 2.0; no `print`, no TODOs, pure domain, no literal bidi characters or byte-order marks |
 
-Widget tests load the real fonts, because the test font draws Urdu as boxes and hides clipping. A tap that lands only because an ancestor catches it fails. No test touches the network or a real platform channel. Planned (M2): golden images of Today and the editor in both languages, rendered on Linux CI.
+Widget tests load the real fonts, because the test font draws Urdu as boxes and hides clipping. A tap that lands only because an ancestor catches it fails. No test touches the network or a real platform channel; only the sqlite3 hook downloads, once, before the first test run (5.1). Planned (M2): golden images of Today and the editor in both languages, rendered on Linux CI.
 
 ## 17. CI, licences and reproducibility
 
-GitHub Actions on Ubuntu with Flutter 3.47.8, read-only token permissions, one run per branch and a 30-minute limit: install the system SQLite and lcov; check that `gen-l10n`, `build_runner`, `make-migrations` and `schema generate` change nothing and that no message is untranslated; `dart format`; `flutter analyze`; `flutter test --coverage` with an lcov summary in the job summary; the date tests again in four time zones; a release web build, deployed to Pages from main. Dependabot watches `pub` and `github-actions`. The CHANGELOG notes every `sqlite3`, SQLCipher or OpenSSL change, since their security fixes arrive through `sqlite3` releases.
+GitHub Actions on Ubuntu with Flutter 3.47.8, read-only token permissions, one run per branch and a 30-minute limit: restore the cached SQLCipher download and install lcov; check that `gen-l10n`, `build_runner`, `make-migrations` and `schema generate` change nothing and that no message is untranslated; `dart format`; `flutter analyze`; `flutter test --coverage` with an lcov summary in the job summary; the `sqlcipher` tag again on its own with `--run-skipped`; `gh attestation verify` on a freshly downloaded SQLCipher library; the date tests again in four time zones; a release web build, deployed to Pages from main. Dependabot watches `pub` and `github-actions`. The CHANGELOG notes every `sqlite3`, SQLCipher or OpenSSL change, since their security fixes arrive through `sqlite3` releases.
 
-The Noto Nastaliq Urdu and Roboto licences ship in `assets/fonts` and appear on the in-app licence page; the SQLCipher and OpenSSL notices join them with the SQLCipher test build (5.1). Desktop is left out of M1: Windows plugin builds need Developer Mode, and desktop keyrings need their own threat-model rows.
+The Noto Nastaliq Urdu and Roboto licences ship in `assets/fonts` and appear on the in-app licence page. The SQLCipher and OpenSSL notices ship in `assets/licenses`. `registerBundledLicenses` adds SQLCipher to the licence page of phone builds, and OpenSSL where the library links it: Android, not iOS. The web demo has no database library and lists neither. A test checks both platforms. Desktop is left out of M1: Windows plugin builds need Developer Mode, and desktop keyrings need their own threat-model rows.
 
 ## 18. Later constraints (M2 to M4)
 
@@ -382,9 +387,9 @@ The Noto Nastaliq Urdu and Roboto licences ship in `assets/fonts` and appear on 
 
 ## 20. Verified and not verified yet
 
-Verified on Flutter 3.47.8 (Windows VM tests and a release web build): the packages resolve and Drift runs in tests; the migration harness works; the production open path refuses plain SQLite inside drift_flutter's isolate and leaves a 0-byte file and a key-free error; a delete leaves nothing in the WAL under the vault's PRAGMAs; Urdu, RTL and large text render with the real fonts; the web bundle has no native database code and the demo made only same-origin requests. The package behaviour this design leans on (sections 2, 5.2, 9 and 10) was read in the sources.
+Verified on Flutter 3.47.8 (Windows VM tests and a release web build): the packages resolve and Drift runs in tests; the migration harness works; the sqlite3 hook fetches `sqlcipher.x64.windows.dll` and its sha256 matches the pinned hash; encryption at rest on SQLCipher 4.19.0 (no plaintext in the file, its WAL or its header, "not a database" without the key, a wrong key, a missing key and a plaintext file all reaching Recovery without the file changing, and the production open in drift_flutter's isolate); the committed fixture opens through the startup path; the open path refuses a build without SQLCipher (simulated, 5.1) and leaves a 0-byte file and a key-free error; a delete leaves nothing in the WAL under the vault's PRAGMAs; Urdu, RTL and large text render with the real fonts; the web bundle has no native database code and the demo made only same-origin requests. The package behaviour this design leans on (sections 2, 5.2, 9 and 10) was read in the sources.
 
-Not verified yet: SQLCipher itself, meaning encryption at rest, the wrong-key mapping and the fixture (5.1); the CI workflow, which first runs when the repository is pushed, and with it the date tests in real time zones; the Android and iOS backup rules and Keystore options on devices (M2); golden images (M2).
+Not verified yet: the CI workflow, which first runs when the repository is pushed, and with it the Linux SQLCipher library, its cache, `gh attestation verify` and the date tests in real time zones; the Android and iOS SQLCipher libraries, fetched when a device build first runs; the Android and iOS backup rules and Keystore options on devices (M2); golden images (M2).
 
 ## 21. Changes from the original plan
 
@@ -397,3 +402,6 @@ Not verified yet: SQLCipher itself, meaning encryption at rest, the wrong-key ma
 | "Mark as not paid" on the item page | Without it, editing the date was the only way back, and it recorded payments against the wrong month |
 | The Nastaliq line height no longer eases down at large scales | The easing made lines collide in Large text, the opposite of its purpose |
 | Golden tests moved to M2 | Their baselines need the Linux CI run that publishing brings |
+| The `sqlcipher` tests never skip, and CI runs the tag on its own with `--run-skipped` instead of setting `YAADI_REQUIRE_SQLCIPHER=1` | Every configuration now loads SQLCipher, so a skip could only hide a broken build. The separate run also fails when no test carries the tag |
+| Fail-closed tests simulate a build without SQLCipher | The hook supplies one library per build, and tests now get SQLCipher |
+| SQLCipher moved to the test VM in M1 instead of M2 | Encryption at rest is tested before any phone build exists; device checks stay in M2 |

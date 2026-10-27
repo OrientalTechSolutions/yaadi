@@ -1,21 +1,25 @@
+@Tags(['sqlcipher'])
+library;
+
 import 'dart:io';
 
 import 'package:drift/drift.dart' show driftRuntimeOptions;
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaadi/core/platform/backup_exclusion.dart';
+import 'package:yaadi/features/settings/data/settings_repository.dart';
 import 'package:yaadi/vault/open_vault_native.dart';
-import 'package:yaadi/vault/vault_failure.dart';
+import 'package:yaadi/vault/vault_database.dart';
 import 'package:yaadi/vault/vault_files.dart';
+import 'package:yaadi/vault/vault_keys.dart';
 import 'package:yaadi/vault/vault_opener.dart';
 
 import '../support/fake_key_store.dart';
 
-/// The open path phones use, end to end: drift_flutter's background
-/// isolate, the key handed to `setup`, the vault directory and the backup
-/// exclusion. The test host has plain SQLite, so it must refuse to open, and
-/// leave neither data nor the key in the file or the error. The encrypted
-/// side of the same path is in sqlcipher_test.dart.
+/// The open path phones use, end to end on the SQLCipher build: drift_flutter's
+/// background isolate, the key handed to `setup`, the vault directory and the
+/// backup exclusion. A build without SQLCipher is refused in
+/// vault_setup_test.dart; encryption itself is in sqlcipher_test.dart.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -43,54 +47,62 @@ void main() {
     }
   });
 
-  int fileLength() =>
-      files.database.existsSync() ? files.database.lengthSync() : 0;
+  Future<Object?> pragma(VaultDatabase db, String name) async =>
+      (await db.customSelect('PRAGMA $name').getSingle()).data.values.single;
 
-  test('the production open refuses plain SQLite and writes nothing', () async {
-    final key = 'ab' * 32;
-    final db = openSqlCipherVault(files, key, backupExclusion: exclusion);
-    Object? error;
+  test('the production open applies every vault setting', () async {
+    final db = openSqlCipherVault(files, 'ab' * 32, backupExclusion: exclusion);
     try {
-      await db.customSelect('SELECT 1').get();
-    } on Exception catch (caught) {
-      error = caught;
-    }
-    try {
+      expect(await pragma(db, 'cipher_version'), startsWith('4.'));
+      expect(await pragma(db, 'journal_mode'), 'wal');
+      expect(await pragma(db, 'foreign_keys'), 1);
+      expect(await pragma(db, 'secure_delete'), 1);
+      expect(await pragma(db, 'temp_store'), 2);
+      expect(await pragma(db, 'busy_timeout'), 5000);
+    } finally {
       await db.close();
-    } on Exception {
-      // The connection never opened.
     }
 
-    expect(error, isNotNull);
-    final failure = vaultFailureFrom(error!);
-    expect(failure.kind, VaultFailureKind.cipherMissing);
-    expect(failure.toString(), isNot(contains(key)));
-    expect(fileLength(), 0);
     // The vault directory was set up, and kept out of backups, first.
     expect(exclusion.directories, [files.directory.path]);
+    expect(await files.hasPlaintextHeader(), isFalse);
   });
 
-  test('startup with the production connector fails closed', () async {
-    final keys = FakeVaultKeyStore();
-    final opener = VaultOpener(
-      keys: keys,
-      files: files,
-      connect: (key) async =>
-          openSqlCipherVault(files, key, backupExclusion: exclusion),
-    );
+  test(
+    'startup creates the vault, then opens it with the stored key',
+    () async {
+      final keys = FakeVaultKeyStore();
+      final connected = <String>[];
+      final opener = VaultOpener(
+        keys: keys,
+        files: files,
+        connect: (key) async {
+          connected.add(key);
+          return openSqlCipherVault(files, key, backupExclusion: exclusion);
+        },
+      );
 
-    await expectLater(
-      opener.open(),
-      throwsA(
-        isA<VaultOpenFailure>().having(
-          (failure) => failure.kind,
-          'kind',
-          VaultFailureKind.cipherMissing,
-        ),
-      ),
-    );
-    expect(fileLength(), 0);
-  });
+      final created = await opener.open();
+      await DriftSettingsRepository(created).write('language', 'ur');
+      await created.close();
+      expect(keys.writes, 1);
+      expect(await files.hasPlaintextHeader(), isFalse);
+
+      final reopened = await opener.open();
+      try {
+        expect(await DriftSettingsRepository(reopened).readAll(), {
+          'language': 'ur',
+        });
+      } finally {
+        await reopened.close();
+      }
+      expect(keys.writes, 1);
+      expect(connected, [
+        deriveDatabaseKey(keys.stored!),
+        deriveDatabaseKey(keys.stored!),
+      ]);
+    },
+  );
 }
 
 final class _RecordingExclusion implements BackupExclusion {

@@ -2,7 +2,7 @@
 
 Yaadi is for the person who handles a family's bills, notices and medicines. It turns each paper into a reminder they can read in their own language, so they can act on time, every day. Pakistan first (Urdu, Roman Urdu and English), and English-speaking homes in the UK and US. It works offline.
 
-This is Milestone 1 (version 0.1.0): the app, storage set up for SQLCipher encryption on phones (switched on and tested in M2; see Privacy), the Today screen, offline search in three ways of writing, and a web demo with two made-up households. In this milestone you type items in; reading a paper from the camera, a PDF or the share button comes in M3. Nothing is in an app store yet.
+This is Milestone 1 (version 0.1.0): the app, an encrypted SQLCipher vault (encryption at rest is tested on the desktop test runner, and on-device checks come in M2; see Privacy), the Today screen, offline search in three ways of writing, and a web demo with two made-up households. In this milestone you type items in; reading a paper from the camera, a PDF or the share button comes in M3. Nothing is in an app store yet.
 
 ## Screenshots
 
@@ -32,7 +32,7 @@ This is Milestone 1 (version 0.1.0): the app, storage set up for SQLCipher encry
 
 ## Roadmap
 
-- **M2:** reminders that still fire after a restart or a time-zone change, and repair themselves; a home-screen widget; the morning summary on a schedule; SQLCipher switched on and tested, then checked on devices; a first export, since there is no backup yet.
+- **M2:** reminders that still fire after a restart or a time-zone change, and repair themselves; a home-screen widget; the morning summary on a schedule; the encrypted vault checked on devices (Android Keystore, the iOS Keychain and backup rules); a first export, since there is no backup yet.
 - **M3:** capture by camera, PDF or the share button. A small server, reusing the proxy from our flutter-ai-chat-starter project, reads the paper into a card you check and confirm, with each number linked to where it came from.
 - **M4:** voice, Explain in Urdu, Roman Urdu or English, Ask my papers, sharing to WhatsApp, app lock and a simple mode.
 
@@ -41,13 +41,13 @@ This is Milestone 1 (version 0.1.0): the app, storage set up for SQLCipher encry
 - **Flutter 3.47.8 and Riverpod 3**, organised by feature (items, today, search, settings, demo), with the domain logic in plain Dart: recurrence and roll-forward, Today grouping, the morning summary and search have no Flutter or database code and run the same on phones, the web and the test VM.
 - **One repository contract, three implementations.** The vault, memory (the demo households) and the browser session (the web demo) pass the same tests for revision checks, one payment per occurrence and undo. An undo only ever applies to the storage it came from, so a demo item can never land in your own items.
 - **Dates are calendar dates.** "Due on the 10th" is stored as a date, not an instant, so daylight saving and time-zone changes never move it.
-- **Built for an encrypted vault.** Drift over SQLCipher, with a random key made on the phone, protected by Android Keystore or the iOS Keychain and turned into the database key with HKDF. The open path refuses to run on plain SQLite (tested on every run), a failure never silently resets the vault, deletes are cleared from the write-ahead log, and a versioned schema has a migration test harness. Encryption itself is not tested yet (see Privacy).
+- **An encrypted vault.** Drift over SQLCipher, with a random key made on the phone, protected by Android Keystore or the iOS Keychain and turned into the database key with HKDF. Encryption at rest is tested on every run with the same SQLCipher release the phone builds bundle. The file and its write-ahead log hold no plaintext, a missing or wrong key lands on the Recovery screen, and a committed encrypted vault must keep opening after every library upgrade. The open path refuses to run without SQLCipher, a failure never silently resets the vault, deletes are cleared from the write-ahead log, and a versioned schema has a migration test harness.
 
 [ARCHITECTURE.md](ARCHITECTURE.md) has the whole design: the threat model, every decision with its trade-off, and what is verified so far.
 
 ## Privacy
 
-The Android and iPhone builds are set up to use SQLCipher. Encryption itself is not tested yet: the tests are written and run once the SQLCipher build is switched on for tests in M2, together with on-device checks.
+Encryption at rest is tested on the desktop test runner with SQLCipher 4.19.0, from the same sqlite3 release the Android and iPhone builds bundle. The phone builds themselves, with Android Keystore, the iOS Keychain and the backup rules, are checked on devices in M2.
 
 When phone builds ship (M2), this is the statement they will carry:
 
@@ -61,7 +61,7 @@ The two links in Settings open GitHub and Upwork in your browser; the app itself
 
 ## Run it
 
-You need Flutter 3.47.8 (Dart 3.13.7). On Linux, install `libsqlite3-dev` first: the tests use the system SQLite.
+You need Flutter 3.47.8 (Dart 3.13.7). The first test run or desktop build downloads the SQLCipher library for your machine from the [sqlite3 package's GitHub release](https://github.com/simolus3/sqlite3.dart/releases) and checks its sha256 hash against the one shipped in the package. After that it is cached under `.dart_tool`.
 
 ```sh
 flutter pub get
@@ -80,7 +80,7 @@ The release web build used for the screenshots:
 flutter build web --release --no-web-resources-cdn --dart-define=YAADI_TODAY=2026-11-02
 ```
 
-Android and iOS builds are configured but are not part of Milestone 1; the SQLCipher library they bundle is switched on and tested in M2 (ARCHITECTURE.md section 5.1).
+Android and iOS builds are configured but are not part of Milestone 1. They bundle the same release's SQLCipher library, fetched when a device build first runs, and are checked on devices in M2 (ARCHITECTURE.md section 5.1).
 
 ## Tests
 
@@ -89,15 +89,16 @@ flutter analyze
 flutter test
 ```
 
-About 850 tests run without a network, a device or a real clock:
+About 860 tests run without a device or a real clock, and without a network once the SQLCipher library is downloaded:
 
 - table-driven domain tests for recurrence (month ends, leap years, `until`), catch-up, taking a payment back, Today grouping, medicine times, the morning summary, money and Urdu digits, the editor's rules and the reference mask;
 - 90 search queries in English, Urdu script and Roman Urdu, normalizer rules, highlight boundaries and a 5,000-item time budget;
-- one repository contract run against the vault, memory and the browser session, plus the vault's key handling, startup states, migrations, constraints and the production open path refusing plain SQLite;
+- one repository contract run against the vault, memory and the browser session, plus the vault's key handling, startup states, migrations, constraints and the open path refusing to run without SQLCipher;
+- encryption at rest on SQLCipher: no plaintext in the file, its header or its write-ahead log; "not a database" without the key; a wrong key, a missing key or a plaintext file landing on Recovery with the file untouched; the production open path in its background isolate; and a committed encrypted vault opened through the startup path on every run;
 - widget tests of the main flows in English and Urdu with the real fonts loaded: quick actions and undo, the editor, hidden reference numbers, search highlights, the demo households, right-to-left layout and large text at 2x;
 - Flutter's tap-target and label guidelines on six screens in both languages and themes, its contrast guideline on the English screens (it cannot measure thin Nastaliq strokes), and every colour pair of the theme checked at 4.5:1 for both.
 
-The encryption tests are written and skip until the SQLCipher build is switched on for tests. GitHub Actions runs the same checks on every push to main and every pull request: generated code must be up to date, then format, analyze, the tests (and the date tests again under London, New York, Karachi and Santiago time zones) and a release web build.
+The encryption tests (tag `sqlcipher`) never skip. GitHub Actions runs the same checks on every push to main and every pull request: generated code must be up to date, then format, analyze, the tests, the encryption tests again on their own (the job fails if SQLCipher is not loaded), a provenance check of a freshly downloaded SQLCipher library, the date tests again under London, New York, Karachi and Santiago time zones, and a release web build. The workflow first runs when the repository is pushed.
 
 Generated code is committed. After changing ARB files, tables or the schema, regenerate it with the same commands CI checks:
 
@@ -110,7 +111,7 @@ dart run drift_dev schema generate --data-classes --companions drift_schemas/vau
 
 ## Licences
 
-Yaadi is released under the [MIT License](LICENSE). It bundles Noto Nastaliq Urdu (SIL Open Font License 1.1) and Roboto (Apache License 2.0); both licences ship in `assets/fonts` and appear on the in-app licence page. The Urdu text is waiting for a review by a native speaker.
+Yaadi is released under the [MIT License](LICENSE). It bundles Noto Nastaliq Urdu (SIL Open Font License 1.1) and Roboto (Apache License 2.0); both licences ship in `assets/fonts` and appear on the in-app licence page. Phone builds also bundle SQLCipher (BSD-style licence, Zetetic LLC), which links OpenSSL (Apache License 2.0) on Android. Both licences ship in `assets/licenses` and appear on the licence page of those builds. The Urdu text is waiting for a review by a native speaker.
 
 ## Built by Oriental Tech Solutions
 
