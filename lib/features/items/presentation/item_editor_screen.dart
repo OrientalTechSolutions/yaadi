@@ -484,6 +484,7 @@ class _AmountSection extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final currency = draft.currency;
     final info = CurrencyInfo.of(currency);
+    final latin = latinFieldStyles(context);
     return Column(
       children: [
         const SizedBox(height: 16),
@@ -520,13 +521,17 @@ class _AmountSection extends StatelessWidget {
                 focusNode: focusNode,
                 textDirection: TextDirection.ltr,
                 textAlign: alignWithLayout(context),
+                style: latin.style,
+                strutStyle: latin.strutStyle,
                 keyboardType: TextInputType.numberWithOptions(
                   decimal: info.inputFractionDigits > 0,
                 ),
                 decoration: InputDecoration(
                   labelText: l10n.fieldAmount,
+                  labelStyle: latin.labelStyle,
                   // Only needed while the field is empty.
                   hintText: l10n.amountHint,
+                  hintStyle: latin.labelStyle,
                   hintMaxLines: 2,
                   errorText: errorText,
                   errorMaxLines: 2,

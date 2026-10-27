@@ -167,6 +167,7 @@ class _ReferenceFieldState extends State<ReferenceField>
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final latin = latinFieldStyles(context);
     return TextField(
       controller: widget.controller,
       obscureText: !_shown,
@@ -174,6 +175,8 @@ class _ReferenceFieldState extends State<ReferenceField>
       textDirection: TextDirection.ltr,
       // Reads left to right, but sits under its label at the start side.
       textAlign: alignWithLayout(context),
+      style: latin.style,
+      strutStyle: latin.strutStyle,
       keyboardType: TextInputType.visiblePassword,
       autocorrect: false,
       enableSuggestions: false,
@@ -187,6 +190,7 @@ class _ReferenceFieldState extends State<ReferenceField>
       ],
       decoration: InputDecoration(
         labelText: l10n.fieldReference,
+        labelStyle: latin.labelStyle,
         helperText: widget.helperText,
         helperMaxLines: 3,
         errorText: widget.errorText,

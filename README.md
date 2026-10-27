@@ -6,13 +6,13 @@ This is Milestone 1 (version 0.1.0): the app, storage set up for SQLCipher encry
 
 ## Screenshots
 
-| Today | Today in Urdu | Search |
+| Today | Today in Urdu, dark theme | Search in Roman Urdu |
 | --- | --- | --- |
-| <img src="docs/screenshots/today.png" alt="Today for the Khan household: the morning summary, a past check-up to confirm and an overdue gas bill titled in Urdu" width="260"> | <img src="docs/screenshots/today-urdu.png" alt="The same Today screen in the Urdu interface, right to left in Nastaliq" width="260"> | <img src="docs/screenshots/search.png" alt="Searching for ammi finds Ammi's check-up and an item titled in Urdu script, with the matched words highlighted" width="260"> |
+| <img src="docs/screenshots/today_en.png" alt="Today for the Khan household: the morning summary, a past check-up to confirm and an overdue gas bill titled in Urdu" width="260"> | <img src="docs/screenshots/today_ur_dark.png" alt="The same Today screen in the Urdu interface and the dark theme, right to left in Nastaliq" width="260"> | <img src="docs/screenshots/search_roman_urdu.png" alt="Searching for bijli ka bill finds the LESCO bill, with LESCO, bill, Electricity and Bill highlighted" width="260"> |
 
-| Adding an item | An item's page | Dark theme |
+| Adding an item in Urdu | Demo households | The Taylor family |
 | --- | --- | --- |
-| <img src="docs/screenshots/editor.png" alt="The editor for a new LESCO bill with its amount typed in" width="260"> | <img src="docs/screenshots/item.png" alt="An ID card's page with its reference number hidden until Show" width="260"> | <img src="docs/screenshots/dark.png" alt="Today in the dark theme" width="260"> |
+| <img src="docs/screenshots/add_item_ur.png" alt="The Urdu editor adding an electricity bill titled in Urdu script, with 4250 rupees typed in" width="260"> | <img src="docs/screenshots/settings.png" alt="Settings in the web demo: the two made-up households with the Khan family chosen, and Clear demo data" width="260"> | <img src="docs/screenshots/today_taylor.png" alt="Today for the Taylor household in Manchester: council tax overdue, prescription times and amounts in pounds, dates written day first" width="260"> |
 
 ## The problem
 

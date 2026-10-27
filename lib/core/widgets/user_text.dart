@@ -125,6 +125,33 @@ TextStyle latinRun(TextStyle? base) {
   );
 }
 
+/// What a field that only ever holds Latin text, such as an amount or an ID
+/// number, needs in the Urdu UI, where the theme would set its digits in
+/// Nastaliq beside the Roboto "Rs" of the currency.
+///
+/// [style] gives the digits Roboto and [strutStyle] keeps them on Nastaliq's
+/// line, so the field stays as tall as the ones beside it. The label and
+/// hint take the field's font, so [labelStyle] gives them Nastaliq back.
+/// All null in the English UI, where the theme is already right.
+({TextStyle? style, StrutStyle? strutStyle, TextStyle? labelStyle})
+latinFieldStyles(BuildContext context) {
+  final base = Theme.of(context).textTheme.bodyLarge;
+  if (base == null || base.fontFamily != AppFonts.urdu) {
+    return (style: null, strutStyle: null, labelStyle: null);
+  }
+  return (
+    style: const TextStyle(
+      fontFamily: AppFonts.ui,
+      fontFamilyFallback: [AppFonts.urdu],
+    ),
+    strutStyle: StrutStyle.fromTextStyle(base, forceStrutHeight: true),
+    labelStyle: TextStyle(
+      fontFamily: base.fontFamily,
+      fontFamilyFallback: base.fontFamilyFallback,
+    ),
+  );
+}
+
 /// The alignment for a left-to-right field, such as an amount or an ID
 /// number: on the layout's start side, so in the Urdu UI it sits under its
 /// label on the right rather than at the far end of the field.

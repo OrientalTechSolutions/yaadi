@@ -3,6 +3,7 @@ import 'dart:ui' show Tristate;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaadi/core/money/money.dart';
+import 'package:yaadi/core/theme/app_theme.dart';
 import 'package:yaadi/core/time/local_date.dart';
 import 'package:yaadi/features/items/domain/item_category.dart';
 import 'package:yaadi/features/items/domain/item_kind.dart';
@@ -337,5 +338,29 @@ void main() {
     await tester.drag(inEditor(find.byType(ListView)), const Offset(0, -2000));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('the Urdu editor types amounts and reference numbers in Roboto', (
+    tester,
+  ) async {
+    await pumpApp(
+      tester,
+      FakeStorageBackend(settings: const {'language': 'ur'}),
+    );
+    await openEditor(tester);
+
+    final amount = field('رقم');
+    expect(tester.widget<TextField>(amount).style?.fontFamily, AppFonts.ui);
+    // Still lined up with the currency beside it.
+    Rect box(Finder of) => tester.getRect(
+      find.descendant(of: of, matching: find.byType(InputDecorator)).first,
+    );
+    final currency = inEditor(find.byType(DropdownButtonFormField<String>));
+    expect(box(amount).bottom, closeTo(box(currency).bottom, 0.5));
+
+    await tester.drag(inEditor(find.byType(ListView)), const Offset(0, -2000));
+    await tester.pumpAndSettle();
+    final reference = tester.widget<TextField>(field('حوالہ نمبر'));
+    expect(reference.style?.fontFamily, AppFonts.ui);
   });
 }
