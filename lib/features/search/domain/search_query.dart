@@ -140,6 +140,28 @@ final class SearchQuery {
         ),
       );
     }
+
+    // A word being typed can start out as a stopword: "me" on the way to
+    // "meeting", "ki" to "kiran". Alone, it is kept as a prefix, or the
+    // results would vanish and come back between keystrokes.
+    final last = tokens.last;
+    if (terms.isEmpty && typing && last.base.length >= 2) {
+      terms.add(
+        QueryTerm(
+          tokens: [last],
+          concepts: {
+            for (final phrase in lexicon.completing(
+              keys,
+              tokens.length - 1,
+              base: last.base,
+              folded: last.folded,
+            ))
+              phrase.concept.id: MatchTier.prefix,
+          },
+          prefix: true,
+        ),
+      );
+    }
     return SearchQuery._(List.unmodifiable(terms));
   }
 

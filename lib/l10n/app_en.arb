@@ -231,7 +231,19 @@
   },
   "webDemoNotice": "Demo with made-up families. What you type stays in this browser, is not encrypted and is not sent to us. Do not enter real ID numbers. The demo is hosted on GitHub Pages, which keeps standard access logs.",
   "@webDemoNotice": {
-    "description": "Permanent notice on the web demo. Must match the privacy text in ARCHITECTURE.md section 8."
+    "description": "Full privacy notice of the web demo, on its first screen, in Settings and behind Details. Must match the privacy text in ARCHITECTURE.md section 8."
+  },
+  "webDemoNoticeShort": "Demo with made-up families. Not encrypted: do not enter real ID numbers.",
+  "@webDemoNoticeShort": {
+    "description": "One-line strip above every screen of the web demo. Details opens the full notice."
+  },
+  "demoNoticeDetails": "Details",
+  "@demoNoticeDetails": {
+    "description": "Button on the web demo's strip that opens the full privacy notice."
+  },
+  "webDemoNotSaving": "This browser is not saving the demo; it will reset when you reload.",
+  "@webDemoNotSaving": {
+    "description": "Added to the web demo notice when the browser refused to store the demo, for example in private browsing or over quota."
   },
   "morningSummaryTitle": "Morning summary",
   "@morningSummaryTitle": {
@@ -300,9 +312,8 @@
     "description": "Morning summary line naming the next item in the coming seven days.",
     "placeholders": {
       "date": {
-        "type": "DateTime",
-        "format": "MMMEd",
-        "description": "When the item is due, with the weekday."
+        "type": "String",
+        "description": "When the item is due, with the weekday, already formatted so it never breaks across lines."
       },
       "title": {
         "type": "String",
@@ -319,9 +330,8 @@
         "description": "One formatted total per currency, separated by middle dots."
       },
       "date": {
-        "type": "DateTime",
-        "format": "MMMEd",
-        "description": "The last day the totals cover, seven days from today."
+        "type": "String",
+        "description": "The last day the totals cover, seven days from today, already formatted so it never breaks across lines."
       }
     }
   },
@@ -377,13 +387,17 @@
   },
   "sectionNextWeek": "Next 7 days",
   "@sectionNextWeek": {
-    "description": "Today screen group for items due in the coming week, and expiry dates in the coming 30 days."
+    "description": "Today screen group for items due in the coming week."
+  },
+  "sectionExpiringSoon": "Expiring soon",
+  "@sectionExpiringSoon": {
+    "description": "Today screen group for ID cards, passports and warranties that expire in 8 to 30 days, shown early because renewing takes weeks."
   },
   "sectionLater": "Later",
   "@sectionLater": {
     "description": "Today screen group for items due after next week, and tasks without a date."
   },
-  "sectionLabel": "{title}: {count, plural, =1{1 item} other{{count} items}}",
+  "sectionLabel": "{title}, {count, plural, =1{1 item} other{{count} items}}",
   "@sectionLabel": {
     "description": "What screen readers announce for a Today group heading.",
     "placeholders": {
@@ -687,6 +701,26 @@
   "notSaved": "Could not save. Try again.",
   "@notSaved": {
     "description": "Shown when storage refused a change. Nothing was changed."
+  },
+  "actionStale": "This item changed in the meantime, so nothing was saved.",
+  "@actionStale": {
+    "description": "Shown when Paid, Done, Snooze or another quick action is refused because the item was changed, completed or deleted since the screen showed it."
+  },
+  "reopenPaid": "Mark as not paid",
+  "@reopenPaid": {
+    "description": "Button on an item's page that takes back its latest payment, for a Paid tapped by mistake."
+  },
+  "reopenDone": "Mark as not done",
+  "@reopenDone": {
+    "description": "Button on an item's page that takes back its latest Done, for a Done tapped by mistake."
+  },
+  "reopenSkipped": "Mark as not skipped",
+  "@reopenSkipped": {
+    "description": "Button on an item's page that takes back its latest skipped instalment."
+  },
+  "reopened": "Due again",
+  "@reopened": {
+    "description": "Confirmation after taking back a payment or a Done, shown with an Undo button."
   },
   "catchUpChange": "Change",
   "@catchUpChange": {
@@ -1005,17 +1039,17 @@
   "@changedSince": {
     "description": "Shown when a delete is refused because the item changed in the meantime."
   },
-  "referenceShownLabel": "Reference {reference}, double-tap to hide",
+  "referenceShownLabel": "Reference {reference}",
   "@referenceShownLabel": {
-    "description": "What screen readers announce for a shown reference number.",
+    "description": "What screen readers announce for a shown reference number. The platform adds how to activate it.",
     "placeholders": {
       "reference": {
         "type": "String",
-        "description": "The reference number."
+        "description": "The reference number, spelled out digit by digit."
       }
     }
   },
-  "referenceHiddenLabel": "Reference hidden, double-tap to show",
+  "referenceHiddenLabel": "Reference, hidden",
   "@referenceHiddenLabel": {
     "description": "What screen readers announce for a hidden reference number. Never includes the number."
   },
@@ -1224,6 +1258,41 @@
   "problemEndBeforeStart": "The end date is before the first date",
   "@problemEndBeforeStart": {
     "description": "Error when a repeating item would end before it starts."
+  },
+  "editorProblems": "{count, plural, =1{Check 1 field} other{Check {count} fields}}",
+  "@editorProblems": {
+    "description": "Announced to screen readers when Save finds fields to fix.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many fields need fixing."
+      }
+    }
+  },
+  "fieldWithProblem": "{label}, {problem}",
+  "@fieldWithProblem": {
+    "description": "What screen readers announce for a date or time field with an error.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "description": "The field's name, such as Due date."
+      },
+      "problem": {
+        "type": "String",
+        "description": "What is wrong, such as Choose a date."
+      }
+    }
+  },
+  "expiresOn": "Expires {date}",
+  "@expiresOn": {
+    "description": "When an ID card, passport or warranty expires, as a short label in lists.",
+    "placeholders": {
+      "date": {
+        "type": "DateTime",
+        "format": "yMMMd",
+        "description": "The expiry date."
+      }
+    }
   },
   "clearField": "Clear {label}",
   "@clearField": {

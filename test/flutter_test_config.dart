@@ -7,6 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 /// and Nastaliq's real failure mode, ink clipped inside a row, never shows.
 Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   TestWidgetsFlutterBinding.ensureInitialized();
+  // A tap that only lands because an ancestor happens to catch it breaks
+  // silently when the layout changes; aim at the real target instead.
+  WidgetController.hitTestWarningShouldBeFatal = true;
   await _loadFont('Roboto', const [
     'assets/fonts/roboto/Roboto-Regular.ttf',
     'assets/fonts/roboto/Roboto-Medium.ttf',

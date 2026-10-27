@@ -27,31 +27,64 @@ void main() {
     }
   });
 
-  test('Nastaliq line height eases from 1.9 to 1.55 by 1.3x', () {
-    expect(urduLineHeight(1.0), 1.9);
-    expect(urduLineHeight(0.9), 1.9);
-    expect(urduLineHeight(1.15), closeTo(1.725, 1e-9));
-    expect(urduLineHeight(1.3), 1.55);
-    expect(urduLineHeight(2.0), 1.55);
-  });
-
   test(
-    'the Urdu theme sets every text style in Nastaliq with Roboto behind it',
+    'the Urdu theme sets text in Nastaliq, a size up, with Roboto behind it',
     () {
-      final theme = urduTheme(buildAppTheme(Brightness.light), textScale: 1);
-      final styles = [
-        theme.textTheme.displayLarge,
-        theme.textTheme.titleMedium,
-        theme.textTheme.bodyMedium,
-        theme.textTheme.labelSmall,
+      // The theme widget adds sizes to the bare theme; AppTypography sees them.
+      final base = ThemeData.localize(
+        buildAppTheme(Brightness.light),
+        Typography.material2021().englishLike,
+      );
+      final theme = urduTheme(base);
+      final pairs = [
+        (base.textTheme.titleMedium, theme.textTheme.titleMedium),
+        (base.textTheme.bodyMedium, theme.textTheme.bodyMedium),
+        (base.textTheme.bodyLarge, theme.textTheme.bodyLarge),
       ];
-      for (final style in styles) {
-        expect(style?.fontFamily, AppFonts.urdu);
-        expect(style?.fontFamilyFallback, [AppFonts.ui]);
-        expect(style?.height, 1.9);
+      for (final (before, after) in pairs) {
+        expect(after?.fontFamily, AppFonts.urdu);
+        expect(after?.fontFamilyFallback, [AppFonts.ui]);
+        expect(after?.height, urduLineHeight);
+        expect(after?.fontSize, closeTo(before!.fontSize! * 1.15, 1e-9));
       }
+      // 11 sp labels would read like 8 px type in Nastaliq.
+      expect(theme.textTheme.labelSmall?.fontSize, 13);
     },
   );
+
+  test('the time picker numerals stay in Roboto in Urdu', () {
+    final base = buildAppTheme(Brightness.light);
+    final theme = urduTheme(base);
+    expect(theme.textTheme.displayLarge, base.textTheme.displayLarge);
+    expect(theme.textTheme.displayLarge?.fontFamily, AppFonts.ui);
+  });
+
+  for (final scale in [1.0, 1.3, 2.0]) {
+    testWidgets('Nastaliq lines keep their height at ${scale}x', (
+      tester,
+    ) async {
+      const style = TextStyle(
+        fontFamily: AppFonts.urdu,
+        fontSize: 16,
+        height: urduLineHeight,
+      );
+      final painter = TextPainter(
+        text: const TextSpan(
+          text: 'سمجھتی ہے اور بجلی کا بل اور امی کی دوائی',
+          style: style,
+        ),
+        textDirection: TextDirection.rtl,
+        textScaler: TextScaler.linear(scale),
+      )..layout(maxWidth: 120 * scale);
+      addTearDown(painter.dispose);
+
+      final lines = painter.computeLineMetrics();
+      expect(lines.length, greaterThan(1));
+      for (final line in lines) {
+        expect(line.height, greaterThanOrEqualTo(1.85 * 16 * scale));
+      }
+    });
+  }
 
   test('both themes use the bundled UI font and padded tap targets', () {
     for (final brightness in Brightness.values) {

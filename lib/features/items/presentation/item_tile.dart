@@ -18,19 +18,31 @@ class ItemTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final due = item.dueOn;
     final amount = item.amount;
-    final details = [
-      l10n.categoryLabel(item.category),
-      if (due == null) l10n.noDueDate else l10n.dueOn(due.toDateTime()),
-      if (amount != null) isolate(formatMoney(amount, l10n.localeName)),
-    ];
 
     return ListTile(
       contentPadding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
       leading: KindAvatar(kind: item.kind),
       title: UserText(item.title, maxLines: 2, overflow: TextOverflow.ellipsis),
-      subtitle: Text(details.join(' · ')),
+      subtitle: Text.rich(
+        TextSpan(
+          children: [
+            TextSpan(
+              text:
+                  '${l10n.categoryLabel(item.category)} · '
+                  '${l10n.dateSummary(item)}',
+            ),
+            if (amount != null) ...[
+              const TextSpan(text: ' · '),
+              TextSpan(
+                text: isolate(formatMoney(amount, l10n.localeName)),
+                // ListTile sets its subtitle in bodyMedium.
+                style: latinRun(Theme.of(context).textTheme.bodyMedium),
+              ),
+            ],
+          ],
+        ),
+      ),
       trailing: item.isOpen
           ? null
           : StatusBadge(label: l10n.statusLabel(item.status)),

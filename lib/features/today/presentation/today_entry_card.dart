@@ -81,7 +81,9 @@ class TodayEntryCard extends ConsumerWidget {
                       padding: const EdgeInsetsDirectional.only(start: 8),
                       child: Text(
                         isolate(formatMoney(amount, l10n.localeName)),
-                        style: theme.textTheme.titleSmall,
+                        style: theme.textTheme.titleSmall?.merge(
+                          latinRun(theme.textTheme.titleSmall),
+                        ),
                       ),
                     ),
                 ],

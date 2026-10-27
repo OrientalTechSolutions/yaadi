@@ -79,9 +79,9 @@ flutter_launcher_icons:
     background_color: "#FFFFFF"
     theme_color: "#0F766E"
 
-# Phones are set up for SQLCipher; tests use the operating system's SQLite so
-# the sqlite3 build hook downloads nothing until ARCHITECTURE.md section 5.1
-# is approved.
+# Phones are set up for SQLCipher. M1 tests run on the operating system's
+# SQLite; the SQLCipher build is switched on for tests in M2, when the
+# sqlcipher-tagged tests become mandatory (ARCHITECTURE.md section 5.1).
 hooks:
   user_defines:
     sqlite3:

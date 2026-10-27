@@ -391,7 +391,7 @@ void main() {
       });
     }
 
-    test('a daily item steps over every 2026 transition one day at a time', () {
+    test('each date rolled to survives the trip through a local DateTime', () {
       var daily = item(
         'daily',
         due: d(2026, 1, 1),
@@ -400,9 +400,65 @@ void main() {
       );
       for (var i = 0; i < 365; i++) {
         daily = complete(daily, today: daily.dueOn!).after;
+        // How Today's labels and the date picker see it.
+        final due = daily.dueOn!;
+        expect(LocalDate.fromDateTime(due.toDateTime()), due);
       }
       expect(daily.dueOn, d(2027, 1, 1));
       expect(daily.dueMinute, 90);
+    });
+  });
+
+  group('taking a completion back', () {
+    test('only the newest by occurrence, and never a dose mark', () {
+      final bill = monthlyBill(d(2026, 12, 10));
+      final history = [
+        completed('bill', id: 'oct', on: d(2026, 10, 10)),
+        completed('bill', id: 'nov', on: d(2026, 11, 10)),
+      ];
+      expect(reopenable(bill, history)?.id, 'nov');
+      expect(reopenable(bill, const []), isNull);
+
+      final course = item(
+        'course',
+        kind: ItemKind.medicine,
+        due: d(2026, 11, 1),
+        recurrence: DoseTimes([480]),
+      );
+      expect(reopenable(course, [completed('course', minute: 480)]), isNull);
+    });
+
+    test('a rolled bill goes back to the paid month with its amount', () {
+      final paid = complete(
+        monthlyBill(d(2026, 11, 10)),
+        today: d(2026, 11, 2),
+        outcome: CompletionOutcome.paid,
+      );
+      final rolled = paid.after.copyWith(revision: 2);
+      final payment = paid.added.single;
+
+      final change = planReopen(rolled, payment, now: now);
+      expect(change.expectedRevision, 2);
+      expect(change.removeCompletionIds, [payment.id]);
+      expect(change.after?.scheduledOn, d(2026, 11, 10));
+      expect(change.after?.dueOn, d(2026, 11, 10));
+      expect(change.after?.amount, Money(425000, 'PKR'));
+      expect(change.after?.violations, isEmpty);
+    });
+
+    test('a closed item keeps the date the user had moved it to', () {
+      final moved = item(
+        'dentist',
+        kind: ItemKind.appointment,
+        due: d(2026, 11, 13),
+        scheduled: d(2026, 11, 10),
+      );
+      final done = complete(moved, today: d(2026, 11, 13));
+      final change = planReopen(done.after, done.added.single, now: now);
+      expect(change.after?.status, ItemStatus.open);
+      expect(change.after?.completedAt, isNull);
+      expect(change.after?.dueOn, d(2026, 11, 13));
+      expect(change.after?.scheduledOn, d(2026, 11, 10));
     });
   });
 

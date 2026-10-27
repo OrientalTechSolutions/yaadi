@@ -23,11 +23,17 @@ final class AppStorage {
     required this.settings,
     required this._close,
     required this.eraseAll,
+    this.isSavingFailed = _savesEverything,
   });
 
   final StorageKind kind;
   final ItemRepository items;
   final SettingsRepository settings;
+
+  /// True once the browser refused a write: the web demo then carries on in
+  /// memory and says that a reload will reset it. Always false for the
+  /// vault, whose write failures reach the screen as errors instead.
+  final bool Function() isSavingFailed;
 
   /// Deletes everything. Only the confirmed Reset and Delete all flows call
   /// it.
@@ -39,6 +45,8 @@ final class AppStorage {
   /// Safe to call more than once.
   Future<void> close() => _closing ??= _close();
 }
+
+bool _savesEverything() => false;
 
 /// Opens storage for the current platform.
 abstract interface class StorageBackend {

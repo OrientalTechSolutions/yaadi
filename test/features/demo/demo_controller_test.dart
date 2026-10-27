@@ -6,6 +6,7 @@ import 'package:yaadi/core/time/local_date.dart';
 import 'package:yaadi/features/demo/application/demo_controller.dart';
 import 'package:yaadi/features/demo/application/demo_providers.dart';
 import 'package:yaadi/features/demo/domain/demo_household.dart';
+import 'package:yaadi/features/items/application/items_controller.dart';
 import 'package:yaadi/features/items/application/items_providers.dart';
 import 'package:yaadi/features/items/data/item_repository.dart';
 import 'package:yaadi/features/items/data/session_item_repository.dart';
@@ -89,6 +90,40 @@ void main() {
       expect(
         (await itemsIn(container)).map((item) => item.id),
         everyElement(startsWith('khan-')),
+      );
+    });
+
+    test('an undo offered in the demo never lands in the vault', () async {
+      final backend = FakeStorageBackend();
+      final container = await open(backend);
+      final demo = container.read(demoControllerProvider.notifier);
+      final items = container.read(itemsControllerProvider.notifier);
+
+      await demo.show(DemoHousehold.khan);
+      final lesco = (await itemsIn(container))
+          .firstWhere((item) => item.id == 'khan-lesco');
+      final deleted = await items.delete(lesco) as ItemWritten;
+
+      // "Leave demo" while the Undo is still on screen, then Undo.
+      await demo.clear();
+      expect(await items.undo(deleted.undo), isA<ItemStale>());
+      expect(await backend.items.readAll(), isEmpty);
+      expect(await backend.items.completionsOf('khan-lesco'), isEmpty);
+    });
+
+    test('an undo offered in the vault is not spent on the demo', () async {
+      final backend = FakeStorageBackend(items: [task()]);
+      final container = await open(backend);
+      final items = container.read(itemsControllerProvider.notifier);
+      final deleted = await items.delete(task()) as ItemWritten;
+
+      await container
+          .read(demoControllerProvider.notifier)
+          .show(DemoHousehold.taylor);
+      expect(await items.undo(deleted.undo), isA<ItemStale>());
+      expect(
+        (await itemsIn(container)).map((item) => item.id),
+        isNot(contains('task-1')),
       );
     });
 

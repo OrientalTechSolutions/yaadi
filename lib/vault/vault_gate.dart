@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/widgets/heading.dart';
 import '../features/settings/application/settings_controller.dart';
 import '../l10n/app_localizations.dart';
 import 'app_storage.dart';
@@ -71,7 +72,8 @@ class _FailureScreen extends ConsumerWidget {
 
   final VaultFailureKind kind;
 
-  /// Only consulted for failures that are usually temporary.
+  /// Only consulted when the keystore did not answer, which is usually
+  /// temporary.
   final bool offerReset;
 
   @override
@@ -94,11 +96,13 @@ class _FailureScreen extends ConsumerWidget {
         l10n.vaultKeyUnavailableBody,
         [tryAgain, if (offerReset) reset],
       ),
+      // A full or failing disk lands here too. Erasing a vault that is
+      // probably healthy would fix none of that, so there is no reset.
       VaultFailureKind.unexpected => (
         Icons.error_outline,
         l10n.vaultTryAgainTitle,
         l10n.vaultUnexpectedBody,
-        [tryAgain, if (offerReset) reset],
+        [tryAgain],
       ),
       VaultFailureKind.keyMissing => (
         Icons.key_off_outlined,
@@ -140,13 +144,10 @@ class _FailureScreen extends ConsumerWidget {
                 children: [
                   Icon(icon, size: 56, color: theme.colorScheme.primary),
                   const SizedBox(height: 24),
-                  Semantics(
-                    header: true,
-                    child: Text(
-                      title,
-                      style: theme.textTheme.headlineSmall,
-                      textAlign: TextAlign.center,
-                    ),
+                  Heading(
+                    title,
+                    style: theme.textTheme.headlineSmall,
+                    textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 12),
                   Text(

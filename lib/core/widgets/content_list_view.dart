@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 /// Widest a column of reading content gets on large screens.
 const maxContentWidth = 720.0;
@@ -34,6 +34,37 @@ class ContentListView extends StatelessWidget {
         return ListView(
           padding: EdgeInsets.fromLTRB(gutter, top, gutter, bottom),
           children: children,
+        );
+      },
+    );
+  }
+}
+
+/// An app bar for a top-level screen whose title and actions line up with
+/// the [ContentListView] column on wide screens, instead of sitting at the
+/// window's edges far from the content.
+class ContentAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const ContentAppBar({super.key, required this.title, this.actions});
+
+  final Widget title;
+  final List<Widget>? actions;
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final gutter = contentGutter(constraints.maxWidth);
+        return AppBar(
+          title: title,
+          titleSpacing: gutter,
+          // The Demo badge brings 12 dp of its own at the end.
+          actionsPadding: EdgeInsetsDirectional.only(
+            end: math.max(0, gutter - 12),
+          ),
+          actions: actions,
         );
       },
     );

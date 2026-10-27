@@ -247,13 +247,14 @@ final class _TermMatcher {
   ) {
     final word = term.tokens[index];
     final prefix = term.prefix && index == term.tokens.length - 1;
+    final byFolded = foldedPrefixIsSafe(word.base);
     final fuzzy = term.fuzzy && term.tokens.length == 1;
     return List.generate(vocabulary.length, (id) {
       final folded = vocabulary.foldedOf(id);
       if (folded == word.folded) return MatchTier.exact;
       if (prefix &&
           (vocabulary.baseOf(id).startsWith(word.base) ||
-              folded.startsWith(word.folded))) {
+              (byFolded && folded.startsWith(word.folded)))) {
         return MatchTier.prefix;
       }
       if (fuzzy &&

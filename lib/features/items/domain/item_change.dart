@@ -60,12 +60,18 @@ final class ItemChange {
 @immutable
 final class UndoSnapshot {
   const UndoSnapshot({
+    required this.origin,
     required this.itemId,
     required this.before,
     required this.writtenRevision,
     this.added = const [],
     this.removed = const [],
   });
+
+  /// The repository that made the write. An undo is only ever applied there:
+  /// a demo item must not reappear in the vault because the user left the
+  /// demo while its Undo was still on screen.
+  final Object origin;
 
   final String itemId;
 

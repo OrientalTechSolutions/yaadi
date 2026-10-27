@@ -129,7 +129,8 @@ final class ItemDraft {
   final String reference;
 
   /// When editing a repeating item whose date changed: true repeats from
-  /// the new date from now on, false moves this occurrence only.
+  /// the new date from now on, false moves this occurrence only. Ignored
+  /// while the date equals the original one.
   final bool moveSeries;
 
   bool get isFixedAmount => amountIsFixed ?? category.hasFixedAmountByDefault;
@@ -256,10 +257,13 @@ final class ItemDraft {
           RepeatRule.yearly:
         final current = original?.recurrence;
         final scheduled = original?.scheduledOn;
+        // The switch only counts while the date really differs: set back to
+        // the original, a clamped 28 February keeps its 31st anchor.
+        final moving = moveSeries && due != original?.dueOn;
         if (current != null &&
             scheduled != null &&
             current.rule == rule &&
-            !moveSeries) {
+            !moving) {
           return (current.withUntil(until), scheduled);
         }
         return (Recurrence.anchored(rule, due, until: until), due);

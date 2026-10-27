@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/app_info.dart';
-import '../../../core/widgets/content_width.dart';
-import '../../../core/widgets/snack_bars.dart';
+import '../../../core/widgets/content_list_view.dart';
+import '../../../core/widgets/heading.dart';
+import '../../../core/widgets/messenger.dart';
 import '../../../core/widgets/user_text.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../vault/app_storage.dart';
@@ -29,7 +30,7 @@ class SettingsScreen extends ConsumerWidget {
     final web = ref.watch(isWebDemoProvider);
 
     return Scaffold(
-      appBar: AppBar(
+      appBar: ContentAppBar(
         title: Text(l10n.navSettings),
         actions: const [DemoBadge()],
       ),
@@ -48,7 +49,8 @@ class SettingsScreen extends ConsumerWidget {
               _LanguageChoice.ur => AppLanguage.ur,
               _LanguageChoice.device || null => null,
             }),
-            child: Column(
+            child: _NamedGroup(
+              name: l10n.settingsLanguage,
               children: [
                 RadioListTile(
                   value: _LanguageChoice.device,
@@ -74,7 +76,8 @@ class SettingsScreen extends ConsumerWidget {
             onChanged: (theme) {
               if (theme != null) controller.setTheme(theme);
             },
-            child: Column(
+            child: _NamedGroup(
+              name: l10n.settingsTheme,
               children: [
                 for (final (theme, label) in [
                   (ThemePreference.system, l10n.themeSystem),
@@ -162,15 +165,25 @@ class _DemoSection extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(l10n.settingsDemo),
-        Padding(
-          padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 4),
-          child: Text(
-            web ? l10n.webDemoExplain : l10n.demoExplain,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+        for (final paragraph in [
+          if (web) ...[
+            l10n.webDemoExplain,
+            webDemoNoticeText(
+              l10n,
+              notSaving: ref.watch(demoNotSavingProvider),
+            ),
+          ] else
+            l10n.demoExplain,
+        ])
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 8),
+            child: Text(
+              paragraph,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
             ),
           ),
-        ),
         RadioGroup<_DemoChoice>(
           groupValue: switch (household) {
             null => _DemoChoice.own,
@@ -236,6 +249,7 @@ class _AboutSection extends ConsumerWidget {
     }
 
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(l10n.settingsAbout),
         ListTile(
@@ -281,15 +295,31 @@ class _SectionHeader extends StatelessWidget {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 4),
-      child: Semantics(
-        header: true,
-        child: Text(
-          title,
-          style: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.primary,
-          ),
+      child: Heading(
+        title,
+        style: theme.textTheme.titleSmall?.copyWith(
+          color: theme.colorScheme.primary,
         ),
       ),
+    );
+  }
+}
+
+/// Radio choices announced with the group's name, so two groups that both
+/// start with "Same as phone" can be told apart.
+class _NamedGroup extends StatelessWidget {
+  const _NamedGroup({required this.name, required this.children});
+
+  final String name;
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      container: true,
+      explicitChildNodes: true,
+      label: name,
+      child: Column(children: children),
     );
   }
 }

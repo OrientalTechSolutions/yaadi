@@ -58,14 +58,28 @@ final class DriftItemRepository implements ItemRepository {
   @override
   Future<WriteResult> apply(ItemChange change) async {
     checkChange(change);
+    final WriteResult result;
     try {
-      return await _db.transaction(() => _applyInTransaction(change));
+      result = await _db.transaction(() => _applyInTransaction(change));
     } on _StaleWrite {
       return const Stale();
     } on Exception catch (error) {
       // The unique completions index backs up the explicit check below.
       if (isUniqueViolation(error)) return const Stale();
       throw storageFailureFrom(error);
+    }
+    if (result is Written && change.after == null) await _truncateWal();
+    return result;
+  }
+
+  /// `secure_delete` clears freed pages, but the WAL still holds the deleted
+  /// rows until a checkpoint copies it back and truncates it. Undo restores
+  /// from the snapshot in memory, so there is no reason to wait.
+  Future<void> _truncateWal() async {
+    try {
+      await _db.customSelect('PRAGMA wal_checkpoint(TRUNCATE)').get();
+    } on Exception {
+      // A reader still holds old frames; the next checkpoint removes them.
     }
   }
 
@@ -82,6 +96,7 @@ final class DriftItemRepository implements ItemRepository {
       )..where((t) => t.id.equals(change.itemId))).go();
       return Written(
         UndoSnapshot(
+          origin: this,
           itemId: change.itemId,
           before: current,
           writtenRevision: null,
@@ -117,6 +132,7 @@ final class DriftItemRepository implements ItemRepository {
 
     return Written(
       UndoSnapshot(
+        origin: this,
         itemId: change.itemId,
         before: current,
         writtenRevision: revision,

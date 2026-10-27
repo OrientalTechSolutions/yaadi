@@ -84,6 +84,7 @@ final class MemoryItemRepository implements ItemRepository {
       }
       return Written(
         UndoSnapshot(
+          origin: this,
           itemId: change.itemId,
           before: current,
           writtenRevision: null,
@@ -127,6 +128,7 @@ final class MemoryItemRepository implements ItemRepository {
     }
     return Written(
       UndoSnapshot(
+        origin: this,
         itemId: change.itemId,
         before: current,
         writtenRevision: revision,

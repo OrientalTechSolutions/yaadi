@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaadi/core/theme/app_theme.dart';
+import 'package:yaadi/core/widgets/auto_direction_field.dart';
 import 'package:yaadi/core/widgets/user_text.dart';
 
 void main() {
@@ -56,7 +57,53 @@ void main() {
     final spans = root.children!.cast<TextSpan>();
     expect(spans.first.style?.fontFamily, AppFonts.ui);
     expect(spans.last.style?.fontFamily, AppFonts.urdu);
-    expect(spans.last.style?.height, urduLineHeight(1));
+    expect(spans.last.style?.height, urduLineHeight);
     expect(rich.textDirection, TextDirection.ltr);
+  });
+
+  testWidgets('each run carries its language and a size that matches', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: UserText('LESCO کا بل', style: TextStyle(fontSize: 20)),
+        ),
+      ),
+    );
+    final rich = tester.widget<RichText>(find.byType(RichText).last);
+    final root = (rich.text as TextSpan).children!.single as TextSpan;
+    final [latin, urdu] = root.children!.cast<TextSpan>().toList();
+    // Screen readers switch voice by span locale.
+    expect(latin.locale, const Locale('en'));
+    expect(urdu.locale, const Locale('ur'));
+    // Nastaliq looks smaller at the same size, so it is set a size up.
+    expect(latin.style?.fontSize, 20);
+    expect(urdu.style?.fontSize, closeTo(23, 1e-9));
+  });
+
+  testWidgets('a field keeps its height when the first Urdu letter is typed', (
+    tester,
+  ) async {
+    final controller = TextEditingController(text: 'bijli');
+    addTearDown(controller.dispose);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(body: AutoDirectionField(controller: controller)),
+      ),
+    );
+    final latin = tester.getSize(find.byType(TextField)).height;
+
+    controller.text = 'بجلی';
+    await tester.pump();
+    expect(tester.getSize(find.byType(TextField)).height, latin);
+  });
+
+  test('in the Urdu UI the Latin run is the one scaled back', () {
+    const base = TextStyle(fontFamily: AppFonts.urdu, fontSize: 23);
+    final (:urdu, :latin) = scriptStyles(base);
+    expect(urdu.fontSize, 23);
+    expect(latin.fontSize, closeTo(20, 1e-9));
+    expect(latin.fontFamily, AppFonts.ui);
   });
 }

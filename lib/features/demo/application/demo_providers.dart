@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/time/clock.dart';
 import '../../../vault/app_storage.dart';
+import '../../items/application/items_providers.dart';
 import '../../items/data/item_repository.dart';
 import '../../items/data/memory_item_repository.dart';
 import '../../settings/application/settings_controller.dart';
@@ -23,6 +24,16 @@ final showingDemoProvider = Provider<bool>(
   (ref) =>
       ref.watch(isWebDemoProvider) || ref.watch(demoHouseholdProvider) != null,
 );
+
+/// Whether the browser has refused to keep the web demo, as in some private
+/// windows or over quota. Only a write can fail, so it is checked again
+/// after every change to items or settings.
+final demoNotSavingProvider = Provider<bool>((ref) {
+  ref
+    ..watch(itemsProvider)
+    ..watch(appSettingsProvider);
+  return ref.watch(storageProvider).value?.isSavingFailed() ?? false;
+});
 
 /// On a phone, the chosen household lives in memory and the vault is never
 /// written (ARCHITECTURE.md section 14). It is built from its seed when

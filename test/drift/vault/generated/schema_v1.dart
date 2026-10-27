@@ -295,6 +295,8 @@ class Items extends Table with TableInfo<Items, ItemsData> {
     'CHECK((scheduled_on IS NULL)=(due_on IS NULL))',
     'CHECK(due_on IS NOT NULL OR kind = \'task\')',
     'CHECK(due_minute IS NULL OR(due_on IS NOT NULL AND due_minute BETWEEN 0 AND 1439))',
+    'CHECK(due_on IS NOT NULL OR recurrence = \'{"type":"none"}\')',
+    'CHECK(kind = \'medicine\' OR recurrence NOT LIKE \'{"type":"doses"%\')',
     'CHECK((status = \'open\')=(completed_at IS NULL))',
     'CHECK(snoozed_until IS NULL OR status = \'open\')',
     'CHECK(revision >= 1)',

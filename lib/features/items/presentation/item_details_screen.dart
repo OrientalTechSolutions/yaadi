@@ -4,13 +4,17 @@ import 'package:intl/intl.dart' show DateFormat;
 
 import '../../../core/money/money_format.dart';
 import '../../../core/text/bidi.dart';
+import '../../../core/time/clock.dart';
 import '../../../core/time/time_format.dart';
-import '../../../core/widgets/content_width.dart';
+import '../../../core/widgets/content_list_view.dart';
+import '../../../core/widgets/heading.dart';
 import '../../../core/widgets/message_view.dart';
-import '../../../core/widgets/snack_bars.dart';
+import '../../../core/widgets/messenger.dart';
 import '../../../core/widgets/user_text.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../demo/presentation/demo_badge.dart';
+import '../../today/application/quick_actions.dart';
+import '../../today/domain/roll_forward.dart';
 import '../../today/presentation/quick_action_runner.dart';
 import '../application/items_controller.dart';
 import '../application/items_providers.dart';
@@ -66,9 +70,17 @@ class _Details extends ConsumerWidget {
     final pending = ref.watch(
       itemsControllerProvider.select((writes) => writes.contains(item.id)),
     );
+    final quickPending = ref.watch(
+      quickActionsProvider.select((writes) => writes.contains((item.id, null))),
+    );
     final due = item.dueOn;
     final scheduled = item.scheduledOn;
-    final snoozed = item.snoozedUntil;
+    // A snooze that ran out stays stored until the item is completed or
+    // moved; by then it says nothing, and Today already shows it overdue.
+    final snoozed = switch (item.snoozedUntil) {
+      final until? when !until.isBefore(ref.watch(todayProvider)) => until,
+      _ => null,
+    };
     final minute = item.dueMinute;
     final notes = item.notes;
     final reference = item.reference;
@@ -169,14 +181,20 @@ class _Details extends ConsumerWidget {
             _Fact(
               icon: Icons.payments_outlined,
               label: l10n.fieldAmount,
-              value: Text(
-                [
-                  if (amount == null)
-                    l10n.amountNotKnown
-                  else
-                    isolate(formatMoney(amount, locale)),
-                  if (!item.amountIsFixed) l10n.amountVaries,
-                ].join(' · '),
+              value: Text.rich(
+                TextSpan(
+                  children: [
+                    if (amount == null)
+                      TextSpan(text: l10n.amountNotKnown)
+                    else
+                      TextSpan(
+                        text: isolate(formatMoney(amount, locale)),
+                        style: latinRun(theme.textTheme.bodyLarge),
+                      ),
+                    if (!item.amountIsFixed)
+                      TextSpan(text: ' · ${l10n.amountVaries}'),
+                  ],
+                ),
               ),
             ),
           if (notes != null)
@@ -195,13 +213,15 @@ class _Details extends ConsumerWidget {
             Padding(
               padding: const EdgeInsetsDirectional.only(top: 16),
               child: FilledButton.icon(
-                onPressed: () => runQuickAction(
-                  context,
-                  action: (actions) => paid
-                      ? actions.markPaid(item.id, item.scheduledOn)
-                      : actions.markDone(item.id, item.scheduledOn),
-                  message: paid ? l10n.markedPaid : l10n.markedDone,
-                ),
+                onPressed: quickPending
+                    ? null
+                    : () => runQuickAction(
+                        context,
+                        action: (actions) => paid
+                            ? actions.markPaid(item.id, item.scheduledOn)
+                            : actions.markDone(item.id, item.scheduledOn),
+                        message: paid ? l10n.markedPaid : l10n.markedDone,
+                      ),
                 icon: const Icon(Icons.check),
                 label: Text(label),
               ),
@@ -307,7 +327,8 @@ class _Fact extends StatelessWidget {
   }
 }
 
-/// Payments, completions and dose marks, newest first.
+/// Payments, completions and dose marks, newest first, and a way to take
+/// back the newest Paid or Done once its Undo has gone.
 class _History extends ConsumerWidget {
   const _History({required this.item});
 
@@ -321,41 +342,75 @@ class _History extends ConsumerWidget {
     if (history == null || history.isEmpty) return const SizedBox.shrink();
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final last = reopenable(item, history);
+    final pending = ref.watch(
+      quickActionsProvider.select((writes) => writes.contains((item.id, null))),
+    );
 
     return Padding(
       padding: const EdgeInsetsDirectional.only(top: 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Semantics(
-            header: true,
-            child: Text(
-              l10n.historyTitle,
-              style: theme.textTheme.titleSmall?.copyWith(
-                color: theme.colorScheme.primary,
-              ),
+          Heading(
+            l10n.historyTitle,
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.primary,
             ),
           ),
           const SizedBox(height: 4),
           for (final completion in history.take(_shown))
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Text(_describe(completion, l10n)),
+              child: Text.rich(
+                _describe(completion, l10n, theme.textTheme.bodyMedium),
+              ),
+            ),
+          if (last != null)
+            TextButton.icon(
+              onPressed: pending
+                  ? null
+                  : () => runQuickAction(
+                      context,
+                      action: (actions) => actions.reopen(item.id, last.id),
+                      message: l10n.reopened,
+                    ),
+              icon: const Icon(Icons.undo),
+              label: Text(switch (last.outcome) {
+                CompletionOutcome.paid => l10n.reopenPaid,
+                CompletionOutcome.done => l10n.reopenDone,
+                CompletionOutcome.skipped => l10n.reopenSkipped,
+              }),
             ),
         ],
       ),
     );
   }
 
-  static String _describe(Completion completion, AppLocalizations l10n) {
+  static TextSpan _describe(
+    Completion completion,
+    AppLocalizations l10n,
+    TextStyle? style,
+  ) {
     final locale = l10n.localeName;
     final minute = completion.occurrenceMinute;
     final amount = completion.amount;
-    return [
+    final words = [
       l10n.outcomeLabel(completion.outcome),
       DateFormat.yMMMd(locale).format(completion.occurrenceOn.toDateTime()),
       if (minute != null) isolate(formatMinute(minute, locale)),
-      if (amount != null) isolate(formatMoney(amount, locale)),
     ].join(' · ');
+    return TextSpan(
+      children: [
+        TextSpan(text: words),
+        if (amount != null) ...[
+          const TextSpan(text: ' · '),
+          TextSpan(
+            text: isolate(formatMoney(amount, locale)),
+            style: latinRun(style),
+          ),
+        ],
+      ],
+    );
   }
 }

@@ -5,21 +5,29 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   app:
     name: Flutter app
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.47.8
           channel: stable
           cache: true
 
-      # Tests use the system SQLite until ARCHITECTURE.md section 5.1 is
-      # approved; the sqlite3 build hook then downloads nothing.
-      - run: sudo apt-get install -y libsqlite3-dev
+      # M1 tests run on the system SQLite (pubspec.yaml hooks), so the sqlite3
+      # build hook downloads nothing for them.
+      - run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev lcov
       - run: flutter pub get
 
       - name: Generated code is up to date
@@ -37,17 +45,44 @@ jobs:
 
       - run: dart format --output=none --set-exit-if-changed lib test
       - run: flutter analyze
-      - run: flutter test --coverage
+
+      - name: Tests
+        run: |
+          flutter test --coverage
+          {
+            echo '### Coverage'
+            echo '```'
+            lcov --summary coverage/lcov.info 2>&1
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # Dart on Windows ignores TZ, so real time zones are only tested here.
-      - name: Time tests in other zones
+      # Santiago moves its clocks at midnight, so local midnight can be missing.
+      - name: Date tests in other time zones
         run: |
-          for zone in Europe/London America/New_York Asia/Karachi; do
-            TZ=$zone flutter test test/core/time
+          for zone in Europe/London America/New_York Asia/Karachi America/Santiago; do
+            TZ=$zone flutter test test/core/time test/features/today/domain/roll_forward_test.dart
           done
 
       - run: flutter build web --release --no-web-resources-cdn --base-href /yaadi/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-pages-artifact@v4
         with:
-          name: web-demo
           path: build/web
+
+  # Publishes the web demo from main. Needs Pages enabled with GitHub Actions
+  # as its source in the repository settings.
+  deploy:
+    name: Web demo
+    needs: app
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

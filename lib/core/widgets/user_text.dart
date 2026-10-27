@@ -40,45 +40,32 @@ class UserText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = DefaultTextStyle.of(context).style.merge(style);
-    final textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
-    final urdu = base.copyWith(
-      fontFamily: AppFonts.urdu,
-      fontFamilyFallback: const [AppFonts.ui],
-      height: urduLineHeight(textScale),
-    );
-    final latin = base.copyWith(
-      fontFamily: AppFonts.ui,
-      fontFamilyFallback: const [AppFonts.urdu],
-    );
+    final (:urdu, :latin) = scriptStyles(base);
 
     final spans = <TextSpan>[];
     var offset = 0;
     for (final run in scriptRuns(text)) {
       final runStyle = run.isArabic ? urdu : latin;
+      // Screen readers switch voice per span, so "امی کی دوائی" in the
+      // English UI is not read by the English voice.
+      final locale = run.isArabic ? const Locale('ur') : const Locale('en');
+      TextSpan span(int start, int end, TextStyle style) => TextSpan(
+        text: text.substring(start, end),
+        style: style,
+        locale: locale,
+      );
+
       final runEnd = offset + run.text.length;
       var cursor = offset;
       for (final range in highlights) {
         if (range.end <= cursor || range.start >= runEnd) continue;
         final start = math.max(range.start, cursor);
         final end = math.min(range.end, runEnd);
-        if (start > cursor) {
-          spans.add(
-            TextSpan(text: text.substring(cursor, start), style: runStyle),
-          );
-        }
-        spans.add(
-          TextSpan(
-            text: text.substring(start, end),
-            style: runStyle.merge(highlightStyle),
-          ),
-        );
+        if (start > cursor) spans.add(span(cursor, start, runStyle));
+        spans.add(span(start, end, runStyle.merge(highlightStyle)));
         cursor = end;
       }
-      if (cursor < runEnd) {
-        spans.add(
-          TextSpan(text: text.substring(cursor, runEnd), style: runStyle),
-        );
-      }
+      if (cursor < runEnd) spans.add(span(cursor, runEnd, runStyle));
       offset = runEnd;
     }
 
@@ -102,6 +89,49 @@ class UserText extends StatelessWidget {
     );
   }
 }
+
+/// The styles for Arabic-script and other runs of user text set in [base].
+///
+/// Nastaliq gets its line height and, beside Latin, [urduSizeFactor] so both
+/// scripts look the same size. In the Urdu UI [base] is already Nastaliq at
+/// that size, so there the Latin run is the one scaled back.
+({TextStyle urdu, TextStyle latin}) scriptStyles(TextStyle base) {
+  final size = base.fontSize ?? 14;
+  final inUrduUi = base.fontFamily == AppFonts.urdu;
+  return (
+    urdu: base.copyWith(
+      fontFamily: AppFonts.urdu,
+      fontFamilyFallback: const [AppFonts.ui],
+      fontSize: inUrduUi ? size : size * urduSizeFactor,
+      height: urduLineHeight,
+    ),
+    latin: base.copyWith(
+      fontFamily: AppFonts.ui,
+      fontFamilyFallback: const [AppFonts.urdu],
+      fontSize: inUrduUi ? size / urduSizeFactor : size,
+    ),
+  );
+}
+
+/// Only the font of a Latin run inside text set in [base], such as an
+/// amount: in the Urdu UI "Rs 2,180" would otherwise mix Roboto letters
+/// with Nastaliq digits. Colour and weight stay those around it.
+TextStyle latinRun(TextStyle? base) {
+  final latin = scriptStyles(base ?? const TextStyle()).latin;
+  return TextStyle(
+    fontFamily: latin.fontFamily,
+    fontFamilyFallback: latin.fontFamilyFallback,
+    fontSize: latin.fontSize,
+  );
+}
+
+/// The alignment for a left-to-right field, such as an amount or an ID
+/// number: on the layout's start side, so in the Urdu UI it sits under its
+/// label on the right rather than at the far end of the field.
+TextAlign alignWithLayout(BuildContext context) =>
+    Directionality.of(context) == TextDirection.rtl
+    ? TextAlign.right
+    : TextAlign.left;
 
 /// The first strong character decides; strings with none (numbers,
 /// punctuation) take [fallback], the UI's direction.

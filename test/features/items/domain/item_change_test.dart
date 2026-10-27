@@ -22,6 +22,7 @@ void main() {
       final before = bill();
       final paid = completed(before.id);
       final undo = UndoSnapshot(
+        origin: _repository,
         itemId: before.id,
         before: before,
         writtenRevision: 2,
@@ -38,6 +39,7 @@ void main() {
       final before = bill().copyWith(revision: 5);
       final history = [completed(before.id)];
       final undo = UndoSnapshot(
+        origin: _repository,
         itemId: before.id,
         before: before,
         writtenRevision: null,
@@ -51,6 +53,7 @@ void main() {
 
     test('of a create deletes the item', () {
       const undo = UndoSnapshot(
+        origin: _repository,
         itemId: 'new',
         before: null,
         writtenRevision: 1,
@@ -62,6 +65,7 @@ void main() {
 
   test('snapshots and rejections print no personal details', () {
     final undo = UndoSnapshot(
+      origin: _repository,
       itemId: 'x',
       before: bill(reference: '35202-1234567-1', notes: 'secret'),
       writtenRevision: 2,
@@ -70,3 +74,6 @@ void main() {
     expect(undo.toString(), isNot(contains('secret')));
   });
 }
+
+/// Stands in for the repository that made the write.
+const _repository = 'repository';

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaadi/features/demo/domain/demo_household.dart';
 import 'package:yaadi/features/items/presentation/item_details_screen.dart';
@@ -31,15 +32,21 @@ void main() {
 
     expect(inDetails(find.text('•••• •••• 0123')), findsOneWidget);
     expect(find.text('12345-6789012-3'), findsNothing);
-    expect(
-      find.bySemanticsLabel('Reference hidden, double-tap to show'),
-      findsOneWidget,
-    );
+    expect(find.bySemanticsLabel('Reference, hidden'), findsOneWidget);
     expect(find.bySemanticsLabel(RegExp('6789')), findsNothing);
 
     await tester.tap(inDetails(find.text('Show')));
     await tester.pumpAndSettle();
     expect(inDetails(find.text('12345-6789012-3')), findsOneWidget);
+    // Shown, it is read digit by digit rather than as one large number.
+    final shown = tester.getSemantics(
+      find.bySemanticsLabel('Reference 12345-6789012-3'),
+    );
+    final label = shown.getSemanticsData().attributedLabel;
+    expect(
+      label.attributes.whereType<SpellOutStringAttribute>().single.range,
+      const TextRange(start: 10, end: 25),
+    );
     semantics.dispose();
   });
 

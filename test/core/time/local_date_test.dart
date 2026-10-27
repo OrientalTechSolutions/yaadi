@@ -124,4 +124,16 @@ void main() {
       expect(sorted.first, LocalDate(2026, 2, 1));
     });
   });
+
+  // Labels and date pickers see dates as local DateTimes. CI also runs this
+  // in America/Santiago, where clocks change at midnight.
+  test('every day survives the trip through a local DateTime', () {
+    for (
+      var day = LocalDate(2026, 1, 1);
+      day.year == 2026;
+      day = day.addDays(1)
+    ) {
+      expect(LocalDate.fromDateTime(day.toDateTime()), day);
+    }
+  });
 }

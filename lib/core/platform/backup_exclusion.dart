@@ -24,6 +24,10 @@ final class IosBackupExclusion implements BackupExclusion {
     } on PlatformException {
       // The file is encrypted either way. A restored copy without its key
       // lands on the Recovery screen, which is better than no vault at all.
+    } on MissingPluginException {
+      // Engines started without the Runner's handler, such as M2's
+      // background engines, cannot set the flag. The next foreground open
+      // does, and the vault must open regardless.
     }
   }
 }

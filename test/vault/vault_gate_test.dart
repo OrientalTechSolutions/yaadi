@@ -62,6 +62,21 @@ void main() {
     expect(find.text('Delete and start again'), findsOneWidget);
   });
 
+  testWidgets('an unexpected failure never offers a reset', (tester) async {
+    await pumpWithFailures(tester, List.filled(5, VaultFailureKind.unexpected));
+
+    for (var attempt = 1; attempt <= 4; attempt++) {
+      expect(find.text('Try again'), findsOneWidget, reason: '$attempt');
+      expect(
+        find.text('Delete and start again'),
+        findsNothing,
+        reason: '$attempt',
+      );
+      await tester.tap(find.text('Try again'));
+      await tester.pumpAndSettle();
+    }
+  });
+
   testWidgets('Recovery deletes only after confirmation, then starts empty', (
     tester,
   ) async {

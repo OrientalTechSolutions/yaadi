@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 import '../../../core/time/local_date.dart';
 import '../../items/domain/completion.dart';
 import '../../items/domain/item.dart';
+import '../../items/domain/item_change.dart';
 import '../../items/domain/item_kind.dart';
 import '../../items/domain/item_status.dart';
 
@@ -216,6 +217,47 @@ CompletionPlan planCompletion(
 }
 
 typedef _CatchUpResult = ({Item after, List<Completion> recorded});
+
+/// The completion "Mark as not paid" or "Mark as not done" can take back:
+/// the newest by occurrence. Only that one, so the history never has a gap
+/// in the middle. Dose marks and rules from a newer version are left alone.
+Completion? reopenable(Item item, Iterable<Completion> history) {
+  if (item.doseTimes != null || !item.recurrence.isSupported) return null;
+  Completion? newest;
+  for (final completion in history) {
+    if (completion.occurrenceMinute != null) continue;
+    if (newest == null ||
+        completion.occurrenceOn.isAfter(newest.occurrenceOn)) {
+      newest = completion;
+    }
+  }
+  return newest;
+}
+
+/// Takes back [last], the item's newest completion (see [reopenable]): its
+/// occurrence is due again and a closed item is open again. This is how a
+/// mistaken Paid is corrected once its Undo has gone; editing the date
+/// instead would leave the payment recorded against the wrong month.
+ItemChange planReopen(Item item, Completion last, {required DateTime now}) {
+  // A one-off item closed on this occurrence keeps its dates, including a
+  // due date the user had moved.
+  final sameOccurrence =
+      !item.isOpen &&
+      (item.scheduledOn == null || item.scheduledOn == last.occurrenceOn);
+  return ItemChange.update(
+    item.copyWith(
+      status: ItemStatus.open,
+      completedAt: null,
+      snoozedUntil: null,
+      scheduledOn: sameOccurrence ? item.scheduledOn : last.occurrenceOn,
+      dueOn: sameOccurrence ? item.dueOn : last.occurrenceOn,
+      // Rolling forward cleared a variable bill's amount; the payment kept it.
+      amount: sameOccurrence || item.amountIsFixed ? item.amount : last.amount,
+      updatedAt: now,
+    ),
+    removeCompletionIds: [last.id],
+  );
+}
 
 Item _rolledTo(Item item, LocalDate date, DateTime now) => item.copyWith(
   scheduledOn: date,

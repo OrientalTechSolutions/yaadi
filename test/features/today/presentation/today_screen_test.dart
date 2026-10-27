@@ -37,8 +37,10 @@ void main() {
     await scrollTo(tester, inToday(find.text('Today · 2')));
     await scrollTo(tester, inToday(findPlain('Due today')));
 
-    await scrollTo(tester, inToday(find.text('Next 7 days · 4')));
+    await scrollTo(tester, inToday(find.text('Next 7 days · 3')));
     await scrollTo(tester, inToday(findPlain('In 3 days · Thu, Nov 5')));
+    // An ID card 23 days away is not "next 7 days", and is shown anyway.
+    await scrollTo(tester, inToday(find.text('Expiring soon · 1')));
     expect(inToday(findPlain('Expires in 23 days')), findsOneWidget);
     await scrollTo(tester, inToday(find.text('Later · 3')));
     await scrollTo(tester, inToday(findPlain('Wed, Nov 11')));

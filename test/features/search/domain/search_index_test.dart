@@ -221,10 +221,42 @@ void main() {
       ]);
     });
 
-    test('stopwords and lone letters alone find nothing', () {
-      for (final query in ['', '   ', 'ka', 'کا', 'the', 'b', 'ka ki ke']) {
+    test('finished stopwords and lone letters alone find nothing', () {
+      for (final query in ['', '   ', 'ka ', 'کا ', 'the ', 'b', 'ka ki ke ']) {
         expect(idsFor(khan, query), isEmpty, reason: query);
       }
+    });
+
+    test('a word that starts out as a stopword keeps its results', () {
+      final index = indexOf([
+        item('meeting', title: 'Meeting with Ali'),
+        item('haider', title: 'Haider school fee'),
+        item('kiran', title: 'Kiran birthday'),
+      ], Region.pk);
+      // "me" folds like "my", and "mee" folds to "mi".
+      for (final (query, id) in [
+        ('me', 'meeting'),
+        ('mee', 'meeting'),
+        ('hai', 'haider'),
+        ('ki', 'kiran'),
+      ]) {
+        expect(idsFor(index, query), contains(id), reason: query);
+      }
+      expect(idsFor(khan, 'ammi ki'), ['ammi']);
+    });
+
+    test('a doubled vowel is not shortened into another word', () {
+      final index = indexOf([
+        item('fees', title: 'School fees'),
+        item('notice', title: 'Final notice from bank'),
+        item('light', title: 'Fix the kitchen light'),
+      ], Region.pk);
+      // "fee" folds to "fi", which begins "final" and "fix".
+      expect(idsFor(index, 'fee'), ['fees']);
+      // "too" folds to "tu", which begins "tuition", a school word.
+      expect(idsFor(index, 'too'), isEmpty);
+      expect(idsFor(khan, 'too'), isNot(contains('school')));
+      expect(idsFor(khan, 'tooth'), isNot(contains('school')));
     });
 
     test('the reference is never searched', () {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/widgets/content_width.dart';
+import '../../../core/widgets/content_list_view.dart';
 import '../../../core/widgets/message_view.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../demo/presentation/demo_badge.dart';
@@ -21,7 +21,10 @@ class ItemsScreen extends ConsumerWidget {
     final filtered = ref.watch(itemFilterProvider) != const ItemFilter();
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navItems), actions: const [DemoBadge()]),
+      appBar: ContentAppBar(
+        title: Text(l10n.navItems),
+        actions: const [DemoBadge()],
+      ),
       body: Column(
         children: [
           const _Filters(),

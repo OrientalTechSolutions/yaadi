@@ -26,12 +26,7 @@ class AppTypography extends StatelessWidget {
 
     return MediaQuery(
       data: mediaQuery.copyWith(textScaler: scaler),
-      child: isUrdu
-          ? Theme(
-              data: urduTheme(theme, textScale: scaler.scale(14) / 14),
-              child: child,
-            )
-          : child,
+      child: isUrdu ? Theme(data: urduTheme(theme), child: child) : child,
     );
   }
 }

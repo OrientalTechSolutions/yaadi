@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/time/clock.dart';
 import 'features/demo/application/demo_providers.dart';
 import 'features/demo/presentation/demo_badge.dart';
+import 'features/items/application/items_providers.dart';
 import 'features/items/presentation/item_routes.dart';
 import 'features/items/presentation/items_screen.dart';
 import 'features/search/presentation/search_screen.dart';
@@ -47,8 +48,15 @@ class _HomeShellState extends ConsumerState<HomeShell> {
   void _select(int index) =>
       setState(() => _selected = _Destination.values[index]);
 
+  /// An Undo belongs to the items it was offered on. Once another household
+  /// or the user's own items are shown it would act on the wrong ones.
+  void _dropStaleUndo() => ScaffoldMessenger.of(context).clearSnackBars();
+
   @override
   Widget build(BuildContext context) {
+    ref
+      ..listen(itemRepositoryProvider, (_, _) => _dropStaleUndo())
+      ..listen(demoHouseholdProvider, (_, _) => _dropStaleUndo());
     final l10n = AppLocalizations.of(context);
     final wide = MediaQuery.sizeOf(context).width >= railBreakpoint;
     final canAdd =
@@ -63,7 +71,7 @@ class _HomeShellState extends ConsumerState<HomeShell> {
 
     final pages = Column(
       children: [
-        const DemoNotice(),
+        const DemoNotice(compact: true),
         Expanded(
           // The notice already sits below the status bar.
           child: MediaQuery.removePadding(

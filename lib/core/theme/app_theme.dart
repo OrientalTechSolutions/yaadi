@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 abstract final class AppFonts {
@@ -25,38 +27,50 @@ ThemeData buildAppTheme(Brightness brightness) {
 }
 
 /// Nastaliq's tall ascenders and deep descenders (ے ی ں) need far more line
-/// height than Latin: 1.9 at normal size, easing to 1.55 by 1.3x so that a
-/// 2.0x row is still usable.
-double urduLineHeight(double textScale) {
-  const normal = 1.9;
-  const large = 1.55;
-  if (textScale <= 1.0) return normal;
-  if (textScale >= 1.3) return large;
-  return normal - (textScale - 1.0) / 0.3 * (normal - large);
-}
+/// height than Latin; the font's own line is 2.5 em. 1.9 is the least that
+/// keeps lines from touching, and as a ratio it holds at every text scale,
+/// so Large text never squeezes Urdu lines together.
+const urduLineHeight = 1.9;
 
-/// [theme] for the Urdu UI: Nastaliq in every Material text style, Roboto
-/// behind it for Latin runs, and taller bars where labels would clip.
-ThemeData urduTheme(ThemeData theme, {required double textScale}) {
-  final height = urduLineHeight(textScale);
-  return theme.copyWith(
-    textTheme: _nastaliq(theme.textTheme, height),
-    primaryTextTheme: _nastaliq(theme.primaryTextTheme, height),
-    navigationBarTheme: theme.navigationBarTheme.copyWith(height: 88),
-  );
-}
+/// At the same nominal size Nastaliq looks about a quarter smaller than
+/// Roboto, so Urdu text is set this much larger wherever it appears.
+const urduSizeFactor = 1.15;
 
-TextTheme _nastaliq(TextTheme textTheme, double height) {
+/// Below this, Nastaliq labels read like 8 or 9 px type.
+const _urduMinFontSize = 13.0;
+
+/// [theme] for the Urdu UI: Nastaliq in every Material text style, a size
+/// up, with Roboto behind it for Latin runs, and room where labels would
+/// clip.
+ThemeData urduTheme(ThemeData theme) => theme.copyWith(
+  textTheme: _nastaliq(theme.textTheme),
+  primaryTextTheme: _nastaliq(theme.primaryTextTheme),
+  navigationBarTheme: theme.navigationBarTheme.copyWith(height: 88),
+  // 4 dp more above the text than Material's default, so a floating label
+  // clears the ascenders of گ and ک below it.
+  inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+    contentPadding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 8),
+  ),
+);
+
+TextTheme _nastaliq(TextTheme textTheme) {
   TextStyle? style(TextStyle? base) => base?.copyWith(
     fontFamily: AppFonts.urdu,
     fontFamilyFallback: const [AppFonts.ui],
-    height: height,
+    fontSize: math.max(
+      _urduMinFontSize,
+      (base.fontSize ?? 14) * urduSizeFactor,
+    ),
+    height: urduLineHeight,
   );
 
   return TextTheme(
-    displayLarge: style(textTheme.displayLarge),
-    displayMedium: style(textTheme.displayMedium),
-    displaySmall: style(textTheme.displaySmall),
+    // Material uses the display styles only for numerals, such as the time
+    // picker's hour and minute inside fixed 80 dp boxes. They stay in
+    // Roboto: a Nastaliq line there is cut in half.
+    displayLarge: textTheme.displayLarge,
+    displayMedium: textTheme.displayMedium,
+    displaySmall: textTheme.displaySmall,
     headlineLarge: style(textTheme.headlineLarge),
     headlineMedium: style(textTheme.headlineMedium),
     headlineSmall: style(textTheme.headlineSmall),

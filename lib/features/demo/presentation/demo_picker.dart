@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/widgets/content_width.dart';
+import '../../../core/widgets/content_list_view.dart';
+import '../../../core/widgets/heading.dart';
 import '../../../core/widgets/user_text.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../settings/application/settings_controller.dart';
@@ -60,13 +61,7 @@ class DemoPickerScreen extends ConsumerWidget {
               maxWidth: 640,
               top: 24,
               children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    l10n.pickerTitle,
-                    style: theme.textTheme.headlineSmall,
-                  ),
-                ),
+                Heading(l10n.pickerTitle, style: theme.textTheme.headlineSmall),
                 const SizedBox(height: 8),
                 Text(l10n.pickerBody, style: theme.textTheme.bodyLarge),
                 const SizedBox(height: 16),
@@ -138,13 +133,7 @@ Future<void> showDemoPicker(BuildContext context) => showModalBottomSheet<void>(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Semantics(
-              header: true,
-              child: Text(
-                l10n.tryDemo,
-                style: Theme.of(sheet).textTheme.titleLarge,
-              ),
-            ),
+            Heading(l10n.tryDemo, style: Theme.of(sheet).textTheme.titleLarge),
             const SizedBox(height: 8),
             Text(l10n.demoExplain),
             const SizedBox(height: 8),

@@ -17,6 +17,7 @@ final class SessionDemoBackend implements StorageBackend {
     settings: sessionSettingsRepository(_store),
     close: () async {},
     eraseAll: erase,
+    isSavingFailed: () => _store.hasFailedWrites,
   );
 
   @override

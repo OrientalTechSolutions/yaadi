@@ -1,7 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaadi/core/money/money.dart';
+import 'package:yaadi/core/time/local_date.dart';
 import 'package:yaadi/features/items/domain/item.dart';
+import 'package:yaadi/features/items/domain/item_category.dart';
 import 'package:yaadi/features/items/domain/item_kind.dart';
+import 'package:yaadi/features/items/domain/recurrence.dart';
 import 'package:yaadi/features/today/domain/morning_summary.dart';
 import 'package:yaadi/features/today/domain/today_view.dart';
 
@@ -102,6 +105,36 @@ void main() {
     ]);
     expect(summary.totals, [Money(5050, 'GBP'), Money(100000, 'PKR')]);
     expect(summary.unknownAmounts, 1);
+  });
+
+  test('a fixed instalment paid late counts every one still owed', () {
+    // Paid for August late, the fee stepped to 5 September; 5 October is
+    // owed as well before 3 November, while 5 November is not due yet.
+    final today = LocalDate(2026, 10, 27);
+    final fee = item(
+      'fee',
+      kind: ItemKind.bill,
+      category: ItemCategory.school,
+      due: LocalDate(2026, 9, 5),
+      recurrence: MonthlyRepeat(5),
+      amount: Money(1200000, 'PKR'),
+    );
+    final summary = MorningSummary.of(TodayView.build([fee], today: today));
+    expect(summary.payBy, LocalDate(2026, 11, 3));
+    expect(summary.totals, [Money(2400000, 'PKR')]);
+
+    // A variable bill carries its arrears in the next paper instead.
+    final bill = item(
+      'lesco',
+      kind: ItemKind.bill,
+      category: ItemCategory.electricity,
+      due: LocalDate(2026, 9, 5),
+      recurrence: MonthlyRepeat(5),
+      amount: Money(425000, 'PKR'),
+    );
+    expect(MorningSummary.of(TodayView.build([bill], today: today)).totals, [
+      Money(425000, 'PKR'),
+    ]);
   });
 
   test('past appointments are counted for confirmation', () {

@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/user_text.dart';
 import '../../../l10n/app_localizations.dart';
 import '../domain/item.dart';
 import '../domain/reference.dart';
@@ -11,9 +13,10 @@ import '../domain/reference.dart';
 /// How long a shown reference stays visible.
 const referenceRevealDuration = Duration(seconds: 30);
 
-/// Hides a shown reference again when the app leaves the foreground, so the
-/// app switcher's snapshot never holds it (ARCHITECTURE.md section 6), and
-/// after [referenceRevealDuration].
+/// Hides a shown reference again when the app leaves the foreground and
+/// after [referenceRevealDuration]. This narrows the window in which an
+/// app-switcher snapshot can hold it but does not close it: Android may take
+/// the snapshot before the hidden frame is drawn (ARCHITECTURE.md section 6).
 mixin _HidesOnLeave<T extends StatefulWidget> on State<T> {
   late final AppLifecycleListener _lifecycle;
   Timer? _timer;
@@ -75,15 +78,28 @@ class _ReferenceViewState extends State<ReferenceView>
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final toggle = _shown ? hide : show;
+    final label = _shown
+        ? l10n.referenceShownLabel(widget.reference)
+        : l10n.referenceHiddenLabel;
+    final at = _shown ? label.indexOf(widget.reference) : -1;
 
     return Semantics(
       // Its own node, so the label is exactly this and never merged with
       // the text around it.
       container: true,
       button: true,
-      label: _shown
-          ? l10n.referenceShownLabel(widget.reference)
-          : l10n.referenceHiddenLabel,
+      // A shown number is read digit by digit, not as one huge number.
+      attributedLabel: AttributedString(
+        label,
+        attributes: [
+          if (at >= 0)
+            SpellOutStringAttribute(
+              range: TextRange(start: at, end: at + widget.reference.length),
+            ),
+        ],
+      ),
+      // The platform says how to activate it; this says what it does.
+      onTapHint: _shown ? l10n.referenceHide : l10n.referenceShow,
       onTap: toggle,
       excludeSemantics: true,
       child: Row(
@@ -156,10 +172,16 @@ class _ReferenceFieldState extends State<ReferenceField>
       obscureText: !_shown,
       obscuringCharacter: '•',
       textDirection: TextDirection.ltr,
+      // Reads left to right, but sits under its label at the start side.
+      textAlign: alignWithLayout(context),
       keyboardType: TextInputType.visiblePassword,
       autocorrect: false,
       enableSuggestions: false,
       enableIMEPersonalizedLearning: false,
+      // Only null keeps the field away from the platform's autofill
+      // service; the default empty list still offers it to a password
+      // manager, which could save the number and sync it.
+      autofillHints: null,
       inputFormatters: [
         LengthLimitingTextInputFormatter(ItemLimits.referenceMax),
       ],

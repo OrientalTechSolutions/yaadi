@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
+import '../../../core/text/bidi.dart';
 import '../../../core/time/local_date.dart';
 import '../../../core/time/time_format.dart';
 import '../../../l10n/app_localizations.dart';
 import '../domain/completion.dart';
+import '../domain/item.dart';
 import '../domain/item_category.dart';
 import '../domain/item_kind.dart';
 import '../domain/item_status.dart';
@@ -74,6 +76,26 @@ extension ItemLabels on AppLocalizations {
     };
     final until = recurrence.until;
     return until == null ? rule : repeatUntil(rule, until.toDateTime());
+  }
+
+  /// When [item] is, in the words its kind needs, for lists: a bill's due
+  /// date, when an ID card expires, an appointment's day and time, or a
+  /// medicine's times. Never a "deadline" for a dentist or a tablet.
+  String dateSummary(Item item) {
+    final due = item.dueOn;
+    if (due == null) return noDueDate;
+    final minute = item.dueMinute;
+    return switch (item.kind) {
+      ItemKind.medicine when item.doseTimes != null => describeRepeat(
+        item.recurrence,
+      ),
+      ItemKind.expiry => expiresOn(due.toDateTime()),
+      ItemKind.appointment || ItemKind.medicine => [
+        onDateWithYear(due.toDateTime()),
+        if (minute != null) isolate(formatMinute(minute, localeName)),
+      ].join(' · '),
+      ItemKind.bill || ItemKind.task => dueOn(due.toDateTime()),
+    };
   }
 
   /// The ISO [weekday] (1 is Monday) by name in this language.

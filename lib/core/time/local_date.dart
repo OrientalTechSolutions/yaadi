@@ -85,9 +85,11 @@ final class LocalDate implements Comparable<LocalDate> {
 
   bool isAfter(LocalDate other) => compareTo(other) > 0;
 
-  /// Midnight at the start of this date, as a local [DateTime], for
-  /// formatting with `intl`.
-  DateTime toDateTime() => DateTime(year, month, day);
+  /// Noon on this date, as a local [DateTime], for formatting with `intl`
+  /// and for date pickers. Not midnight: where clocks change at midnight
+  /// (America/Santiago, for one) that hour may not exist and would fall
+  /// back to the day before.
+  DateTime toDateTime() => DateTime(year, month, day, 12);
 
   String toIso() =>
       '${year.toString().padLeft(4, '0')}-'

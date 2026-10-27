@@ -1,10 +1,15 @@
+import 'dart:io';
+
 import 'package:drift/drift.dart' hide isNotNull, isNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:path/path.dart' as p;
 import 'package:yaadi/core/storage/storage_failure.dart';
 import 'package:yaadi/features/items/data/drift_item_repository.dart';
+import 'package:yaadi/features/items/data/item_repository.dart';
 import 'package:yaadi/vault/vault_database.dart';
 
+import '../../../support/items.dart';
 import 'item_repository_contract.dart';
 
 void main() {
@@ -87,6 +92,36 @@ void main() {
     }
 
     test(
+      'rejects a repeat without a date and doses on anything else',
+      () async {
+        Future<void> insert(String kind, String columns, String values) =>
+            db.customStatement(
+              'INSERT INTO items (id, kind, title, category, amount_is_fixed, '
+              'status, created_at, updated_at$columns) '
+              "VALUES ('y', '$kind', 'Item', 'other', 0, 'open', 0, 0$values)",
+            );
+        const daily = r""", '{"type":"daily"}'""";
+        const doses = r""", '{"type":"doses","minutes":[480]}'""";
+
+        expect(
+          await codeOf(insert('task', ', recurrence', daily)),
+          checkFailure,
+        );
+        expect(
+          await codeOf(
+            insert('task', '$dated, recurrence', '$datedValues$doses'),
+          ),
+          checkFailure,
+        );
+        await insert('medicine', '$dated, recurrence', '$datedValues$doses');
+        await db.customStatement('DELETE FROM items');
+        // An undated one-off task is fine.
+        await insert('task', '', '');
+        expect(await db.select(db.items).get(), hasLength(1));
+      },
+    );
+
+    test(
       'one untimed completion per occurrence, despite NULL minutes',
       () async {
         await insertItem(dated, datedValues);
@@ -110,6 +145,37 @@ void main() {
     });
   });
 
+  test('a delete leaves nothing of the item in the WAL', () async {
+    final directory = await Directory.systemTemp.createTemp('yaadi_wal_');
+    addTearDown(() async {
+      try {
+        await directory.delete(recursive: true);
+      } on FileSystemException {
+        // Windows may still hold the file for a moment.
+      }
+    });
+    final file = File(p.join(directory.path, 'vault.sqlite'));
+    // The vault's own settings, as in applyVaultSetup, minus the cipher.
+    final db = VaultDatabase(
+      NativeDatabase(
+        file,
+        setup: (raw) => raw
+          ..execute('PRAGMA secure_delete = ON')
+          ..execute('PRAGMA journal_mode = WAL'),
+      ),
+    );
+    final repository = DriftItemRepository(db);
+
+    await repository.create(item('gone', notes: 'gone-notes'));
+    final wal = File('${file.path}-wal');
+    expect(wal.lengthSync(), greaterThan(0));
+    await repository.delete((await repository.find('gone'))!);
+
+    expect(wal.existsSync() ? wal.lengthSync() : 0, 0);
+    expect(_contains(file, 'gone-notes'), isFalse);
+    await db.close();
+  });
+
   test('storage failures keep the result code and drop the statement', () async {
     final db = VaultDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -131,6 +197,9 @@ void main() {
     expect(failure.toString(), isNot(contains(reference)));
   });
 }
+
+bool _contains(File file, String text) =>
+    String.fromCharCodes(file.readAsBytesSync()).contains(text);
 
 Future<Object> _errorOf(Future<void> statement) async {
   try {

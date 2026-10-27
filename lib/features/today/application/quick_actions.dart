@@ -30,10 +30,17 @@ final class ActionApplied extends ActionResult {
   final CatchUp? catchUp;
 }
 
-/// Nothing was written: the action was already applied (a double tap), or
-/// the item changed since the screen showed it.
+/// Nothing was written because the same action is still in flight: a double
+/// tap. Nothing needs saying.
 final class AlreadyApplied extends ActionResult {
   const AlreadyApplied();
+}
+
+/// Nothing was written because the item changed since the screen showed
+/// it: another action, an edit or a delete got there first, or the undo
+/// belongs to storage that is no longer shown. The user is told.
+final class ActionStale extends ActionResult {
+  const ActionStale();
 }
 
 /// Storage refused the write; nothing changed.
@@ -49,17 +56,17 @@ final quickActionsProvider =
       QuickActionsController.new,
     );
 
-/// Paid, Done, dose marks, Snooze and Undo.
+/// Paid, Done, dose marks, Snooze, Reschedule, taking a completion back,
+/// and Undo.
 ///
-/// Each intent names the occurrence the user saw, and the repository's
-/// revision check turns a repeat into [AlreadyApplied], so a double tap
-/// rolls a bill forward once. The state lists the writes in flight so their
+/// Each intent names the occurrence the user saw. A repeat while the first
+/// write is in flight is [AlreadyApplied]; a repeat after it landed finds
+/// the item moved on and is [ActionStale], so a double tap rolls a bill
+/// forward once either way. The state lists the writes in flight so their
 /// buttons can stay disabled until each one lands.
 class QuickActionsController extends Notifier<Set<PendingAction>> {
   @override
   Set<PendingAction> build() => const {};
-
-  ItemRepository get _items => ref.read(itemRepositoryProvider);
 
   DateTime _now() => ref.read(clockProvider)();
 
@@ -79,8 +86,8 @@ class QuickActionsController extends Notifier<Set<PendingAction>> {
   /// Shows the item again on today + [snooze]. Refused unless it is overdue
   /// or due today.
   Future<ActionResult> snooze(String itemId, SnoozeFor snooze) =>
-      _write(itemId, () async {
-        final item = await _items.find(itemId);
+      _write(itemId, (items) async {
+        final item = await items.find(itemId);
         final today = ref.read(todayProvider);
         if (item == null || !canSnooze(item, today)) return null;
         return (
@@ -95,8 +102,8 @@ class QuickActionsController extends Notifier<Set<PendingAction>> {
   /// happening another day. A repeating item keeps its rule's date, so only
   /// this occurrence moves.
   Future<ActionResult> reschedule(String itemId, LocalDate date) =>
-      _write(itemId, () async {
-        final item = await _items.find(itemId);
+      _write(itemId, (items) async {
+        final item = await items.find(itemId);
         if (item == null ||
             !item.isOpen ||
             item.doseTimes != null ||
@@ -115,15 +122,18 @@ class QuickActionsController extends Notifier<Set<PendingAction>> {
   /// twice is not.
   Future<ActionResult> markDose(String itemId, LocalDate on, int minute) =>
       _guard((itemId, minute), () async {
+        final items = ref.read(itemRepositoryProvider);
         // One retry for every other dose that may be racing this one.
         for (var attempt = 0; attempt < DoseTimes.maxDoses; attempt++) {
-          final item = await _items.find(itemId);
-          if (item == null || !item.canMarkDose(on, minute)) break;
-          final marks = await _items.completionsOf(itemId);
+          final item = await items.find(itemId);
+          if (item == null || !item.canMarkDose(on, minute)) {
+            return const ActionStale();
+          }
+          final marks = await items.completionsOf(itemId);
           if (marks.any(
             (m) => m.occurrenceOn == on && m.occurrenceMinute == minute,
           )) {
-            break;
+            return const AlreadyApplied();
           }
           final now = _now();
           final mark = item.doseMark(
@@ -136,11 +146,11 @@ class QuickActionsController extends Notifier<Set<PendingAction>> {
             item.copyWith(updatedAt: now),
             addCompletions: [mark],
           );
-          if (await _items.apply(change) case Written(:final undo)) {
+          if (await items.apply(change) case Written(:final undo)) {
             return ActionApplied(undo);
           }
         }
-        return const AlreadyApplied();
+        return const ActionStale();
       });
 
   /// Handles missed occurrences another way than the default, on top of the
@@ -148,9 +158,9 @@ class QuickActionsController extends Notifier<Set<PendingAction>> {
   Future<ActionResult> chooseCatchUp(
     ActionApplied applied,
     CatchUpOption option,
-  ) => _write(applied.undo.itemId, () async {
+  ) => _write(applied.undo.itemId, (items) async {
     final written = applied.undo.writtenRevision;
-    if (written == null) return null;
+    if (written == null || !identical(items, applied.undo.origin)) return null;
     return (
       change: ItemChange.update(
         option.after.copyWith(revision: written),
@@ -161,19 +171,32 @@ class QuickActionsController extends Notifier<Set<PendingAction>> {
     );
   });
 
+  /// Takes back the item's newest Paid or Done, [completionId], so that a
+  /// mistaken tap can still be corrected after its Undo has gone.
+  Future<ActionResult> reopen(String itemId, String completionId) =>
+      _write(itemId, (items) async {
+        final item = await items.find(itemId);
+        if (item == null) return null;
+        final last = reopenable(item, await items.completionsOf(itemId));
+        if (last == null || last.id != completionId) return null;
+        return (change: planReopen(item, last, now: _now()), catchUp: null);
+      });
+
   /// Reverses the write [snapshot] came from, unless something else has
-  /// changed the item since.
-  Future<ActionResult> undo(UndoSnapshot snapshot) => _write(
-    snapshot.itemId,
-    () async => (change: snapshot.reversal, catchUp: null),
-  );
+  /// changed the item since. A write made in other storage, such as a demo
+  /// household the user has since left, is never undone here.
+  Future<ActionResult> undo(UndoSnapshot snapshot) =>
+      _write(snapshot.itemId, (items) async {
+        if (!identical(items, snapshot.origin)) return null;
+        return (change: snapshot.reversal, catchUp: null);
+      });
 
   Future<ActionResult> _complete(
     String itemId,
     LocalDate? scheduledOn,
     CompletionOutcome outcome,
-  ) => _write(itemId, () async {
-    final item = await _items.find(itemId);
+  ) => _write(itemId, (items) async {
+    final item = await items.find(itemId);
     if (item == null ||
         !item.isOpen ||
         item.scheduledOn != scheduledOn ||
@@ -194,17 +217,22 @@ class QuickActionsController extends Notifier<Set<PendingAction>> {
     );
   });
 
-  /// Plans and applies one change. A null plan means there is nothing to
-  /// do any more.
+  /// Plans and applies one change against one repository, read once so a
+  /// switch to or from a demo household mid-write cannot split the two. A
+  /// null plan means the item is no longer as the screen showed it.
   Future<ActionResult> _write(
     String itemId,
-    Future<({ItemChange change, CatchUp? catchUp})?> Function() plan,
+    Future<({ItemChange change, CatchUp? catchUp})?> Function(
+      ItemRepository items,
+    )
+    plan,
   ) => _guard((itemId, null), () async {
-    final planned = await plan();
-    if (planned == null) return const AlreadyApplied();
-    return switch (await _items.apply(planned.change)) {
+    final items = ref.read(itemRepositoryProvider);
+    final planned = await plan(items);
+    if (planned == null) return const ActionStale();
+    return switch (await items.apply(planned.change)) {
       Written(:final undo) => ActionApplied(undo, catchUp: planned.catchUp),
-      Stale() => const AlreadyApplied(),
+      Stale() => const ActionStale(),
     };
   });
 

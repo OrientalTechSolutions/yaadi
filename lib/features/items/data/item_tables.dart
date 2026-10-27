@@ -10,8 +10,10 @@ import '../domain/recurrence.dart';
 /// One row per reminder series (ARCHITECTURE.md section 4).
 ///
 /// Every rule in `Item.violations` has a CHECK here too, so a bad row fails
-/// at the database boundary rather than in the UI. Enums have no CHECK, so
-/// adding a value never needs a table rebuild.
+/// at the database boundary rather than in the UI. Enums are stored by name
+/// without a CHECK, but an older build cannot read a name it does not know,
+/// so adding a value is a schema version bump; a test pins the names
+/// against the schema version.
 @DataClassName('ItemRow')
 @TableIndex(name: 'items_status_due', columns: {#status, #dueOn})
 class Items extends Table {
@@ -57,6 +59,8 @@ class Items extends Table {
     "CHECK (due_on IS NOT NULL OR kind = 'task')",
     'CHECK (due_minute IS NULL OR (due_on IS NOT NULL '
         'AND due_minute BETWEEN 0 AND 1439))',
+    'CHECK (due_on IS NOT NULL OR recurrence = \'{"type":"none"}\')',
+    "CHECK (kind = 'medicine' OR recurrence NOT LIKE '{\"type\":\"doses\"%')",
     "CHECK ((status = 'open') = (completed_at IS NULL))",
     "CHECK (snoozed_until IS NULL OR status = 'open')",
     'CHECK (revision >= 1)',

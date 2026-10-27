@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'heading.dart';
+
 /// A centred icon, heading and explanation for empty or failed screens,
 /// with optional buttons underneath.
 class MessageView extends StatelessWidget {
@@ -30,13 +32,10 @@ class MessageView extends StatelessWidget {
             children: [
               Icon(icon, size: 48, color: theme.colorScheme.onSurfaceVariant),
               const SizedBox(height: 16),
-              Semantics(
-                header: true,
-                child: Text(
-                  title,
-                  style: theme.textTheme.titleMedium,
-                  textAlign: TextAlign.center,
-                ),
+              Heading(
+                title,
+                style: theme.textTheme.titleMedium,
+                textAlign: TextAlign.center,
               ),
               if (body != null) ...[
                 const SizedBox(height: 8),

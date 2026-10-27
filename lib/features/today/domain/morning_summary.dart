@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/money/money.dart';
 import '../../../core/time/local_date.dart';
+import '../../items/domain/item.dart';
 import '../../items/domain/item_kind.dart';
 import 'today_view.dart';
 
@@ -62,29 +63,33 @@ final class MorningSummary {
       for (final entry in view[TodaySection.today])
         if (entry.doses.isEmpty) entry,
     ];
-    final thisWeek = [
-      for (final entry in view[TodaySection.nextWeek])
-        if (view.today.daysUntil(entry.on!) <= TodayRules.nextDays) entry,
-    ];
+    final thisWeek = view[TodaySection.nextWeek];
+    final payBy = view.today.addDays(TodayRules.nextDays);
 
     final totals = <String, int>{};
     var unknownAmounts = 0;
     for (final entry in [...overdue, ...dueToday, ...thisWeek]) {
-      if (entry.item.kind != ItemKind.bill) continue;
-      final amount = entry.item.amount;
+      final item = entry.item;
+      if (item.kind != ItemKind.bill) continue;
+      final amount = item.amount;
       if (amount == null) {
         unknownAmounts++;
-      } else {
-        totals.update(
-          amount.currency,
-          (sum) => sum + amount.minorUnits,
-          ifAbsent: () => amount.minorUnits,
-        );
+        continue;
       }
+      // A fixed instalment paid late steps one period at a time, so the
+      // ones after it that are also due by then are owed too.
+      final times = entry.section == TodaySection.overdue && item.amountIsFixed
+          ? _occurrencesUntil(item, payBy)
+          : 1;
+      totals.update(
+        amount.currency,
+        (sum) => sum + amount.minorUnits * times,
+        ifAbsent: () => amount.minorUnits * times,
+      );
     }
 
     return MorningSummary(
-      payBy: view.today.addDays(TodayRules.nextDays),
+      payBy: payBy,
       toConfirm: view[TodaySection.toConfirm].length,
       overdue: overdue.length,
       firstOverdue: overdue.isEmpty ? null : overdue.first.item.title,
@@ -178,6 +183,18 @@ final class MorningSummary {
       'MorningSummary(overdue: $overdue, toConfirm: $toConfirm, '
       'today: ${today.length}+$moreToday, doses: $dosesToday, '
       'totals: $totals, unknown: $unknownAmounts)';
+}
+
+/// The item's current occurrence and every later one on or before [until].
+int _occurrencesUntil(Item item, LocalDate until) {
+  var count = 1;
+  var date = item.scheduledOn;
+  while (date != null) {
+    date = item.recurrence.nextAfter(date);
+    if (date == null || date.isAfter(until)) break;
+    count++;
+  }
+  return count;
 }
 
 SummaryItem _mention(TodayEntry entry) => SummaryItem(

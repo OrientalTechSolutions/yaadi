@@ -95,12 +95,13 @@ final class HouseholdLexicon {
   }) {
     final length = keys.length - index;
     final candidates = length == 1 ? phrases : _byFirstWord[keys[index]] ?? [];
+    final byFolded = foldedPrefixIsSafe(base);
     return [
       for (final phrase in candidates)
         if (phrase.length == length &&
             _matchesAt(phrase, keys, index, words: length - 1) &&
             (phrase.base.last.startsWith(base) ||
-                phrase.folded.last.startsWith(folded)))
+                (byFolded && phrase.folded.last.startsWith(folded))))
           phrase,
     ];
   }

@@ -1,3 +1,5 @@
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaadi/core/money/money.dart';
@@ -17,6 +19,14 @@ Finder inEditor(Finder finder) => onScreen(ItemEditorScreen, finder);
 
 Finder field(String label) => inEditor(find.widgetWithText(TextField, label));
 
+/// The tappable part of a date or time field: its label alone is not.
+Finder pickerField(String label) => find
+    .ancestor(of: inEditor(find.text(label)), matching: find.byType(InkWell))
+    .first;
+
+Finder kindChip(String label) =>
+    inEditor(find.widgetWithText(ChoiceChip, label));
+
 Future<void> openEditor(WidgetTester tester) async {
   await tester.tap(find.byType(FloatingActionButton));
   await tester.pumpAndSettle();
@@ -25,7 +35,7 @@ Future<void> openEditor(WidgetTester tester) async {
 /// Opens the date picker from the field labelled [label] and accepts the
 /// date it starts on.
 Future<void> acceptDate(WidgetTester tester, String label) async {
-  await tester.tap(inEditor(find.text(label)));
+  await tester.tap(pickerField(label));
   await tester.pumpAndSettle();
   await tester.tap(find.text('OK'));
   await tester.pumpAndSettle();
@@ -47,6 +57,34 @@ void main() {
     expect(inEditor(find.text('Enter a title')), findsOneWidget);
     expect(inEditor(find.text('Choose a date')), findsOneWidget);
     expect(await vault.items.find('new-1'), isNull);
+  });
+
+  testWidgets('screen readers hear what to fix and land on the first field', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    await pumpApp(tester, FakeStorageBackend());
+    await openEditor(tester);
+    tester.takeAnnouncements();
+
+    await save(tester);
+    expect(tester.takeAnnouncements().map((a) => a.message), [
+      'Check 2 fields',
+    ]);
+    final title = tester.widget<EditableText>(
+      find.descendant(of: field('Title'), matching: find.byType(EditableText)),
+    );
+    expect(title.focusNode.hasFocus, isTrue);
+
+    // A date field with an error says both, and stays in the focus order.
+    final date = tester.getSemantics(
+      find.bySemanticsLabel('Due date, Choose a date'),
+    );
+    expect(
+      date.getSemanticsData().flagsCollection.isFocused,
+      isNot(Tristate.none),
+    );
+    semantics.dispose();
   });
 
   testWidgets('a new bill is saved with its amount and shows on Today', (
@@ -89,7 +127,7 @@ void main() {
     await pumpApp(tester, vault);
     await openEditor(tester);
 
-    await tester.tap(inEditor(find.text('Expiry date')));
+    await tester.tap(kindChip('Expiry date'));
     await tester.pumpAndSettle();
     await tester.enterText(field('Title'), 'Abbu CNIC 35202-1234567-1');
     await acceptDate(tester, 'Expires on');
@@ -121,6 +159,10 @@ void main() {
     expect(editable().enableIMEPersonalizedLearning, isFalse);
     expect(editable().autocorrect, isFalse);
     expect(editable().enableSuggestions, isFalse);
+    // Only null keeps it from the platform's autofill service; an empty
+    // list would let a password manager offer to save the number.
+    expect(editable().autofillHints, isNull);
+    expect(tester.testTextInput.setClientArgs!['autofill'], isNull);
 
     await tester.tap(inEditor(find.byTooltip('Show')));
     await tester.pumpAndSettle();
@@ -140,7 +182,7 @@ void main() {
     await pumpApp(tester, vault);
     await openEditor(tester);
 
-    await tester.tap(inEditor(find.text('Medicine')));
+    await tester.tap(kindChip('Medicine'));
     await tester.pumpAndSettle();
     expect(inEditor(find.text('Repeat')), findsNothing);
     await tester.enterText(field('Title'), 'امی کی دوائی');
@@ -181,7 +223,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(inEditor(find.text('Edit item')), findsOneWidget);
 
-    await tester.tap(inEditor(find.text('Due date')));
+    await tester.tap(pickerField('Due date'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('13'));
     await tester.tap(find.text('OK'));
@@ -194,6 +236,47 @@ void main() {
     expect(saved.dueOn, LocalDate(2026, 11, 13));
     expect(saved.scheduledOn, LocalDate(2026, 11, 10));
     expect(saved.recurrence, MonthlyRepeat(10));
+  });
+
+  testWidgets('a date set back to the original leaves the series alone', (
+    tester,
+  ) async {
+    final vault = FakeStorageBackend(
+      items: [
+        bill(
+          id: 'lesco',
+          dueOn: LocalDate(2026, 11, 10),
+          recurrence: MonthlyRepeat(10),
+        ),
+      ],
+    );
+    await pumpApp(tester, vault);
+    await tester.tap(onScreen(TodayScreen, findPlain('LESCO bill')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Edit'));
+    await tester.pumpAndSettle();
+
+    Future<void> pickDay(String day) async {
+      await tester.tap(pickerField('Due date'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(day));
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+    }
+
+    await pickDay('13');
+    await tester.tap(
+      inEditor(find.widgetWithText(SwitchListTile, 'Repeat from the new date')),
+    );
+    await tester.pumpAndSettle();
+    await pickDay('10');
+    expect(inEditor(find.text('Repeat from the new date')), findsNothing);
+
+    // Nothing visible changed, so leaving does not ask.
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Discard your changes?'), findsNothing);
+    expect(find.byType(ItemEditorScreen), findsNothing);
   });
 
   testWidgets('leaving with unsaved changes asks first', (tester) async {
@@ -223,7 +306,7 @@ void main() {
     final vault = FakeStorageBackend();
     await pumpApp(tester, vault);
     await openEditor(tester);
-    await tester.tap(inEditor(find.text('Task')));
+    await tester.tap(kindChip('Task'));
     await tester.pumpAndSettle();
     await tester.enterText(field('Title'), 'Renew library card');
     await save(tester);
@@ -251,7 +334,7 @@ void main() {
     await tester.tap(inEditor(find.text('محفوظ کریں')));
     await tester.pumpAndSettle();
     expect(inEditor(find.text('عنوان لکھیں')), findsOneWidget);
-    await tester.drag(find.byType(Scrollable).last, const Offset(0, -2000));
+    await tester.drag(inEditor(find.byType(ListView)), const Offset(0, -2000));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });

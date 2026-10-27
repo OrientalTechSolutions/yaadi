@@ -56,6 +56,24 @@ void main() {
       );
     });
 
+    test('moving a number out of multi-line notes keeps the other lines', () {
+      for (final (notes, left) in [
+        ('Consumer 04111234567890\nPay at HBL', 'Consumer\nPay at HBL'),
+        (
+          'Consumer 04111234567890\nPay at HBL\nLate fee 200',
+          'Consumer\nPay at HBL\nLate fee 200',
+        ),
+        (
+          'Pay at HBL\n04111234567890\nLate fee 200',
+          'Pay at HBL\nLate fee 200',
+        ),
+        ('Pay at HBL\nRef  04111234567890  due', 'Pay at HBL\nRef due'),
+      ]) {
+        final found = findMisplacedNumber(title: 'LESCO bill', notes: notes)!;
+        expect(found.removeFrom(notes), left, reason: notes);
+      }
+    });
+
     test('the title is checked before the notes', () {
       expect(
         findMisplacedNumber(title: '1234567890', notes: '0987654321')!.field,

@@ -1,5 +1,8 @@
+import 'package:intl/intl.dart' show DateFormat;
+
 import '../../../core/money/money_format.dart';
 import '../../../core/text/bidi.dart';
+import '../../../core/time/local_date.dart';
 import '../../../core/time/time_format.dart';
 import '../../../l10n/app_localizations.dart';
 import '../domain/morning_summary.dart';
@@ -16,6 +19,12 @@ List<String> morningSummaryLines(
   AppLocalizations l10n,
 ) {
   final locale = l10n.localeName;
+
+  // No-break spaces keep a date on one line at large text sizes, where
+  // "29," at the end of a line and "October" on the next is hard to read.
+  String date(LocalDate day) => isolate(
+    DateFormat.MMMEd(locale).format(day.toDateTime()).replaceAll(' ', '\u00A0'),
+  );
 
   String describe(SummaryItem item) => [
     isolate(item.title),
@@ -34,14 +43,14 @@ List<String> morningSummaryLines(
     if (summary.moreToday > 0) l10n.summaryMoreToday(summary.moreToday),
     if (summary.dosesToday > 0) l10n.summaryDoses(summary.dosesToday),
     if (comingUp != null)
-      l10n.summaryComingUp(comingUp.on.toDateTime(), isolate(comingUp.title)),
+      l10n.summaryComingUp(date(comingUp.on), isolate(comingUp.title)),
     if (summary.totals.isNotEmpty)
       l10n.summaryToPay(
         [
           for (final total in summary.totals)
             isolate(formatMoney(total, locale)),
         ].join(' · '),
-        summary.payBy.toDateTime(),
+        date(summary.payBy),
       ),
     if (summary.unknownAmounts > 0)
       l10n.summaryUnknownAmounts(summary.unknownAmounts),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaadi/core/app_info.dart';
+import 'package:yaadi/core/platform/session_store.dart';
 import 'package:yaadi/core/platform/session_store_memory.dart';
 import 'package:yaadi/features/demo/presentation/demo_picker.dart';
 import 'package:yaadi/features/items/data/session_item_repository.dart';
@@ -45,12 +46,15 @@ void main() {
       await tester.tap(paid);
       await tester.pumpAndSettle();
       expect(await vault.items.find('khan-school'), isNull);
+      expect(find.text('Undo'), findsOneWidget);
 
       await tester.tap(find.text('Leave demo'));
       await tester.pumpAndSettle();
       expect(inToday(find.text('Nothing here yet')), findsOneWidget);
       expect(find.text('Demo'), findsNothing);
       expect(await vault.settings.readAll(), isEmpty);
+      // The demo's Undo leaves with it: it would act on the wrong items.
+      expect(find.text('Undo'), findsNothing);
     });
 
     testWidgets('Settings switches households and clears the demo', (
@@ -111,6 +115,52 @@ void main() {
       },
     );
 
+    testWidgets(
+      'the screens keep one line of notice, with the rest a tap away',
+      (tester) async {
+        await pumpApp(tester, SessionDemoBackend(MemorySessionStore()));
+        await tester.tap(find.text('Khan family, Lahore'));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(
+            'Demo with made-up families. Not encrypted: do not enter real ID '
+            'numbers.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.textContaining('GitHub Pages'), findsNothing);
+
+        await tester.tap(find.text('Details'));
+        await tester.pumpAndSettle();
+        expect(
+          find.textContaining('which keeps standard access logs'),
+          findsOne,
+        );
+        await tester.tap(find.text('Close'));
+        await tester.pumpAndSettle();
+        expect(find.byType(AlertDialog), findsNothing);
+      },
+    );
+
+    testWidgets('a browser that does not save the demo is named', (
+      tester,
+    ) async {
+      await pumpApp(tester, SessionDemoBackend(_RefusingSessionStore()));
+      await tester.tap(find.text('Taylor family, Manchester'));
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text(
+          'This browser is not saving the demo; it will reset when you '
+          'reload.',
+        ),
+        findsOneWidget,
+      );
+      // The demo itself carries on in memory.
+      expect(inToday(findPlain('Overdue: Council tax')), findsOneWidget);
+    });
+
     testWidgets('the picker offers the other language in its own script', (
       tester,
     ) async {
@@ -168,4 +218,25 @@ void main() {
       expect(opened, [AppInfo.github, AppInfo.upwork]);
     });
   });
+}
+
+/// A browser that refuses every write, as in some private windows or over
+/// quota.
+final class _RefusingSessionStore implements SessionStore {
+  var _failed = false;
+
+  @override
+  String? read(String key) => null;
+
+  @override
+  bool write(String key, String value) {
+    _failed = true;
+    return false;
+  }
+
+  @override
+  void remove(String key) {}
+
+  @override
+  bool get hasFailedWrites => _failed;
 }

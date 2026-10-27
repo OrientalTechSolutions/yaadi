@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/widgets/heading.dart';
 import '../../../core/widgets/user_text.dart';
 import '../../../l10n/app_localizations.dart';
 import '../application/morning_summary_text.dart';
@@ -32,12 +33,9 @@ class MorningSummaryCard extends ConsumerWidget {
                 Icon(Icons.wb_sunny_outlined, color: ink),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Semantics(
-                    header: true,
-                    child: Text(
-                      l10n.morningSummaryTitle,
-                      style: theme.textTheme.titleMedium?.copyWith(color: ink),
-                    ),
+                  child: Heading(
+                    l10n.morningSummaryTitle,
+                    style: theme.textTheme.titleMedium?.copyWith(color: ink),
                   ),
                 ),
               ],

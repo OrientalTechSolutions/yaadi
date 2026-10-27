@@ -8,6 +8,7 @@ import 'features/settings/application/settings_controller.dart';
 import 'features/settings/domain/app_settings.dart';
 import 'home_shell.dart';
 import 'l10n/app_localizations.dart';
+import 'l10n/urdu_material_localizations.dart';
 import 'vault/vault_gate.dart';
 
 /// The app shell: locale, themes and text scale from Settings, then the vault
@@ -22,13 +23,22 @@ class YaadiApp extends ConsumerWidget {
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
-      // Null lets Flutter pick Urdu on an Urdu phone and English otherwise.
+      // Null follows the phone; English still takes the phone's country so
+      // dates are written the way that country writes them.
       locale: switch (settings.language) {
         null => null,
-        final language => Locale(language.name),
+        AppLanguage.ur => const Locale('ur'),
+        AppLanguage.en => Locale(
+          'en',
+          WidgetsBinding.instance.platformDispatcher.locale.countryCode,
+        ),
       },
+      localeResolutionCallback: (requested, _) => resolveAppLocale(requested),
       supportedLocales: AppLocalizations.supportedLocales,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: const [
+        UrduMaterialLocalizations.delegate,
+        ...AppLocalizations.localizationsDelegates,
+      ],
       theme: buildAppTheme(Brightness.light),
       darkTheme: buildAppTheme(Brightness.dark),
       themeMode: switch (settings.theme) {
@@ -41,4 +51,14 @@ class YaadiApp extends ConsumerWidget {
       home: const VaultGate(child: DemoGate(child: HomeShell())),
     );
   }
+}
+
+/// Urdu on an Urdu phone, otherwise English. English dates are written day
+/// first (`en_GB`) everywhere except the US: Pakistan and the UK both write
+/// 2 November 2026, not November 2, 2026.
+Locale resolveAppLocale(Locale? requested) {
+  if (requested?.languageCode == 'ur') return const Locale('ur');
+  return requested?.countryCode == 'US'
+      ? const Locale('en')
+      : const Locale('en', 'GB');
 }

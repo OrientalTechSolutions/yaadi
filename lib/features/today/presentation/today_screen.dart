@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
-import '../../../core/widgets/content_width.dart';
+import '../../../core/widgets/content_list_view.dart';
+import '../../../core/widgets/heading.dart';
 import '../../../core/widgets/message_view.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../demo/application/demo_providers.dart';
@@ -16,7 +17,8 @@ import 'morning_summary_card.dart';
 import 'today_entry_card.dart';
 
 /// What needs attention: the morning summary, then past appointments to
-/// confirm, overdue items, today, the next 7 days and later.
+/// confirm, overdue items, today, the next 7 days, expiry dates coming up
+/// and later.
 class TodayScreen extends ConsumerWidget {
   const TodayScreen({super.key});
 
@@ -26,7 +28,10 @@ class TodayScreen extends ConsumerWidget {
     final view = ref.watch(todayViewProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navToday), actions: const [DemoBadge()]),
+      appBar: ContentAppBar(
+        title: Text(l10n.navToday),
+        actions: const [DemoBadge()],
+      ),
       body: switch (view) {
         AsyncData(:final value) when value.isEmpty => const _NothingToday(),
         AsyncData(:final value) => _TodayList(view: value),
@@ -93,6 +98,7 @@ class _SectionHeader extends StatelessWidget {
       TodaySection.overdue => l10n.sectionOverdue,
       TodaySection.today => l10n.sectionToday,
       TodaySection.nextWeek => l10n.sectionNextWeek,
+      TodaySection.expiringSoon => l10n.sectionExpiringSoon,
       TodaySection.later => l10n.sectionLater,
     };
     final color = section == TodaySection.overdue
@@ -100,14 +106,10 @@ class _SectionHeader extends StatelessWidget {
         : theme.colorScheme.primary;
     return Padding(
       padding: const EdgeInsetsDirectional.only(top: 20, bottom: 4),
-      child: Semantics(
-        header: true,
-        label: l10n.sectionLabel(title, count),
-        excludeSemantics: true,
-        child: Text(
-          '$title · $count',
-          style: theme.textTheme.titleSmall?.copyWith(color: color),
-        ),
+      child: Heading(
+        '$title · $count',
+        semanticsLabel: l10n.sectionLabel(title, count),
+        style: theme.textTheme.titleSmall?.copyWith(color: color),
       ),
     );
   }

@@ -59,6 +59,13 @@ List<SearchToken> tokenize(String text) => [
     ?_normalize(text, match.start, match.end),
 ];
 
+/// Whether a word still being typed may also match as a prefix of folded
+/// keys. Folding shortens "fee" to "fi" and "too" to "tu", which begin
+/// "final" and "tuition", so such a word matches by its [SearchToken.base]
+/// only.
+bool foldedPrefixIsSafe(String base) =>
+    !(base.endsWith('ee') || base.endsWith('oo'));
+
 /// The folded keys of [text] joined by spaces: exactly what search compares.
 /// Applying it twice gives the same result.
 String searchKey(String text) =>

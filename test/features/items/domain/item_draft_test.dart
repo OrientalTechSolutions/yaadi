@@ -249,6 +249,35 @@ void main() {
       );
     });
 
+    test('the switch left on does nothing once the date is back', () {
+      final clamped = item(
+        'rent',
+        kind: ItemKind.bill,
+        category: ItemCategory.rent,
+        due: LocalDate(2027, 2, 28),
+        recurrence: MonthlyRepeat(31),
+      );
+      final back = edit(
+        clamped,
+        (draft) => draft
+            .copyWith(dueOn: LocalDate(2027, 3, 3), moveSeries: true)
+            .copyWith(dueOn: LocalDate(2027, 2, 28)),
+      );
+      expect(back.recurrence, MonthlyRepeat(31));
+      expect(back.scheduledOn, LocalDate(2027, 2, 28));
+    });
+
+    test('a moved occurrence is not re-anchored by an untouched date', () {
+      final moved = lesco.copyWith(dueOn: LocalDate(2026, 11, 13));
+      final edited = edit(
+        moved,
+        (draft) => draft.copyWith(moveSeries: true, notes: 'Meter read late'),
+      );
+      expect(edited.scheduledOn, LocalDate(2026, 11, 10));
+      expect(edited.dueOn, LocalDate(2026, 11, 13));
+      expect(edited.recurrence, MonthlyRepeat(10));
+    });
+
     test('a new end date keeps the anchor', () {
       final ending = edit(
         lesco,

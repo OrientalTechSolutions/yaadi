@@ -18,7 +18,8 @@ String maskReference(String reference) {
 }
 
 final _letterOrDigit = RegExp(r'[\p{L}\p{N}]', unicode: true);
-final _whitespace = RegExp(r'\s+');
+final _trailingSpace = RegExp(r'[ \t]+$');
+final _leadingSpace = RegExp(r'^[ \t]+');
 
 enum NumberField { title, notes }
 
@@ -36,9 +37,22 @@ final class MisplacedNumber {
 
   final String value;
 
-  /// [text] without the number, with the space it leaves tidied up.
-  String removeFrom(String text) =>
-      text.replaceRange(start, end, ' ').replaceAll(_whitespace, ' ').trim();
+  /// [text] without the number. Only the gap it leaves is tidied, so the
+  /// other lines of multi-line notes stay as they were.
+  String removeFrom(String text) {
+    final before = text.substring(0, start).replaceFirst(_trailingSpace, '');
+    var after = text.substring(end).replaceFirst(_leadingSpace, '');
+    // A number on a line of its own takes its line with it.
+    if (before.endsWith('\n') && after.startsWith('\n')) {
+      after = after.substring(1);
+    }
+    final atLineEdge =
+        before.isEmpty ||
+        after.isEmpty ||
+        before.endsWith('\n') ||
+        after.startsWith('\n');
+    return '$before${atLineEdge ? '' : ' '}$after'.trim();
+  }
 
   @override
   String toString() => 'MisplacedNumber(${field.name}, [$start, $end))';

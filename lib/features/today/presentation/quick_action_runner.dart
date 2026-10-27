@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../core/widgets/snack_bars.dart';
+import '../../../core/widgets/heading.dart';
+import '../../../core/widgets/messenger.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../items/domain/item_change.dart';
 import '../application/quick_actions.dart';
 import '../domain/roll_forward.dart';
 
@@ -48,15 +50,24 @@ final class _Reporter {
           ),
         );
       case ActionApplied(:final undo):
-        messenger.showUndo(message, () async {
-          if (await actions.undo(undo) case AlreadyApplied()) {
-            messenger.show(l10n.undoRefused);
-          }
-        });
+        messenger.showUndo(message, () => _undo(undo));
       case AlreadyApplied():
         break;
+      case ActionStale():
+        messenger.show(l10n.actionStale);
       case ActionNotSaved():
         messenger.show(l10n.notSaved);
+    }
+  }
+
+  Future<void> _undo(UndoSnapshot undo) async {
+    switch (await actions.undo(undo)) {
+      case ActionStale():
+        messenger.show(l10n.undoRefused);
+      case ActionNotSaved():
+        messenger.show(l10n.notSaved);
+      case ActionApplied() || AlreadyApplied():
+        break;
     }
   }
 
@@ -85,12 +96,9 @@ final class _Reporter {
             children: [
               Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 8),
-                child: Semantics(
-                  header: true,
-                  child: Text(
-                    l10n.catchUpQuestion(catchUp.missed),
-                    style: Theme.of(sheet).textTheme.titleMedium,
-                  ),
+                child: Heading(
+                  l10n.catchUpQuestion(catchUp.missed),
+                  style: Theme.of(sheet).textTheme.titleMedium,
                 ),
               ),
               for (final option in catchUp.options)
@@ -108,11 +116,9 @@ final class _Reporter {
               ListTile(
                 leading: const Icon(Icons.undo),
                 title: Text(l10n.undo),
-                onTap: () async {
+                onTap: () {
                   Navigator.pop(sheet);
-                  if (await actions.undo(applied.undo) case AlreadyApplied()) {
-                    messenger.show(l10n.undoRefused);
-                  }
+                  _undo(applied.undo);
                 },
               ),
             ],

@@ -5,19 +5,25 @@ import 'package:flutter_test/flutter_test.dart';
 /// Rules from ARCHITECTURE.md that are easier to check in the source than at
 /// run time.
 void main() {
-  final handWritten = Directory('lib')
-      .listSync(recursive: true)
-      .whereType<File>()
-      .where((file) => file.path.endsWith('.dart'))
-      .where((file) => !file.path.endsWith('.g.dart'))
-      .where(
-        (file) => !file.path.contains(
-          '${Platform.pathSeparator}l10n${Platform.pathSeparator}',
-        ),
-      )
-      .toList();
+  final handWritten = _handWrittenDart('lib');
 
   test('finds the sources', () => expect(handWritten, isNotEmpty));
+
+  test('no byte-order marks or literal invisible or bidi characters', () {
+    // A literal direction control can make code read differently from how
+    // it runs ("Trojan Source"), which matters in a right-to-left codebase.
+    // Write them as \u escapes instead.
+    final invisible = RegExp(
+      '[\u00A0\u061C\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF]',
+    );
+    final sources = [...handWritten, ..._handWrittenDart('test')];
+    final offenders = [
+      for (final file in sources)
+        if (_startsWithBom(file) || invisible.hasMatch(file.readAsStringSync()))
+          file.path,
+    ];
+    expect(offenders, isEmpty);
+  });
 
   test('lib/ never prints: release logs end up in bug reports', () {
     final printing = RegExp(r'\b(print|debugPrint)\(');
@@ -67,4 +73,25 @@ void main() {
     ];
     expect(offenders, isEmpty);
   });
+}
+
+/// Dart files under [root], without the output of Drift and gen-l10n.
+List<File> _handWrittenDart(String root) => [
+  for (final file in Directory(root).listSync(recursive: true))
+    if (file is File &&
+        file.path.endsWith('.dart') &&
+        !file.path.endsWith('.g.dart') &&
+        !file.uri.pathSegments.last.startsWith('app_localizations') &&
+        !file.path.contains(
+          ['drift', 'vault', 'generated'].join(Platform.pathSeparator),
+        ))
+      file,
+];
+
+bool _startsWithBom(File file) {
+  final bytes = file.readAsBytesSync();
+  return bytes.length >= 3 &&
+      bytes[0] == 0xEF &&
+      bytes[1] == 0xBB &&
+      bytes[2] == 0xBF;
 }

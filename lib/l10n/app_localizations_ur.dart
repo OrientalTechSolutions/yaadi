@@ -199,6 +199,17 @@ class AppLocalizationsUr extends AppLocalizations {
       'فرضی خاندانوں کے ساتھ ڈیمو۔ آپ جو لکھیں وہ اسی براؤزر میں رہتا ہے، انکرپٹ نہیں ہوتا اور ہمیں نہیں بھیجا جاتا۔ اصلی شناختی نمبر نہ لکھیں۔ یہ ڈیمو GitHub Pages پر ہے، جو معیاری رسائی لاگ رکھتا ہے۔';
 
   @override
+  String get webDemoNoticeShort =>
+      'فرضی خاندانوں کا ڈیمو۔ انکرپٹ نہیں ہوتا: اصلی شناختی نمبر نہ لکھیں۔';
+
+  @override
+  String get demoNoticeDetails => 'تفصیل';
+
+  @override
+  String get webDemoNotSaving =>
+      'یہ براؤزر ڈیمو محفوظ نہیں کر رہا؛ دوبارہ لوڈ کرنے پر یہ نئے سرے سے شروع ہو گا۔';
+
+  @override
   String get morningSummaryTitle => 'صبح کا خلاصہ';
 
   @override
@@ -255,19 +266,13 @@ class AppLocalizationsUr extends AppLocalizations {
   }
 
   @override
-  String summaryComingUp(DateTime date, String title) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'آگے: $title · $dateString';
+  String summaryComingUp(String date, String title) {
+    return 'آگے: $title · $date';
   }
 
   @override
-  String summaryToPay(String amounts, DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return '$dateString تک ادائیگی: $amounts';
+  String summaryToPay(String amounts, String date) {
+    return '$date تک ادائیگی: $amounts';
   }
 
   @override
@@ -316,6 +321,9 @@ class AppLocalizationsUr extends AppLocalizations {
   String get sectionNextWeek => 'اگلے 7 دن';
 
   @override
+  String get sectionExpiringSoon => 'میعاد جلد ختم';
+
+  @override
   String get sectionLater => 'بعد میں';
 
   @override
@@ -326,7 +334,7 @@ class AppLocalizationsUr extends AppLocalizations {
       other: '$count چیزیں',
       one: '1 چیز',
     );
-    return '$title: $_temp0';
+    return '$title، $_temp0';
   }
 
   @override
@@ -530,6 +538,22 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get notSaved => 'محفوظ نہیں ہو سکا۔ دوبارہ کوشش کریں۔';
+
+  @override
+  String get actionStale =>
+      'اس دوران یہ چیز بدل چکی تھی، اس لیے کچھ محفوظ نہیں ہوا۔';
+
+  @override
+  String get reopenPaid => 'ادائیگی کا نشان ہٹائیں';
+
+  @override
+  String get reopenDone => 'مکمل کا نشان ہٹائیں';
+
+  @override
+  String get reopenSkipped => 'چھوڑنے کا نشان ہٹائیں';
+
+  @override
+  String get reopened => 'دوبارہ باقی';
 
   @override
   String get catchUpChange => 'تبدیل کریں';
@@ -779,12 +803,11 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String referenceShownLabel(String reference) {
-    return 'حوالہ نمبر $reference، چھپانے کے لیے دو بار ٹیپ کریں';
+    return 'حوالہ نمبر $reference';
   }
 
   @override
-  String get referenceHiddenLabel =>
-      'حوالہ نمبر چھپا ہوا ہے، دکھانے کے لیے دو بار ٹیپ کریں';
+  String get referenceHiddenLabel => 'حوالہ نمبر، چھپا ہوا';
 
   @override
   String get referenceShow => 'دکھائیں';
@@ -938,6 +961,30 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get problemEndBeforeStart => 'آخری تاریخ پہلی تاریخ سے پہلے ہے';
+
+  @override
+  String editorProblems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count خانے درست کریں',
+      one: '1 خانہ درست کریں',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fieldWithProblem(String label, String problem) {
+    return '$label، $problem';
+  }
+
+  @override
+  String expiresOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'میعاد $dateString تک';
+  }
 
   @override
   String clearField(String label) {

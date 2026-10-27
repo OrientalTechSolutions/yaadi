@@ -14,6 +14,10 @@ enum TodaySection {
   overdue,
   today,
   nextWeek,
+
+  /// Expiry dates more than a week but at most 30 days away. Kept apart so
+  /// "Next 7 days" means what it says.
+  expiringSoon,
   later,
 }
 
@@ -51,7 +55,7 @@ TodaySection? sectionOf(Item item, LocalDate today) {
   if (days == 0) return TodaySection.today;
   if (days <= TodayRules.nextDays) return TodaySection.nextWeek;
   if (item.kind == ItemKind.expiry && days <= TodayRules.expiryWindowDays) {
-    return TodaySection.nextWeek;
+    return TodaySection.expiringSoon;
   }
   return TodaySection.later;
 }

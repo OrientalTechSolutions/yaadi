@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/widgets/auto_direction_field.dart';
-import '../../../core/widgets/content_width.dart';
+import '../../../core/widgets/content_list_view.dart';
+import '../../../core/widgets/heading.dart';
 import '../../../core/widgets/message_view.dart';
 import '../../../core/widgets/user_text.dart';
 import '../../../l10n/app_localizations.dart';
@@ -47,7 +48,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final results = ref.watch(searchResultsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.navSearch), actions: const [DemoBadge()]),
+      appBar: ContentAppBar(
+        title: Text(l10n.navSearch),
+        actions: const [DemoBadge()],
+      ),
       body: Column(
         children: [
           LayoutBuilder(
@@ -62,6 +66,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   onChanged: _search,
                   decoration: InputDecoration(
                     hintText: l10n.searchHint,
+                    // No floating label here, so the text sits in the
+                    // middle; the Urdu theme's extra room is for labels.
+                    contentPadding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: 12,
+                      vertical: 16,
+                    ),
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: query.isEmpty
                         ? null
@@ -82,10 +92,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             child: query.trim().isEmpty
                 ? _Suggestions(onPick: _search)
                 : results.isEmpty
-                ? MessageView(
-                    icon: Icons.search_off,
-                    title: l10n.searchNoResults,
-                    body: l10n.searchNoResultsHint,
+                // Announced like the result count, so a query with no
+                // matches is not silence.
+                ? Semantics(
+                    liveRegion: true,
+                    container: true,
+                    child: MessageView(
+                      icon: Icons.search_off,
+                      title: l10n.searchNoResults,
+                      body: l10n.searchNoResultsHint,
+                    ),
                   )
                 : _Results(results: results),
           ),
@@ -145,7 +161,6 @@ class _ResultTile extends StatelessWidget {
       backgroundColor: theme.colorScheme.tertiaryContainer,
       color: theme.colorScheme.onTertiaryContainer,
     );
-    final due = item.dueOn;
     final notes = item.notes;
     final (snippet, snippetRanges) = notes == null || result.notesRanges.isEmpty
         ? ('', const <TextRange>[])
@@ -177,10 +192,7 @@ class _ResultTile extends StatelessWidget {
                   text: l10n.kindLabel(item.kind),
                   style: result.kindMatched ? highlight : null,
                 ),
-                TextSpan(
-                  text:
-                      ' · ${due == null ? l10n.noDueDate : l10n.dueOn(due.toDateTime())}',
-                ),
+                TextSpan(text: ' · ${l10n.dateSummary(item)}'),
               ],
             ),
           ),
@@ -245,17 +257,25 @@ class _Suggestions extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 16),
-        Semantics(
-          header: true,
-          child: Text(l10n.searchTry, style: theme.textTheme.titleSmall),
-        ),
+        Heading(l10n.searchTry, style: theme.textTheme.titleSmall),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: [
             for (final word in words)
-              ActionChip(label: UserText(word), onPressed: () => onPick(word)),
+              // On the web a chip is announced as an unchecked checkbox;
+              // these are buttons.
+              Semantics(
+                button: true,
+                label: word,
+                onTap: () => onPick(word),
+                excludeSemantics: true,
+                child: ActionChip(
+                  label: UserText(word),
+                  onPressed: () => onPick(word),
+                ),
+              ),
           ],
         ),
       ],

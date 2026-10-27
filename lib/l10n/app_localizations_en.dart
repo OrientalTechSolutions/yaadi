@@ -199,6 +199,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Demo with made-up families. What you type stays in this browser, is not encrypted and is not sent to us. Do not enter real ID numbers. The demo is hosted on GitHub Pages, which keeps standard access logs.';
 
   @override
+  String get webDemoNoticeShort =>
+      'Demo with made-up families. Not encrypted: do not enter real ID numbers.';
+
+  @override
+  String get demoNoticeDetails => 'Details';
+
+  @override
+  String get webDemoNotSaving =>
+      'This browser is not saving the demo; it will reset when you reload.';
+
+  @override
   String get morningSummaryTitle => 'Morning summary';
 
   @override
@@ -255,19 +266,13 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String summaryComingUp(DateTime date, String title) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'Coming up: $title, $dateString';
+  String summaryComingUp(String date, String title) {
+    return 'Coming up: $title, $date';
   }
 
   @override
-  String summaryToPay(String amounts, DateTime date) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
-    final String dateString = dateDateFormat.format(date);
-
-    return 'To pay by $dateString: $amounts';
+  String summaryToPay(String amounts, String date) {
+    return 'To pay by $date: $amounts';
   }
 
   @override
@@ -316,6 +321,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sectionNextWeek => 'Next 7 days';
 
   @override
+  String get sectionExpiringSoon => 'Expiring soon';
+
+  @override
   String get sectionLater => 'Later';
 
   @override
@@ -326,7 +334,7 @@ class AppLocalizationsEn extends AppLocalizations {
       other: '$count items',
       one: '1 item',
     );
-    return '$title: $_temp0';
+    return '$title, $_temp0';
   }
 
   @override
@@ -530,6 +538,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notSaved => 'Could not save. Try again.';
+
+  @override
+  String get actionStale =>
+      'This item changed in the meantime, so nothing was saved.';
+
+  @override
+  String get reopenPaid => 'Mark as not paid';
+
+  @override
+  String get reopenDone => 'Mark as not done';
+
+  @override
+  String get reopenSkipped => 'Mark as not skipped';
+
+  @override
+  String get reopened => 'Due again';
 
   @override
   String get catchUpChange => 'Change';
@@ -778,11 +802,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String referenceShownLabel(String reference) {
-    return 'Reference $reference, double-tap to hide';
+    return 'Reference $reference';
   }
 
   @override
-  String get referenceHiddenLabel => 'Reference hidden, double-tap to show';
+  String get referenceHiddenLabel => 'Reference, hidden';
 
   @override
   String get referenceShow => 'Show';
@@ -938,6 +962,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get problemEndBeforeStart => 'The end date is before the first date';
 
   @override
+  String editorProblems(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Check $count fields',
+      one: 'Check 1 field',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fieldWithProblem(String label, String problem) {
+    return '$label, $problem';
+  }
+
+  @override
+  String expiresOn(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return 'Expires $dateString';
+  }
+
+  @override
   String clearField(String label) {
     return 'Clear $label';
   }
@@ -1051,4 +1099,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkFailed => 'The link could not be opened.';
+}
+
+/// The translations for English, as used in the United Kingdom (`en_GB`).
+class AppLocalizationsEnGb extends AppLocalizationsEn {
+  AppLocalizationsEnGb() : super('en_GB');
 }

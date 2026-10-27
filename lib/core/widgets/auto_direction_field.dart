@@ -44,28 +44,25 @@ class AutoDirectionField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final base = Theme.of(context).textTheme.bodyLarge ?? const TextStyle();
-    final textScale = MediaQuery.textScalerOf(context).scale(14) / 14;
+    final (:urdu, :latin) = scriptStyles(base);
+    // Latin text gets a line as tall as Nastaliq's, centred in it, so the
+    // field does not grow and push the results below it down when the
+    // first Urdu letter is typed.
+    final tallLatin = latin.copyWith(
+      height: urduLineHeight * urdu.fontSize! / latin.fontSize!,
+      leadingDistribution: TextLeadingDistribution.even,
+    );
     final uiDirection = Directionality.of(context);
 
     return ListenableBuilder(
       listenable: controller,
       builder: (context, _) {
         final text = controller.text;
-        final style = hasArabicScript(text)
-            ? base.copyWith(
-                fontFamily: AppFonts.urdu,
-                fontFamilyFallback: const [AppFonts.ui],
-                height: urduLineHeight(textScale),
-              )
-            : base.copyWith(
-                fontFamily: AppFonts.ui,
-                fontFamilyFallback: const [AppFonts.urdu],
-              );
         return TextField(
           controller: controller,
           focusNode: focusNode,
           decoration: decoration,
-          style: style,
+          style: hasArabicScript(text) ? urdu : tallLatin,
           textDirection: textDirectionOf(text, uiDirection),
           keyboardType: keyboardType,
           textInputAction: textInputAction,

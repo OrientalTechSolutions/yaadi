@@ -89,9 +89,19 @@ void main() {
       ('in seven days', item('task', due: inDays(7)), TodaySection.nextWeek),
       ('in eight days', item('task', due: inDays(8)), TodaySection.later),
       (
-        'an expiry date within 30 days',
-        item('passport', kind: ItemKind.expiry, due: inDays(30)),
+        'an expiry date within the week',
+        item('passport', kind: ItemKind.expiry, due: inDays(7)),
         TodaySection.nextWeek,
+      ),
+      (
+        'an expiry date after the week, within 30 days',
+        item('passport', kind: ItemKind.expiry, due: inDays(8)),
+        TodaySection.expiringSoon,
+      ),
+      (
+        'an expiry date 30 days away',
+        item('passport', kind: ItemKind.expiry, due: inDays(30)),
+        TodaySection.expiringSoon,
       ),
       (
         'an expiry date after 30 days',

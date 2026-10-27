@@ -95,6 +95,7 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
+    Locale('en', 'GB'),
     Locale('ur'),
   ];
 
@@ -422,11 +423,29 @@ abstract class AppLocalizations {
   /// **'Demo'**
   String get demoBadge;
 
-  /// Permanent notice on the web demo. Must match the privacy text in ARCHITECTURE.md section 8.
+  /// Full privacy notice of the web demo, on its first screen, in Settings and behind Details. Must match the privacy text in ARCHITECTURE.md section 8.
   ///
   /// In en, this message translates to:
   /// **'Demo with made-up families. What you type stays in this browser, is not encrypted and is not sent to us. Do not enter real ID numbers. The demo is hosted on GitHub Pages, which keeps standard access logs.'**
   String get webDemoNotice;
+
+  /// One-line strip above every screen of the web demo. Details opens the full notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo with made-up families. Not encrypted: do not enter real ID numbers.'**
+  String get webDemoNoticeShort;
+
+  /// Button on the web demo's strip that opens the full privacy notice.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get demoNoticeDetails;
+
+  /// Added to the web demo notice when the browser refused to store the demo, for example in private browsing or over quota.
+  ///
+  /// In en, this message translates to:
+  /// **'This browser is not saving the demo; it will reset when you reload.'**
+  String get webDemoNotSaving;
 
   /// Heading of the card on the Today screen that sums up the day.
   ///
@@ -474,13 +493,13 @@ abstract class AppLocalizations {
   ///
   /// In en, this message translates to:
   /// **'Coming up: {title}, {date}'**
-  String summaryComingUp(DateTime date, String title);
+  String summaryComingUp(String date, String title);
 
   /// Morning summary line with what overdue bills and bills due in the next seven days add up to.
   ///
   /// In en, this message translates to:
   /// **'To pay by {date}: {amounts}'**
-  String summaryToPay(String amounts, DateTime date);
+  String summaryToPay(String amounts, String date);
 
   /// Morning summary line counting bills in the totals whose amount is not known yet, such as an electricity bill before the paper arrives.
   ///
@@ -548,11 +567,17 @@ abstract class AppLocalizations {
   /// **'Today'**
   String get sectionToday;
 
-  /// Today screen group for items due in the coming week, and expiry dates in the coming 30 days.
+  /// Today screen group for items due in the coming week.
   ///
   /// In en, this message translates to:
   /// **'Next 7 days'**
   String get sectionNextWeek;
+
+  /// Today screen group for ID cards, passports and warranties that expire in 8 to 30 days, shown early because renewing takes weeks.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiring soon'**
+  String get sectionExpiringSoon;
 
   /// Today screen group for items due after next week, and tasks without a date.
   ///
@@ -563,7 +588,7 @@ abstract class AppLocalizations {
   /// What screen readers announce for a Today group heading.
   ///
   /// In en, this message translates to:
-  /// **'{title}: {count, plural, =1{1 item} other{{count} items}}'**
+  /// **'{title}, {count, plural, =1{1 item} other{{count} items}}'**
   String sectionLabel(String title, int count);
 
   /// Shown for a bill whose amount the user has not entered yet, such as an electricity bill before the paper arrives.
@@ -793,6 +818,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not save. Try again.'**
   String get notSaved;
+
+  /// Shown when Paid, Done, Snooze or another quick action is refused because the item was changed, completed or deleted since the screen showed it.
+  ///
+  /// In en, this message translates to:
+  /// **'This item changed in the meantime, so nothing was saved.'**
+  String get actionStale;
+
+  /// Button on an item's page that takes back its latest payment, for a Paid tapped by mistake.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as not paid'**
+  String get reopenPaid;
+
+  /// Button on an item's page that takes back its latest Done, for a Done tapped by mistake.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as not done'**
+  String get reopenDone;
+
+  /// Button on an item's page that takes back its latest skipped instalment.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as not skipped'**
+  String get reopenSkipped;
+
+  /// Confirmation after taking back a payment or a Done, shown with an Undo button.
+  ///
+  /// In en, this message translates to:
+  /// **'Due again'**
+  String get reopened;
 
   /// Button after paying an old bill that opens the other ways to handle the missed months.
   ///
@@ -1124,16 +1179,16 @@ abstract class AppLocalizations {
   /// **'This item changed since you opened it. Nothing was deleted.'**
   String get changedSince;
 
-  /// What screen readers announce for a shown reference number.
+  /// What screen readers announce for a shown reference number. The platform adds how to activate it.
   ///
   /// In en, this message translates to:
-  /// **'Reference {reference}, double-tap to hide'**
+  /// **'Reference {reference}'**
   String referenceShownLabel(String reference);
 
   /// What screen readers announce for a hidden reference number. Never includes the number.
   ///
   /// In en, this message translates to:
-  /// **'Reference hidden, double-tap to show'**
+  /// **'Reference, hidden'**
   String get referenceHiddenLabel;
 
   /// Button that shows a hidden reference number for a short time.
@@ -1418,6 +1473,24 @@ abstract class AppLocalizations {
   /// **'The end date is before the first date'**
   String get problemEndBeforeStart;
 
+  /// Announced to screen readers when Save finds fields to fix.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Check 1 field} other{Check {count} fields}}'**
+  String editorProblems(int count);
+
+  /// What screen readers announce for a date or time field with an error.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, {problem}'**
+  String fieldWithProblem(String label, String problem);
+
+  /// When an ID card, passport or warranty expires, as a short label in lists.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires {date}'**
+  String expiresOn(DateTime date);
+
   /// Tooltip on the button that empties a date or time field.
   ///
   /// In en, this message translates to:
@@ -1617,6 +1690,18 @@ class _AppLocalizationsDelegate
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when language+country codes are specified.
+  switch (locale.languageCode) {
+    case 'en':
+      {
+        switch (locale.countryCode) {
+          case 'GB':
+            return AppLocalizationsEnGb();
+        }
+        break;
+      }
+  }
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'en':

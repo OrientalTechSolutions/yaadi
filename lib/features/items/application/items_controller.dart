@@ -52,8 +52,13 @@ class ItemsController extends Notifier<Set<String>> {
   Future<ItemWriteResult> delete(Item item) =>
       _write(item.id, (items) => items.delete(item));
 
+  /// Refused when the write came from another repository, such as a demo
+  /// household the user has since left.
   Future<ItemWriteResult> undo(UndoSnapshot snapshot) =>
-      _write(snapshot.itemId, (items) => items.undo(snapshot));
+      _write(snapshot.itemId, (items) async {
+        if (!identical(items, snapshot.origin)) return const Stale();
+        return items.undo(snapshot);
+      });
 
   Future<ItemWriteResult> _write(
     String itemId,
