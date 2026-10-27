@@ -102,7 +102,7 @@ jobs:
           done
 
       - run: flutter build web --release --no-web-resources-cdn --base-href /yaadi/
-      - uses: actions/upload-pages-artifact@v4
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: build/web
 
