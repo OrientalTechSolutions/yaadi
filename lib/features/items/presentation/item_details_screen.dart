@@ -228,13 +228,20 @@ class _Details extends ConsumerWidget {
             ),
           _History(item: item),
           const SizedBox(height: 16),
-          Text(
-            l10n.addedAndChanged(
-              item.createdAt.toLocal(),
-              item.updatedAt.toLocal(),
-            ),
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+          // Sized to its text, so the line's semantic box (and the contrast
+          // check that samples it) holds the words rather than a full-width
+          // strip of background.
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              l10n.addedAndChanged(
+                item.createdAt.toLocal(),
+                item.updatedAt.toLocal(),
+              ),
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],
