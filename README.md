@@ -116,7 +116,7 @@ dart run drift_dev schema generate --data-classes --companions drift_schemas/vau
 
 ## Licences
 
-Yaadi is released under the [MIT License](LICENSE). It bundles Noto Nastaliq Urdu (SIL Open Font License 1.1) and Roboto (Apache License 2.0); both licences ship in `assets/fonts` and appear on the in-app licence page. Phone builds also bundle SQLCipher (BSD-style licence, Zetetic LLC), which links OpenSSL (Apache License 2.0) on Android. Both licences ship in `assets/licenses` and appear on the licence page of those builds. The Urdu text is waiting for a review by a native speaker.
+Yaadi is released under the [MIT License](LICENSE). It bundles Noto Nastaliq Urdu (SIL Open Font License 1.1) and Roboto (Apache License 2.0); both licences ship in `assets/fonts` and appear on the in-app licence page. Phone builds also bundle SQLCipher (BSD-style licence, Zetetic LLC), which links OpenSSL (Apache License 2.0) on Android. Both licences ship in `assets/licenses` and appear on the licence page of those builds. The app's Urdu text has been reviewed by a native speaker; the Urdu words used in dates and times are next.
 
 ## Built by Oriental Tech Solutions
 

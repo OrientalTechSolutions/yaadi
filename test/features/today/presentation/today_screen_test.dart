@@ -336,7 +336,7 @@ void main() {
       final screen = tester.element(find.byType(TodayScreen));
       expect(Directionality.of(screen), TextDirection.rtl);
       expect(inToday(find.text('صبح کا خلاصہ')), findsOneWidget);
-      expect(inToday(find.text('کیا یہ ہو گیا؟ · 1')), findsOneWidget);
+      expect(inToday(find.text('کیا یہ ہو گئے؟ · 1')), findsOneWidget);
       expect(inToday(find.text('زائد المیعاد · 1')), findsOneWidget);
 
       final gasTitle = inToday(findPlain('گیس کا بل'));

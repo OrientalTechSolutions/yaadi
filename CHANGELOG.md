@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Urdu
+
+- A native speaker reviewed all 289 Urdu messages. 17 were reworded into plainer everyday Urdu, for example چابی instead of کلید for the vault key, ورژن instead of بلڈ, اصل instead of سرکاری for an official build, نوٹ instead of نوٹس, and ہلکا beside گہرا for the light and dark themes.
+- An expiry item is now called میعاد کی تاریخ, matching the rest of the app, and the open status reads ابھی باقی ہے.
+
 ## 0.1.0 - 2026-10-28
 
 First version (Milestone 1): items added by hand, the Today screen, offline search, English and Urdu, an encrypted SQLCipher vault whose encryption at rest is tested on every CI run, and a web demo with two made-up households, live at https://orientaltechsolutions.github.io/yaadi/.

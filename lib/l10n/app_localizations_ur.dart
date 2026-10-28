@@ -58,7 +58,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get kindAppointment => 'اپوائنٹمنٹ';
 
   @override
-  String get kindExpiry => 'میعاد';
+  String get kindExpiry => 'میعاد کی تاریخ';
 
   @override
   String get kindMedicine => 'دوا';
@@ -118,7 +118,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get themeSystem => 'ڈیوائس کے مطابق';
 
   @override
-  String get themeLight => 'روشن';
+  String get themeLight => 'ہلکا';
 
   @override
   String get themeDark => 'گہرا';
@@ -141,7 +141,7 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get vaultKeyUnavailableBody =>
-      'فون کی محفوظ کلید اسٹوریج نے جواب نہیں دیا۔ یہ عموماً عارضی ہوتا ہے۔ آپ کی چیزوں میں کوئی تبدیلی نہیں ہوئی۔';
+      'فون کے محفوظ خانے نے جواب نہیں دیا۔ یہ عموماً تھوڑی دیر کا مسئلہ ہوتا ہے۔ آپ کی چیزوں میں کوئی تبدیلی نہیں ہوئی۔';
 
   @override
   String get vaultUnexpectedBody =>
@@ -155,11 +155,11 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get vaultKeyMissingBody =>
-      'آپ کی محفوظ چیزیں کھولنے والی کلید اب اس فون پر موجود نہیں۔ ایسا تب ہوتا ہے جب یادی کا ڈیٹا نئے فون پر بحال کیا جائے یا فون کی کلید اسٹوریج صاف ہو جائے۔ یہ چیزیں واپس نہیں لائی جا سکتیں۔';
+      'آپ کی محفوظ چیزیں کھولنے والی چابی اب اس فون پر نہیں رہی۔ ایسا تب ہوتا ہے جب یادی کا ڈیٹا نئے فون پر منتقل کیا جائے یا فون کا محفوظ خانہ صاف ہو جائے۔ یہ چیزیں واپس نہیں آ سکتیں۔';
 
   @override
   String get vaultWrongKeyBody =>
-      'اس فون کی کلید سے آپ کی محفوظ چیزیں پڑھی نہیں جا سکیں۔ ممکن ہے فائل خراب ہو گئی ہو۔ یہ چیزیں واپس نہیں لائی جا سکتیں۔';
+      'اس فون کی چابی سے آپ کی محفوظ چیزیں نہیں کھل سکیں۔ ہو سکتا ہے فائل خراب ہو گئی ہو۔ یہ چیزیں واپس نہیں آ سکتیں۔';
 
   @override
   String get vaultReset => 'سب حذف کر کے نئے سرے سے شروع کریں';
@@ -185,18 +185,19 @@ class AppLocalizationsUr extends AppLocalizations {
       'آپ کی چیزیں یادی کے نئے ورژن نے محفوظ کی ہیں۔ انہیں کھولنے کے لیے تازہ ترین ورژن انسٹال کریں۔ کچھ بھی حذف نہیں ہوا۔';
 
   @override
-  String get vaultBuildErrorTitle => 'یہ بلڈ آپ کی چیزوں کی حفاظت نہیں کر سکتا';
+  String get vaultBuildErrorTitle =>
+      'یادی کا یہ ورژن آپ کی چیزیں محفوظ نہیں رکھ سکتا';
 
   @override
   String get vaultBuildErrorBody =>
-      'یادی کے اس بلڈ میں انکرپشن نہیں ہے، اس لیے یہ آپ کا والٹ نہ کھولے گا نہ بنائے گا۔ سرکاری بلڈ انسٹال کریں۔';
+      'یادی کے اس ورژن میں حفاظتی تالا (انکرپشن) نہیں ہے، اس لیے یہ آپ کی چیزیں نہ کھولے گا نہ محفوظ کرے گا۔ یادی کا اصل ورژن انسٹال کریں۔';
 
   @override
   String get demoBadge => 'ڈیمو';
 
   @override
   String get webDemoNotice =>
-      'فرضی خاندانوں کے ساتھ ڈیمو۔ آپ جو لکھیں وہ اسی براؤزر میں رہتا ہے، انکرپٹ نہیں ہوتا اور ہمیں نہیں بھیجا جاتا۔ اصلی شناختی نمبر نہ لکھیں۔ یہ ڈیمو GitHub Pages پر ہے، جو معیاری رسائی لاگ رکھتا ہے۔';
+      'فرضی خاندانوں کے ساتھ ڈیمو۔ آپ جو لکھیں وہ اسی براؤزر میں رہتا ہے، انکرپٹ نہیں ہوتا اور ہمیں نہیں بھیجا جاتا۔ اصلی شناختی نمبر نہ لکھیں۔ یہ ڈیمو GitHub Pages پر ہے، جو عام ویب سائٹس کی طرح وزٹ کا ریکارڈ رکھتا ہے۔';
 
   @override
   String get webDemoNoticeShort =>
@@ -213,7 +214,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get morningSummaryTitle => 'صبح کا خلاصہ';
 
   @override
-  String get summaryQuietToday => 'آج کچھ واجب نہیں';
+  String get summaryQuietToday => 'آج کچھ بھی باقی نہیں';
 
   @override
   String summaryOverdue(int others, String title) {
@@ -317,10 +318,10 @@ class AppLocalizationsUr extends AppLocalizations {
       'ابھی کچھ باقی نہیں۔ مکمل شدہ چیزیں اور ہر ادائیگی «چیزیں» میں ہیں۔';
 
   @override
-  String get tryDemo => 'ڈیمو گھرانہ دیکھیں';
+  String get tryDemo => 'ڈیمو گھرانہ آزمائیں';
 
   @override
-  String get sectionToConfirm => 'کیا یہ ہو گیا؟';
+  String get sectionToConfirm => 'کیا یہ ہو گئے؟';
 
   @override
   String get sectionOverdue => 'زائد المیعاد';
@@ -678,7 +679,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get filterAllKinds => 'ہر قسم';
 
   @override
-  String get statusOpen => 'باقی';
+  String get statusOpen => 'ابھی باقی ہے';
 
   @override
   String get statusPaid => 'ادا شدہ';
@@ -810,7 +811,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get amountVaries => 'ہر بار بدلتی ہے';
 
   @override
-  String get fieldNotes => 'نوٹس';
+  String get fieldNotes => 'نوٹ';
 
   @override
   String get fieldReference => 'حوالہ نمبر';
@@ -986,7 +987,7 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get misplacedInNotes =>
-      'لگتا ہے نوٹس میں کوئی شناختی یا اکاؤنٹ نمبر ہے۔ حوالہ نمبر میں یہ «دکھائیں» دبانے تک چھپا رہتا ہے۔';
+      'لگتا ہے نوٹ میں کوئی شناختی یا اکاؤنٹ نمبر ہے۔ حوالہ نمبر میں یہ «دکھائیں» دبانے تک چھپا رہتا ہے۔';
 
   @override
   String get misplacedInTitleFilled =>
@@ -994,7 +995,7 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get misplacedInNotesFilled =>
-      'لگتا ہے نوٹس میں کوئی شناختی یا اکاؤنٹ نمبر ہے، اور تلاش میں نوٹس نظر آتے ہیں۔ حوالہ نمبر میں پہلے سے ایک نمبر موجود ہے۔';
+      'لگتا ہے نوٹ میں کوئی شناختی یا اکاؤنٹ نمبر ہے، اور تلاش کے نتائج میں نوٹ بھی نظر آتے ہیں۔ حوالہ نمبر میں پہلے سے ایک نمبر موجود ہے۔';
 
   @override
   String get misplacedKeep => 'وہیں رہنے دیں';
@@ -1167,7 +1168,7 @@ class AppLocalizationsUr extends AppLocalizations {
       'اس ڈیمو میں آپ نے جو کچھ شامل کیا یا بدلا، وہ ختم ہو جائے گا۔';
 
   @override
-  String get demoSwitch => 'جائیں';
+  String get demoSwitch => 'بدلیں';
 
   @override
   String get demoClear => 'صاف کریں';
@@ -1216,7 +1217,7 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String aboutMaker(String maker) {
-    return '$maker کی تیار کردہ';
+    return 'تیار کردہ: $maker';
   }
 
   @override
