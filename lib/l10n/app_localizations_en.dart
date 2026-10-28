@@ -103,7 +103,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsLanguage => 'Language';
 
   @override
-  String get languageDevice => 'Same as phone';
+  String get languageDevice => 'Same as device';
 
   @override
   String get languageEnglish => 'English';
@@ -115,7 +115,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsTheme => 'Theme';
 
   @override
-  String get themeSystem => 'Same as phone';
+  String get themeSystem => 'Same as device';
 
   @override
   String get themeLight => 'Light';
@@ -128,10 +128,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsLargeTextHint =>
-      'Makes text 30% larger than the phone setting';
+      'Makes text 30% larger than the device setting';
 
   @override
-  String get settingsLicenses => 'Open-source licences';
+  String get settingsLicenses => 'Open-source licenses';
 
   @override
   String get vaultOpening => 'Opening your items';
@@ -200,7 +200,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get webDemoNoticeShort =>
-      'Demo with made-up families. Not encrypted: do not enter real ID numbers.';
+      'Made-up families. Not encrypted: do not enter real ID numbers.';
 
   @override
   String get demoNoticeDetails => 'Details';
@@ -255,12 +255,23 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String summaryDoses(int count) {
+  String summaryDosesLeft(int left, int total) {
     String _temp0 = intl.Intl.pluralLogic(
-      count,
+      total,
       locale: localeName,
-      other: 'Medicine: $count times today',
-      one: 'Medicine: 1 time today',
+      other: 'Medicine: $left of $total times not marked yet',
+      one: 'Medicine: today\'s time not marked yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryDosesMarked(int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: 'Medicine: all $total times marked',
+      one: 'Medicine: today\'s time marked',
     );
     return '$_temp0';
   }
@@ -303,7 +314,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get todayAllDoneBody =>
-      'Nothing is open right now. Paid and done items are under Items.';
+      'Nothing is open right now. Finished items and every payment are under Items.';
 
   @override
   String get tryDemo => 'Try a demo household';
@@ -352,13 +363,8 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String snoozedTo(DateTime date, DateTime due) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
-    final String dateString = dateDateFormat.format(date);
-    final intl.DateFormat dueDateFormat = intl.DateFormat.MMMd(localeName);
-    final String dueString = dueDateFormat.format(due);
-
-    return 'Snoozed to $dateString · due $dueString';
+  String snoozedTo(String date, String due) {
+    return 'Snoozed until $date · due $due';
   }
 
   @override
@@ -510,14 +516,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get snoozeWeek => '1 week';
 
   @override
-  String get markedPaid => 'Marked as paid';
+  String markedPaid(String title) {
+    return 'Marked $title as paid';
+  }
 
   @override
-  String get markedDone => 'Marked as done';
+  String markedDone(String title) {
+    return 'Marked $title as done';
+  }
+
+  @override
+  String withNextDue(String message, String date) {
+    return '$message. Next due $date.';
+  }
 
   @override
   String doseMarked(String time) {
     return '$time marked';
+  }
+
+  @override
+  String doseUnmarked(String time) {
+    return '$time unmarked';
   }
 
   @override
@@ -556,79 +576,81 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reopened => 'Due again';
 
   @override
-  String get catchUpChange => 'Change';
-
-  @override
-  String catchUpMarkedPaid(int count) {
+  String catchUpQuestion(int count, String first, String last) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count earlier bills recorded as paid.',
-      one: '1 earlier bill recorded as paid.',
+      other: 'What about the $count missed bills, $first to $last?',
+      one: 'What about the missed bill of $first?',
     );
     return '$_temp0';
   }
 
   @override
-  String catchUpSkipped(int count) {
+  String catchUpOptionPaid(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count earlier ones skipped.',
-      one: '1 earlier one skipped.',
+      other: 'They were paid too',
+      one: 'It was paid too',
     );
     return '$_temp0';
   }
 
   @override
-  String catchUpStillOwed(int count) {
+  String catchUpOptionUnpaid(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count more are still to pay.',
-      one: '1 more is still to pay.',
+      other: 'They are still to pay',
+      one: 'It is still to pay',
     );
     return '$_temp0';
   }
 
   @override
-  String catchUpKeepUnpaid(int count) {
+  String catchUpOptionSkip(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Keep $count earlier ones unpaid',
-      one: 'Keep the earlier one unpaid',
+      other: 'Skip them',
+      one: 'Skip it',
     );
     return '$_temp0';
   }
 
   @override
-  String catchUpMarkEarlierPaid(int count) {
+  String catchUpMarkedPaid(int count, String first, String last) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'Mark $count earlier ones as paid',
-      one: 'Mark the earlier one as paid',
+      other: 'Also marked $count missed bills, $first to $last, as paid.',
+      one: 'Also marked the missed bill of $first as paid.',
     );
     return '$_temp0';
   }
 
   @override
-  String get catchUpSkipToCurrent => 'Skip to the current one';
-
-  @override
-  String catchUpQuestion(int count) {
+  String catchUpSkipped(int count, String first, String last) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'What about the $count missed in between?',
-      one: 'What about the 1 missed in between?',
+      other: 'Skipped $count missed bills, $first to $last.',
+      one: 'Skipped the missed bill of $first.',
     );
     return '$_temp0';
   }
 
   @override
-  String get catchUpUpdated => 'Updated';
+  String catchUpStillOwed(int count, String first, String last) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count missed bills, $first to $last, are still to pay.',
+      one: 'The missed bill of $first is still to pay.',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get itemsEmpty => 'No items yet';
@@ -637,10 +659,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get itemsNoMatch => 'No items match these filters';
 
   @override
+  String get itemsNoneFinished => 'Nothing finished yet';
+
+  @override
+  String get itemsFinishedExplain =>
+      'One-off items you mark as paid or done, and medicine courses that have ended, show here. A repeating bill moves to its next date when paid, so it stays under Open, and its payments are in its History.';
+
+  @override
   String get filterOpen => 'Open';
 
   @override
-  String get filterClosed => 'Paid and done';
+  String get filterClosed => 'Finished';
 
   @override
   String get filterAll => 'All';
@@ -659,6 +688,32 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get outcomeSkipped => 'Skipped';
+
+  @override
+  String get courseEnded => 'Course ended';
+
+  @override
+  String historyPaid(String occurrence, String recorded) {
+    return 'For $occurrence: paid $recorded';
+  }
+
+  @override
+  String historyDone(String occurrence, String recorded) {
+    return 'For $occurrence: done $recorded';
+  }
+
+  @override
+  String historySkipped(String occurrence, String recorded) {
+    return 'For $occurrence: skipped $recorded';
+  }
+
+  @override
+  String historyDose(String time, String date, String recorded) {
+    return 'For $time on $date: marked $recorded';
+  }
+
+  @override
+  String get listSeparator => ', ';
 
   @override
   String get repeatNone => 'Does not repeat';
@@ -794,7 +849,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fieldDateOptional => 'Date (optional)';
 
   @override
-  String get deleted => 'Deleted';
+  String deleted(String title) {
+    return 'Deleted $title';
+  }
 
   @override
   String get changedSince =>
@@ -906,10 +963,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get save => 'Save';
 
   @override
-  String get added => 'Added';
+  String added(String title) {
+    return 'Added $title';
+  }
 
   @override
-  String get saved => 'Saved';
+  String saved(String title) {
+    return 'Saved $title';
+  }
 
   @override
   String get saveConflict =>
@@ -927,10 +988,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'The notes seem to contain an ID or account number. In Reference it stays hidden until you tap Show.';
 
   @override
+  String get misplacedInTitleFilled =>
+      'The title seems to contain an ID or account number, and the title is shown everywhere. Reference already holds a number.';
+
+  @override
+  String get misplacedInNotesFilled =>
+      'The notes seem to contain an ID or account number, and search shows the notes. Reference already holds a number.';
+
+  @override
   String get misplacedKeep => 'Leave it there';
 
   @override
   String get misplacedMove => 'Move to Reference';
+
+  @override
+  String get misplacedEdit => 'Edit it';
+
+  @override
+  String get misplacedMoved =>
+      'Moved to Reference. Check what is left, then save.';
 
   @override
   String get discardTitle => 'Discard your changes?';
@@ -1051,6 +1127,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Pick a household to see how Yaadi keeps bills, appointments, expiry dates and medicine times. Everyone in it is invented.';
 
   @override
+  String get pickerScope =>
+      'This is Milestone 1: you type items in. Reading a paper from the camera or a PDF comes in Milestone 3.';
+
+  @override
+  String get pickerSource => 'Source code on GitHub';
+
+  @override
   String get demoExplain =>
       'Demo households are made up. While one is shown, your own items stay as they are, and nothing you change in the demo is kept.';
 
@@ -1066,6 +1149,47 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearDemo => 'Clear demo data';
+
+  @override
+  String demoSwitchTitle(String household) {
+    return 'Switch to $household?';
+  }
+
+  @override
+  String get demoClearTitle => 'Clear the demo?';
+
+  @override
+  String get demoLeaveTitle => 'Leave the demo?';
+
+  @override
+  String get demoLoseChanges =>
+      'Anything you added or changed in this demo will be lost.';
+
+  @override
+  String get demoSwitch => 'Switch';
+
+  @override
+  String get demoClear => 'Clear';
+
+  @override
+  String get settingsCurrency => 'Currency';
+
+  @override
+  String get settingsCurrencyHint =>
+      'New bills start in this currency, and search knows that country\'s billers.';
+
+  @override
+  String get currencyPkr => 'Pakistani rupee (Rs)';
+
+  @override
+  String get currencyGbp => 'British pound (£)';
+
+  @override
+  String get currencyUsd => 'US dollar (\$)';
+
+  @override
+  String get webGlyphsLeftOut =>
+      'The web demo cannot show emoji and some symbols yet, so they were left out.';
 
   @override
   String get settingsYourData => 'Your data';
@@ -1104,4 +1228,7 @@ class AppLocalizationsEn extends AppLocalizations {
 /// The translations for English, as used in the United Kingdom (`en_GB`).
 class AppLocalizationsEnGb extends AppLocalizationsEn {
   AppLocalizationsEnGb() : super('en_GB');
+
+  @override
+  String get settingsLicenses => 'Open-source licences';
 }

@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart' show DateFormat;
+
 import '../../../core/text/bidi.dart';
 import '../../../core/time/local_date.dart';
 import '../../../core/time/time_format.dart';
@@ -21,7 +23,11 @@ String whenLabel(TodayEntry entry, LocalDate today, AppLocalizations l10n) {
   if (item.doseTimes != null) {
     when = l10n.startsOn(date);
   } else if (entry.snoozedFrom case final due?) {
-    when = l10n.snoozedTo(date, due.toDateTime());
+    final locale = l10n.localeName;
+    when = l10n.snoozedTo(
+      isolate(unbreakable(DateFormat.MMMEd(locale).format(date))),
+      isolate(unbreakable(DateFormat.MMMd(locale).format(due.toDateTime()))),
+    );
   } else if (item.kind == ItemKind.expiry) {
     when = days < 0
         ? l10n.expiredDaysAgo(-days)

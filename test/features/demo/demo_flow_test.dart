@@ -48,7 +48,17 @@ void main() {
       expect(await vault.items.find('khan-school'), isNull);
       expect(find.text('Undo'), findsOneWidget);
 
+      // Whatever was changed in the demo is lost, so it asks first.
       await tester.tap(find.text('Leave demo'));
+      await tester.pumpAndSettle();
+      expect(find.text('Leave the demo?'), findsOneWidget);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(inToday(find.text('Demo')), findsOneWidget);
+
+      await tester.tap(find.text('Leave demo'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Leave demo'));
       await tester.pumpAndSettle();
       expect(inToday(find.text('Nothing here yet')), findsOneWidget);
       expect(find.text('Demo'), findsNothing);
@@ -74,6 +84,8 @@ void main() {
       final clear = inSettings(find.text('Clear demo data'));
       await scrollTo(tester, clear);
       await tester.tap(clear);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Leave demo'));
       await tester.pumpAndSettle();
       expect(inSettings(find.text('Demo')), findsNothing);
       expect(inSettings(find.text('Clear demo data')), findsNothing);
@@ -104,10 +116,23 @@ void main() {
         expect(inToday(findPlain('Overdue: Council tax')), findsOneWidget);
         expect(store.read(sessionItemsKey), contains('Council tax'));
 
+        // Switching household starts the demo again, so it asks first.
         await openSettings(tester);
+        final khan = inSettings(find.text('Khan family, Lahore'));
+        await scrollTo(tester, khan);
+        await tester.tap(khan);
+        await tester.pumpAndSettle();
+        expect(find.text('Switch to Khan family, Lahore?'), findsOneWidget);
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
+        expect(store.read(sessionItemsKey), contains('Council tax'));
+
         final clear = inSettings(find.text('Clear demo data'));
         await scrollTo(tester, clear);
         await tester.tap(clear);
+        await tester.pumpAndSettle();
+        expect(find.text('Clear the demo?'), findsOneWidget);
+        await tester.tap(find.widgetWithText(FilledButton, 'Clear'));
         await tester.pumpAndSettle();
 
         expect(find.byType(DemoPickerScreen), findsOneWidget);
@@ -124,8 +149,7 @@ void main() {
 
         expect(
           find.text(
-            'Demo with made-up families. Not encrypted: do not enter real ID '
-            'numbers.',
+            'Made-up families. Not encrypted: do not enter real ID numbers.',
           ),
           findsOneWidget,
         );
@@ -159,6 +183,51 @@ void main() {
       );
       // The demo itself carries on in memory.
       expect(inToday(findPlain('Overdue: Council tax')), findsOneWidget);
+    });
+
+    testWidgets('another household starts with an empty search', (
+      tester,
+    ) async {
+      await pumpApp(tester, SessionDemoBackend(MemorySessionStore()));
+      await tester.tap(find.text('Khan family, Lahore'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.search_outlined));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextField), 'bijli ka bill');
+      await tester.pumpAndSettle();
+      expect(find.text('1 result'), findsOneWidget);
+
+      await openSettings(tester);
+      final taylor = inSettings(find.text('Taylor family, Manchester'));
+      await scrollTo(tester, taylor);
+      await tester.tap(taylor);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Switch'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.search_outlined));
+      await tester.pumpAndSettle();
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.controller?.text, isEmpty);
+      expect(find.text('Nothing found'), findsNothing);
+    });
+
+    testWidgets('the picker says what this milestone does and links the code', (
+      tester,
+    ) async {
+      final opened = <Uri>[];
+      await pumpApp(
+        tester,
+        SessionDemoBackend(MemorySessionStore()),
+        openedLinks: opened,
+      );
+      final source = find.text('Source code on GitHub');
+      await scrollTo(tester, source);
+      expect(find.textContaining('you type items in'), findsOneWidget);
+      await tester.tap(source);
+      await tester.pumpAndSettle();
+      expect(opened, [AppInfo.repository]);
     });
 
     testWidgets('the picker offers the other language in its own script', (
@@ -197,6 +266,37 @@ void main() {
       await tester.tap(find.text('Delete everything'));
       await tester.pumpAndSettle();
       expect(vault.erases, 1);
+    });
+
+    testWidgets('the currency new bills start in can be chosen', (
+      tester,
+    ) async {
+      final vault = FakeStorageBackend(items: [task()]);
+      await pumpApp(tester, vault);
+      await openSettings(tester);
+
+      final pounds = inSettings(find.text('British pound (£)'));
+      await scrollTo(tester, pounds);
+      await tester.tap(pounds);
+      await tester.pumpAndSettle();
+      expect(await vault.settings.readAll(), {'default_currency': 'GBP'});
+
+      await tester.tap(find.byIcon(Icons.today_outlined));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+      expect(find.text('£'), findsOneWidget);
+    });
+
+    testWidgets('a demo household brings its own currency', (tester) async {
+      await pumpApp(
+        tester,
+        FakeStorageBackend(settings: const {'demo_household': 'taylor'}),
+      );
+      await openSettings(tester);
+      final about = inSettings(find.text('About'));
+      await scrollTo(tester, about);
+      expect(inSettings(find.text('British pound (£)')), findsNothing);
     });
 
     testWidgets('About links to the maker and their Upwork profile', (

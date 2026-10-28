@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaadi/core/money/money.dart';
 import 'package:yaadi/core/money/money_format.dart';
+import 'package:yaadi/core/text/bidi.dart';
 
 void main() {
   group('Money', () {
@@ -26,21 +27,32 @@ void main() {
 
   group('formatMoney', () {
     const cases = [
-      (425000, 'PKR', 'en', 'Rs 4,250'),
-      (425050, 'PKR', 'en', 'Rs 4,250.50'),
+      (425000, 'PKR', 'en', 'Rs${noBreakSpace}4,250'),
+      (425050, 'PKR', 'en', 'Rs${noBreakSpace}4,250.50'),
       (12000, 'GBP', 'en', '£120'),
       (1250, 'GBP', 'en', '£12.50'),
       (8005, 'USD', 'en', r'$80.05'),
-      (123456700, 'PKR', 'en', 'Rs 1,234,567'),
+      (123456700, 'PKR', 'en', 'Rs${noBreakSpace}1,234,567'),
       // Pakistani bills print Latin digits with Western grouping.
-      (425000, 'PKR', 'ur', 'Rs 4,250'),
-      (99, 'EUR', 'en', 'EUR 0.99'),
+      (425000, 'PKR', 'ur', 'Rs${noBreakSpace}4,250'),
+      (99, 'EUR', 'en', 'EUR${noBreakSpace}0.99'),
     ];
     for (final (minor, currency, locale, expected) in cases) {
       test('$minor $currency in $locale is $expected', () {
         expect(formatMoney(Money(minor, currency), locale), expected);
       });
     }
+
+    test('the symbol never ends a line with the digits on the next', () {
+      // A no-break space joins them, so "Rs" is never left alone at the end
+      // of a line in a narrow Urdu list.
+      for (final (minor, currency, locale, _) in cases) {
+        expect(
+          formatMoney(Money(minor, currency), locale),
+          isNot(contains(' ')),
+        );
+      }
+    });
   });
 
   group('parseMoney', () {

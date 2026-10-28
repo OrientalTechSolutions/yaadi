@@ -25,7 +25,10 @@ void main() {
       inToday(findPlain("Today: Ayesha's school fee · Rs 12,000")),
       findsOneWidget,
     );
-    expect(inToday(findPlain('Medicine: 3 times today')), findsOneWidget);
+    expect(
+      inToday(findPlain('Medicine: 3 of 3 times not marked yet')),
+      findsOneWidget,
+    );
 
     await scrollTo(tester, inToday(find.text('Did these happen? · 1')));
     expect(
@@ -57,7 +60,10 @@ void main() {
     await scrollTo(tester, paid);
     await tester.tap(paid);
     await tester.pumpAndSettle();
-    expect(find.text('Marked as paid'), findsOneWidget);
+    expect(
+      findPlain("Marked Ayesha's school fee as paid. Next due Wed, Dec 2."),
+      findsOneWidget,
+    );
     expect(
       (await vault.items.find('khan-school'))?.dueOn,
       LocalDate(2026, 12, 2),
@@ -92,7 +98,7 @@ void main() {
     expect(inToday(find.text('Overdue · 1')), findsNothing);
     await scrollTo(
       tester,
-      inToday(findPlain('Snoozed to Thu, Nov 5 · due Oct 31')),
+      inToday(findPlain('Snoozed until Thu, Nov 5 · due Oct 31')),
     );
   });
 
@@ -115,6 +121,88 @@ void main() {
     final marks = await vault.items.completionsOf('khan-ammi');
     expect(marks.single.occurrenceMinute, 840);
     expect(marks.single.occurrenceOn, fixtureToday);
+    // The summary counts what is left rather than going stale.
+    await tester.scrollUntilVisible(
+      inToday(findPlain('Medicine: 2 of 3 times not marked yet')),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+  });
+
+  testWidgets('a time marked by mistake can be unmarked later', (tester) async {
+    final vault = vaultWith(DemoHousehold.khan);
+    await pumpApp(tester, vault);
+    final evening = inToday(
+      findLabelled('امی کی دوائی, ${clock(1260)}, not marked yet'),
+    );
+    await scrollTo(tester, evening);
+    await tester.tap(evening);
+    await tester.pumpAndSettle();
+    // Long after its Undo has gone.
+    await tester.pump(const Duration(seconds: 10));
+    await tester.pumpAndSettle();
+    expect(find.text('Undo'), findsNothing);
+
+    final marked = inToday(
+      findLabelled('امی کی دوائی, ${clock(1260)}, marked'),
+    );
+    await tester.tap(marked);
+    await tester.pumpAndSettle();
+    expect(findPlain('${clock(1260)} unmarked'), findsOneWidget);
+    expect(await vault.items.completionsOf('khan-ammi'), isEmpty);
+    expect(
+      inToday(findLabelled('امی کی دوائی, ${clock(1260)}, not marked yet')),
+      findsOneWidget,
+    );
+
+    // And its own Undo marks it again.
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(
+      (await vault.items.completionsOf('khan-ammi')).single.occurrenceMinute,
+      1260,
+    );
+  });
+
+  testWidgets('with a screen reader, an Undo stays but not on other screens', (
+    tester,
+  ) async {
+    tester.platformDispatcher.accessibilityFeaturesTestValue =
+        const FakeAccessibilityFeatures(accessibleNavigation: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await pumpApp(tester, vaultWith(DemoHousehold.khan));
+
+    final paid = inToday(findLabelled("Mark Ayesha's school fee as paid"));
+    await scrollTo(tester, paid);
+    await tester.tap(paid);
+    await tester.pumpAndSettle();
+    // Kept until dismissed, since reaching Undo takes a screen reader longer.
+    await tester.pump(const Duration(seconds: 20));
+    await tester.pumpAndSettle();
+    expect(find.text('Undo'), findsOneWidget);
+
+    // A screen opened on top leaves it behind.
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    expect(find.text('Undo'), findsNothing);
+    await tester.binding.handlePopRoute();
+    await tester.pumpAndSettle();
+    expect(find.text('Undo'), findsNothing);
+
+    // So does another tab.
+    final morning = inToday(
+      findLabelled('امی کی دوائی, ${clock(480)}, not marked yet'),
+    );
+    // Back to the top of Today first; the fee has moved to Later.
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, 4000));
+    await tester.pumpAndSettle();
+    await scrollTo(tester, morning);
+    await tester.tap(morning);
+    await tester.pumpAndSettle();
+    expect(find.text('Undo'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.inventory_2_outlined));
+    await tester.pumpAndSettle();
+    expect(find.text('Undo'), findsNothing);
   });
 
   testWidgets('a past appointment can be moved to another day', (tester) async {
@@ -138,7 +226,7 @@ void main() {
   });
 
   testWidgets(
-    'paying a bill months late offers to keep the missed ones unpaid',
+    'paying a bill months late asks about the missed ones, with Undo',
     (tester) async {
       final vault = FakeStorageBackend(
         items: [
@@ -157,24 +245,66 @@ void main() {
 
       await tester.tap(inToday(findLabelled('Mark LESCO bill as paid')));
       await tester.pumpAndSettle();
+      // Asked straight away, with the usual answer for a utility chosen.
       expect(
-        find.text('Marked as paid 2 earlier bills recorded as paid.'),
+        findPlain('What about the 2 missed bills, Sep 10 to Oct 10?'),
         findsOneWidget,
       );
-      expect((await vault.items.find('old'))?.dueOn, LocalDate(2026, 11, 10));
+      expect(find.text('They were paid too'), findsOneWidget);
+      expect(await vault.items.completionsOf('old'), hasLength(3));
 
-      await tester.tap(find.text('Change'));
+      await tester.tap(find.text('They are still to pay'));
       await tester.pumpAndSettle();
-      expect(find.text('What about the 2 missed in between?'), findsOneWidget);
-      await tester.tap(find.text('Keep 2 earlier ones unpaid'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('Updated'), findsOneWidget);
+      expect(
+        // Two lines: the payment, then what became of the missed bills.
+        findPlain(
+          'Marked LESCO bill as paid. Next due Thu, Sep 10. '
+          '2 missed bills, Sep 10 to Oct 10, are still to pay.',
+        ),
+        findsOneWidget,
+      );
       expect((await vault.items.find('old'))?.dueOn, LocalDate(2026, 9, 10));
       expect(await vault.items.completionsOf('old'), hasLength(1));
+
+      // One Undo takes back the payment and the choice together.
+      await tester.tap(find.text('Undo'));
+      await tester.pumpAndSettle();
+      expect((await vault.items.find('old'))?.dueOn, LocalDate(2026, 8, 10));
+      expect(await vault.items.completionsOf('old'), isEmpty);
     },
   );
 
+  testWidgets('the missed bills can be kept as paid and confirmed', (
+    tester,
+  ) async {
+    final vault = FakeStorageBackend(
+      items: [
+        item(
+          'old',
+          kind: ItemKind.bill,
+          title: 'LESCO bill',
+          category: ItemCategory.electricity,
+          due: LocalDate(2026, 8, 10),
+          recurrence: MonthlyRepeat(10),
+          amount: Money(425000, 'PKR'),
+        ),
+      ],
+    );
+    await pumpApp(tester, vault);
+    await tester.tap(inToday(findLabelled('Mark LESCO bill as paid')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('OK'));
+    await tester.pumpAndSettle();
+    expect(
+      findPlain(
+        'Marked LESCO bill as paid. Next due Tue, Nov 10. '
+        'Also marked 2 missed bills, Sep 10 to Oct 10, as paid.',
+      ),
+      findsOneWidget,
+    );
+    expect((await vault.items.find('old'))?.dueOn, LocalDate(2026, 11, 10));
+    expect(await vault.items.completionsOf('old'), hasLength(3));
+  });
   testWidgets('an empty vault offers to add an item or try a demo', (
     tester,
   ) async {

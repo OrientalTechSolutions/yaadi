@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 
+import '../../../core/text/drawable_text.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/auto_direction_field.dart' show showLeftOut;
 import '../../../core/widgets/user_text.dart';
 import '../../../l10n/app_localizations.dart';
 import '../domain/item.dart';
@@ -186,6 +188,7 @@ class _ReferenceFieldState extends State<ReferenceField>
       // manager, which could save the number and sync it.
       autofillHints: null,
       inputFormatters: [
+        ...drawableTextFormatters(() => showLeftOut(context)),
         LengthLimitingTextInputFormatter(ItemLimits.referenceMax),
       ],
       decoration: InputDecoration(

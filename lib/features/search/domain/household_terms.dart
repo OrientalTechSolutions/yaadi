@@ -26,7 +26,13 @@ const householdConcepts = <Concept>[
     'light',
     'لائٹ',
   ]),
-  Concept.category(ItemCategory.gas, ['gas', 'sui gas', 'گیس', 'سوئی گیس']),
+  Concept.category(ItemCategory.gas, [
+    'gas',
+    'gais',
+    'sui gas',
+    'گیس',
+    'سوئی گیس',
+  ]),
   Concept.category(ItemCategory.water, ['water', 'pani', 'پانی']),
   Concept.category(ItemCategory.internet, [
     'internet',
@@ -36,6 +42,9 @@ const householdConcepts = <Concept>[
     'انٹرنیٹ',
     'وائی فائی',
   ]),
+  // "Net ka bill" is how many Pakistani homes say internet bill; elsewhere
+  // "net amount" is not about the internet.
+  Concept.category(ItemCategory.internet, region: Region.pk, ['net', 'نیٹ']),
   Concept.category(ItemCategory.phone, [
     'phone',
     'mobile',

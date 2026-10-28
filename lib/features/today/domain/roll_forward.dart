@@ -52,13 +52,16 @@ final class CompletionPlan {
 @immutable
 final class CatchUp {
   const CatchUp({
-    required this.missed,
+    required this.missedOn,
     required this.mode,
     required this.options,
   });
 
-  /// Occurrences after the completed one that were already past today.
-  final int missed;
+  /// The occurrences after the completed one that were already past today,
+  /// oldest first; at most [maxCatchUp] of them.
+  final List<LocalDate> missedOn;
+
+  int get missed => missedOn.length;
 
   /// How they were handled.
   final CatchUpMode mode;
@@ -84,6 +87,12 @@ final class CatchUpOption {
   final List<Completion> add;
   final List<String> removeIds;
 }
+
+/// The most missed occurrences one Paid settles one by one: a year of a
+/// daily bill. Older ones are passed over, recording nothing, as for a task;
+/// a daily bill dated decades back would otherwise write thousands of rows
+/// in one go.
+const maxCatchUp = 400;
 
 /// The catch-up applied when nothing else is chosen.
 CatchUpMode defaultCatchUp(Item item) => switch (item.kind) {
@@ -151,6 +160,8 @@ CompletionPlan planCompletion(
   LocalDate? current = next;
   while (current != null && current.isBefore(today)) {
     missed.add(current);
+    // Keeps the most recent ones, which are the ones anyone remembers.
+    if (missed.length > maxCatchUp) missed.removeAt(0);
     current = item.recurrence.nextAfter(current);
   }
   if (missed.isEmpty) {
@@ -207,7 +218,7 @@ CompletionPlan planCompletion(
     after: chosen.after,
     added: [completion, ...chosen.recorded],
     catchUp: CatchUp(
-      missed: missed.length,
+      missedOn: List.unmodifiable(missed),
       mode: mode,
       options: [
         for (final alternative in _alternatives(item)) optionFor(alternative),

@@ -4,6 +4,7 @@ import 'package:yaadi/core/time/local_date.dart';
 import 'package:yaadi/features/items/domain/item.dart';
 import 'package:yaadi/features/items/domain/item_kind.dart';
 import 'package:yaadi/features/items/domain/item_status.dart';
+import 'package:yaadi/features/items/domain/recurrence.dart';
 import 'package:yaadi/features/search/domain/highlight.dart';
 import 'package:yaadi/features/search/domain/household_lexicon.dart';
 import 'package:yaadi/features/search/domain/region.dart';
@@ -111,6 +112,11 @@ final khanQueries = <QueryCase>[
   q('internet', first: 'ptcl'),
   q('ptc', first: 'ptcl'),
   q('internet bill', first: 'ptcl'),
+  q('net', first: 'ptcl', notFound: ['lesco']),
+  q('net ka bill', first: 'ptcl', notFound: ['lesco', 'gas']),
+  q('نیٹ', first: 'ptcl'),
+  q('gais', first: 'gas', notFound: ['lesco']),
+  q('gais ka bill', first: 'gas'),
   q('mobile', first: 'jazz'),
   q('jazz', first: 'jazz'),
   q('phone', first: 'jazz'),
@@ -219,6 +225,31 @@ void main() {
         'undated',
         'closed',
       ]);
+    });
+
+    test('a plural is the same word, above a name that starts like it', () {
+      final index = indexOf([
+        item('dentist', title: 'Dentist', notes: 'Bring the bill'),
+        item('file', title: 'File the bills'),
+        item('billo', title: 'Call Billo'),
+      ], Region.uk);
+      final ids = idsFor(index, 'bill');
+      expect(ids.indexOf('file'), lessThan(ids.indexOf('dentist')));
+      expect(ids.indexOf('file'), lessThan(ids.indexOf('billo')));
+    });
+
+    test('a medicine course that has ended ranks with the finished', () {
+      final index = indexOf([
+        item(
+          'ended',
+          title: 'Rent',
+          kind: ItemKind.medicine,
+          due: fixtureToday.addDays(-20),
+          recurrence: DoseTimes(const [480], until: fixtureToday.addDays(-1)),
+        ),
+        item('open', title: 'Rent', due: fixtureToday.addDays(20)),
+      ], Region.pk);
+      expect(idsFor(index, 'rent'), ['open', 'ended']);
     });
 
     test('finished stopwords and lone letters alone find nothing', () {

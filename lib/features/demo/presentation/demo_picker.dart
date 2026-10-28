@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/app_info.dart';
 import '../../../core/widgets/content_list_view.dart';
 import '../../../core/widgets/heading.dart';
+import '../../../core/widgets/messenger.dart';
 import '../../../core/widgets/user_text.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../settings/application/settings_controller.dart';
@@ -66,6 +68,30 @@ class DemoPickerScreen extends ConsumerWidget {
                 Text(l10n.pickerBody, style: theme.textTheme.bodyLarge),
                 const SizedBox(height: 16),
                 const DemoHouseholdCards(),
+                const SizedBox(height: 16),
+                // What this milestone does, so nobody looks for a camera
+                // button, and where the code is.
+                Text(
+                  l10n.pickerScope,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton.icon(
+                    onPressed: () async {
+                      final messenger = Messenger.of(context);
+                      if (!await ref.read(linkOpenerProvider)(
+                        AppInfo.repository,
+                      )) {
+                        messenger.show(messenger.l10n.linkFailed);
+                      }
+                    },
+                    icon: const Icon(Icons.open_in_new),
+                    label: Text(l10n.pickerSource),
+                  ),
+                ),
               ],
             ),
           ),

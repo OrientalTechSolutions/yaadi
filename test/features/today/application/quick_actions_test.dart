@@ -204,6 +204,109 @@ void main() {
     expect(await repository.completionsOf('ammi'), hasLength(1));
   });
 
+  group('taking a dose mark back', () {
+    test('a marked dose can be unmarked, and Undo marks it again', () async {
+      await actions.markDose('ammi', today, 840);
+      final unmarked = await actions.unmarkDose('ammi', today, 840);
+      expect(unmarked, isA<ActionApplied>());
+      expect(await repository.completionsOf('ammi'), isEmpty);
+
+      expect(
+        await actions.undo((unmarked as ActionApplied).undo),
+        isA<ActionApplied>(),
+      );
+      final marks = await repository.completionsOf('ammi');
+      expect(marks.single.occurrenceMinute, 840);
+      expect(marks.single.occurrenceOn, today);
+    });
+
+    test('only the dose tapped is unmarked', () async {
+      await actions.markDose('ammi', today, 480);
+      await actions.markDose('ammi', today, 840);
+      await actions.unmarkDose('ammi', today, 480);
+      final marks = await repository.completionsOf('ammi');
+      expect(marks.map((mark) => mark.occurrenceMinute), [840]);
+    });
+
+    test('a dose that is not marked, or not there, changes nothing', () async {
+      expect(
+        await actions.unmarkDose('ammi', today, 840),
+        isA<AlreadyApplied>(),
+      );
+      expect(await actions.unmarkDose('ammi', today, 900), isA<ActionStale>());
+      expect(
+        await actions.unmarkDose('missing', today, 840),
+        isA<ActionStale>(),
+      );
+    });
+
+    test('marks and unmarks in quick succession all land', () async {
+      await actions.markDose('ammi', today, 480);
+      final results = await Future.wait([
+        actions.unmarkDose('ammi', today, 480),
+        actions.markDose('ammi', today, 840),
+        actions.markDose('ammi', today, 1200),
+      ]);
+      expect(results, everyElement(isA<ActionApplied>()));
+      final marks = await repository.watchCompletionsOn(today).first;
+      expect(marks.map((mark) => mark.occurrenceMinute), [840, 1200]);
+    });
+  });
+
+  test('one Undo takes back a late payment and the catch-up choice', () async {
+    final paid = await actions.markPaid(
+      'old-lesco',
+      LocalDate(2026, 8, 10),
+    ) as ActionApplied;
+    final kept = await actions.chooseCatchUp(
+      paid,
+      paid.catchUp!.options.single,
+    );
+    expect((kept as ActionApplied).after?.dueOn, LocalDate(2026, 9, 10));
+
+    expect(await actions.undo(kept.undo), isA<ActionApplied>());
+    final stored = await repository.find('old-lesco');
+    expect(stored?.dueOn, LocalDate(2026, 8, 10));
+    expect(stored?.amount, Money(425000, 'PKR'));
+    expect(await repository.completionsOf('old-lesco'), isEmpty);
+  });
+
+  test('a late payment says which dates were missed', () async {
+    final paid = await actions.markPaid(
+      'old-lesco',
+      LocalDate(2026, 8, 10),
+    ) as ActionApplied;
+    expect(paid.catchUp?.missedOn, [
+      LocalDate(2026, 9, 10),
+      LocalDate(2026, 10, 10),
+    ]);
+    expect(paid.after?.dueOn, LocalDate(2026, 11, 10));
+  });
+
+  test('just after midnight, Snooze plans from the new day', () async {
+    var now = DateTime(2026, 11, 2, 23, 59, 40);
+    final late = ProviderContainer.test(
+      overrides: [
+        itemRepositoryProvider.overrideWithValue(repository),
+        clockProvider.overrideWithValue(() => now),
+        idGeneratorProvider.overrideWithValue(() => 'late-id'),
+      ],
+    );
+    // The date was read before midnight, and the minute timer has not
+    // fired since.
+    expect(late.read(todayProvider), today);
+    now = DateTime(2026, 11, 3, 0, 0, 30);
+
+    final snoozed = await late
+        .read(quickActionsProvider.notifier)
+        .snooze('overdue', SnoozeFor.oneDay);
+    expect(snoozed, isA<ActionApplied>());
+    expect(
+      (await repository.find('overdue'))?.snoozedUntil,
+      LocalDate(2026, 11, 4),
+    );
+  });
+
   test('Done is refused on a medicine course', () async {
     expect(
       await actions.markDone('ammi', LocalDate(2026, 10, 27)),

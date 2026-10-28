@@ -359,6 +359,32 @@ void main() {
       expect(keepUnpaid.after.dueOn, d(2026, 9, 10));
     });
 
+    test('a daily bill from decades ago settles at most a year of days', () {
+      final daily = item(
+        'milk',
+        kind: ItemKind.bill,
+        category: ItemCategory.electricity,
+        due: d(2000, 1, 1),
+        recurrence: const DailyRepeat(),
+      );
+      final plan = complete(
+        daily,
+        today: today,
+        outcome: CompletionOutcome.paid,
+      );
+
+      expect(plan.after.dueOn, today);
+      // The payment, then the most recent missed days only.
+      expect(plan.added, hasLength(1 + maxCatchUp));
+      final catchUp = plan.catchUp!;
+      expect(catchUp.missed, maxCatchUp);
+      expect(catchUp.missedOn.last, today.addDays(-1));
+      expect(catchUp.missedOn.first, today.addDays(-maxCatchUp));
+      // Keeping them unpaid still starts from the first one after the
+      // payment.
+      expect(catchUp.options.single.after.dueOn, d(2000, 1, 2));
+    });
+
     test('every plan and option leaves a valid item', () {
       for (final fixed in [true, false]) {
         final plan = complete(

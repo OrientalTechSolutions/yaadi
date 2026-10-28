@@ -52,6 +52,7 @@ final class MorningSummary {
     this.today = const [],
     this.moreToday = 0,
     this.dosesToday = 0,
+    this.dosesMarked = 0,
     this.comingUp,
     this.totals = const [],
     this.unknownAmounts = 0,
@@ -76,9 +77,12 @@ final class MorningSummary {
         unknownAmounts++;
         continue;
       }
-      // A fixed instalment paid late steps one period at a time, so the
-      // ones after it that are also due by then are owed too.
-      final times = entry.section == TodaySection.overdue && item.amountIsFixed
+      // A fixed instalment is owed once for its current occurrence and again
+      // for every later one due by then: an overdue one steps one period at
+      // a time when paid, and a weekly one due today is due again within
+      // the week. Counted from the rule's own date, so a snooze, which only
+      // hides the bill for a few days, never lowers what is owed.
+      final times = item.amountIsFixed && item.scheduledOn != null
           ? _occurrencesUntil(item, payBy)
           : 1;
       totals.update(
@@ -98,6 +102,10 @@ final class MorningSummary {
       dosesToday: view[TodaySection.today].fold(
         0,
         (count, entry) => count + entry.doses.length,
+      ),
+      dosesMarked: view[TodaySection.today].fold(
+        0,
+        (count, entry) => count + entry.doses.where((d) => d.marked).length,
       ),
       comingUp: thisWeek.isEmpty ? null : _mention(thisWeek.first),
       totals: [
@@ -131,6 +139,10 @@ final class MorningSummary {
 
   final int dosesToday;
 
+  /// How many of [dosesToday] are marked, so the line counts what is left
+  /// rather than going stale as the day goes on.
+  final int dosesMarked;
+
   /// The first item in the next 7 days.
   final SummaryItem? comingUp;
 
@@ -160,6 +172,7 @@ final class MorningSummary {
       _sameList(other.today, today) &&
       other.moreToday == moreToday &&
       other.dosesToday == dosesToday &&
+      other.dosesMarked == dosesMarked &&
       other.comingUp == comingUp &&
       _sameList(other.totals, totals) &&
       other.unknownAmounts == unknownAmounts;
@@ -173,6 +186,7 @@ final class MorningSummary {
     Object.hashAll(today),
     moreToday,
     dosesToday,
+    dosesMarked,
     comingUp,
     Object.hashAll(totals),
     unknownAmounts,
@@ -181,7 +195,8 @@ final class MorningSummary {
   @override
   String toString() =>
       'MorningSummary(overdue: $overdue, toConfirm: $toConfirm, '
-      'today: ${today.length}+$moreToday, doses: $dosesToday, '
+      'today: ${today.length}+$moreToday, '
+      'doses: $dosesMarked/$dosesToday, '
       'totals: $totals, unknown: $unknownAmounts)';
 }
 

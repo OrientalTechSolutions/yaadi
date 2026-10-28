@@ -49,8 +49,13 @@ class ContentAppBar extends StatelessWidget implements PreferredSizeWidget {
   final Widget title;
   final List<Widget>? actions;
 
+  /// An [AppBar]'s own size, which the Scaffold reads together with the
+  /// theme's toolbar height: taller at large text sizes, like every other
+  /// app bar.
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
+  Size get preferredSize => _sizeLikeAppBar;
+
+  static final _sizeLikeAppBar = AppBar().preferredSize;
 
   @override
   Widget build(BuildContext context) {

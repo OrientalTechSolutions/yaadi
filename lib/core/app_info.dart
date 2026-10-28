@@ -7,6 +7,9 @@ abstract final class AppInfo {
   static const version = '0.1.0';
   static const maker = 'Oriental Tech Solutions';
   static final github = Uri.parse('https://github.com/OrientalTechSolutions');
+  static final repository = Uri.parse(
+    'https://github.com/OrientalTechSolutions/yaadi',
+  );
   static final upwork = Uri.parse(
     'https://www.upwork.com/freelancers/attaullahhazarvi',
   );

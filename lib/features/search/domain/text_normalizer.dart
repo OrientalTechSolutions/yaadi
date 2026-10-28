@@ -67,7 +67,9 @@ bool foldedPrefixIsSafe(String base) =>
     !(base.endsWith('ee') || base.endsWith('oo'));
 
 /// The folded keys of [text] joined by spaces: exactly what search compares.
-/// Applying it twice gives the same result.
+/// Applying it twice gives the same result. The app compares tokens; this
+/// is how tests state what a word folds to.
+@visibleForTesting
 String searchKey(String text) =>
     tokenize(text).map((token) => token.folded).join(' ');
 

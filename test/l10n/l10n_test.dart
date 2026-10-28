@@ -2,8 +2,11 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaadi/app.dart';
+import 'package:yaadi/features/items/domain/recurrence.dart';
+import 'package:yaadi/features/items/presentation/item_labels.dart';
 import 'package:yaadi/l10n/app_localizations.dart';
 import 'package:yaadi/l10n/urdu_material_localizations.dart';
 
@@ -106,8 +109,36 @@ void main() {
       );
       expect(l10n.localeName, 'en_GB');
       expect(l10n.dueOn(DateTime(2026, 2, 28)), 'Due 28 Feb 2026');
-      expect(l10n.markedPaid, 'Marked as paid');
+      expect(l10n.markedPaid('LESCO bill'), 'Marked LESCO bill as paid');
     });
+
+    testWidgets('the licences link is spelled like the page it opens', (
+      tester,
+    ) async {
+      for (final locale in [const Locale('en'), const Locale('en', 'GB')]) {
+        final l10n = await AppLocalizations.delegate.load(locale);
+        final material = await GlobalMaterialLocalizations.delegate.load(
+          locale,
+        );
+        // "licenses" in the US, "licences" in the UK, both times.
+        final page = material.licensesPageTitle.toLowerCase();
+        expect(l10n.settingsLicenses.toLowerCase(), endsWith(page));
+      }
+    });
+  });
+
+  testWidgets('Urdu lists use the Urdu comma', (tester) async {
+    final l10n = await AppLocalizations.delegate.load(const Locale('ur'));
+    expect(l10n.listSeparator, '\u060C ');
+    expect(
+      l10n.describeRepeat(DoseTimes(const [480, 840, 1260])),
+      isNot(contains(',')),
+    );
+    final english = await AppLocalizations.delegate.load(const Locale('en'));
+    expect(
+      english.describeRepeat(DoseTimes(const [480, 1260])),
+      contains(', '),
+    );
   });
 
   testWidgets('Urdu pickers name the weekdays and the time of day in Urdu', (

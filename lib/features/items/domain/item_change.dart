@@ -84,6 +84,33 @@ final class UndoSnapshot {
   final List<Completion> added;
   final List<Completion> removed;
 
+  /// One snapshot that undoes this write and [next], made on top of it,
+  /// together: the item goes back to [before] and every completion either
+  /// write added or removed is put back as it was.
+  UndoSnapshot then(UndoSnapshot next) {
+    if (!identical(next.origin, origin) || next.itemId != itemId) {
+      throw ArgumentError.value(next.itemId, 'next', 'Another write');
+    }
+    final removedByNext = {for (final c in next.removed) c.id};
+    final addedHere = {for (final c in added) c.id};
+    return UndoSnapshot(
+      origin: origin,
+      itemId: itemId,
+      before: before,
+      writtenRevision: next.writtenRevision,
+      added: [
+        for (final completion in added)
+          if (!removedByNext.contains(completion.id)) completion,
+        ...next.added,
+      ],
+      removed: [
+        ...removed,
+        for (final completion in next.removed)
+          if (!addedHere.contains(completion.id)) completion,
+      ],
+    );
+  }
+
   ItemChange get reversal {
     final before = this.before;
     return ItemChange(

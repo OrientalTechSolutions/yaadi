@@ -92,8 +92,9 @@ void main() {
       findsOneWidget,
     );
     await scrollTo(tester, inDetails(find.text('History')));
+    // What the line is for, and when it was paid, which is a different day.
     expect(
-      inDetails(findPlain('Paid · Oct 5, 2026 · Rs 3,980')),
+      inDetails(findPlain('For Oct 5, 2026: paid Oct 3, 2026 · Rs 3,980')),
       findsOneWidget,
     );
   });
@@ -106,7 +107,7 @@ void main() {
     await tester.tap(find.byTooltip('Delete'));
     await tester.pumpAndSettle();
     expect(find.byType(ItemDetailsScreen), findsNothing);
-    expect(find.text('Deleted'), findsOneWidget);
+    expect(findPlain('Deleted LESCO bill'), findsOneWidget);
     expect(await vault.items.find('khan-lesco'), isNull);
 
     await tester.tap(find.text('Undo'));
@@ -121,7 +122,10 @@ void main() {
     await scrollTo(tester, button);
     await tester.tap(button);
     await tester.pumpAndSettle();
-    expect(find.text('Marked as paid'), findsOneWidget);
+    expect(
+      findPlain('Marked LESCO bill as paid. Next due Sat, Dec 5.'),
+      findsOneWidget,
+    );
     expect(await vault.items.completionsOf('khan-lesco'), hasLength(2));
   });
 }

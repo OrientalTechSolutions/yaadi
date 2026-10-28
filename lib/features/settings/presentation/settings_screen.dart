@@ -97,6 +97,37 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const Divider(),
           const _DemoSection(),
+          // A demo household brings its own currency.
+          if (!web && settings.demoHousehold == null) ...[
+            const Divider(),
+            _SectionHeader(l10n.settingsCurrency),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 4),
+              child: Text(
+                l10n.settingsCurrencyHint,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            RadioGroup<String>(
+              groupValue: settings.defaultCurrency,
+              onChanged: (code) {
+                if (code != null) controller.setDefaultCurrency(code);
+              },
+              child: _NamedGroup(
+                name: l10n.settingsCurrency,
+                children: [
+                  for (final (code, label) in [
+                    ('PKR', l10n.currencyPkr),
+                    ('GBP', l10n.currencyGbp),
+                    ('USD', l10n.currencyUsd),
+                  ])
+                    RadioListTile(value: code, title: Text(label)),
+                ],
+              ),
+            ),
+          ],
           if (!web && settings.demoHousehold == null) ...[
             const Divider(),
             _SectionHeader(l10n.settingsYourData),
@@ -158,7 +189,6 @@ class _DemoSection extends ConsumerWidget {
     final web = ref.watch(isWebDemoProvider);
     final household = ref.watch(demoHouseholdProvider);
     final busy = ref.watch(demoControllerProvider);
-    final demo = ref.read(demoControllerProvider.notifier);
     final theme = Theme.of(context);
 
     return Column(
@@ -192,14 +222,11 @@ class _DemoSection extends ConsumerWidget {
           },
           onChanged: (choice) {
             if (busy) return;
-            switch (choice) {
-              case _DemoChoice.khan:
-                demo.show(DemoHousehold.khan);
-              case _DemoChoice.taylor:
-                demo.show(DemoHousehold.taylor);
-              case _DemoChoice.own || null:
-                demo.clear();
-            }
+            switchDemo(context, ref, switch (choice) {
+              _DemoChoice.khan => DemoHousehold.khan,
+              _DemoChoice.taylor => DemoHousehold.taylor,
+              _DemoChoice.own || null => null,
+            });
           },
           child: Column(
             children: [
@@ -224,7 +251,7 @@ class _DemoSection extends ConsumerWidget {
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 16, 8),
             child: FilledButton.tonalIcon(
-              onPressed: busy ? null : demo.clear,
+              onPressed: busy ? null : () => switchDemo(context, ref, null),
               icon: const Icon(Icons.cleaning_services_outlined),
               label: Text(l10n.clearDemo),
             ),

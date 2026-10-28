@@ -23,6 +23,8 @@ class YaadiApp extends ConsumerWidget {
     return MaterialApp(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
+      scaffoldMessengerKey: _messengerKey,
+      navigatorObservers: [_HideMessagesOnPush(_messengerKey)],
       // Null follows the phone; English still takes the phone's country so
       // dates are written the way that country writes them.
       locale: switch (settings.language) {
@@ -50,6 +52,24 @@ class YaadiApp extends ConsumerWidget {
           AppTypography(largeText: settings.largeText, child: child!),
       home: const VaultGate(child: DemoGate(child: HomeShell())),
     );
+  }
+}
+
+final _messengerKey = GlobalKey<ScaffoldMessengerState>();
+
+/// Hides the message on screen when a screen or dialog opens on top. A
+/// message with Undo stays until dismissed for screen reader users, and
+/// would otherwise sit over the editor, an item's page or a date picker,
+/// where its Undo no longer belongs. Closing a screen keeps it: Delete and
+/// Save show theirs on the screen underneath.
+final class _HideMessagesOnPush extends NavigatorObserver {
+  _HideMessagesOnPush(this.messenger);
+
+  final GlobalKey<ScaffoldMessengerState> messenger;
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    if (previousRoute != null) messenger.currentState?.hideCurrentSnackBar();
   }
 }
 

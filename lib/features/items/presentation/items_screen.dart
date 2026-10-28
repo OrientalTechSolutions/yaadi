@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,7 +19,8 @@ class ItemsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final items = ref.watch(filteredItemsProvider);
-    final filtered = ref.watch(itemFilterProvider) != const ItemFilter();
+    final filter = ref.watch(itemFilterProvider);
+    final filtered = filter != const ItemFilter();
 
     return Scaffold(
       appBar: ContentAppBar(
@@ -30,6 +32,15 @@ class ItemsScreen extends ConsumerWidget {
           const _Filters(),
           Expanded(
             child: switch (items) {
+              // A paid repeating bill moves on and stays open, so an empty
+              // Finished list says why rather than looking broken.
+              AsyncData(:final value)
+                  when value.isEmpty && filter.status == StatusFilter.closed =>
+                MessageView(
+                  icon: Icons.done_all,
+                  title: l10n.itemsNoneFinished,
+                  body: l10n.itemsFinishedExplain,
+                ),
               AsyncData(:final value) when value.isEmpty => MessageView(
                 icon: Icons.inbox_outlined,
                 title: filtered ? l10n.itemsNoMatch : l10n.itemsEmpty,
@@ -81,6 +92,8 @@ class _Filters extends ConsumerWidget {
     final filter = ref.watch(itemFilterProvider);
     final controller = ref.read(itemFilterProvider.notifier);
 
+    // Flutter on the web leaves the mouse out of drag scrolling, so in a
+    // narrow desktop window the chips past the edge could not be reached.
     Widget row(List<Widget> chips) => SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
@@ -97,41 +110,45 @@ class _Filters extends ConsumerWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final gutter = contentGutter(constraints.maxWidth);
-        return Padding(
-          padding: EdgeInsets.fromLTRB(gutter, 4, gutter, 4),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              row([
-                for (final (status, label) in [
-                  (StatusFilter.open, l10n.filterOpen),
-                  (StatusFilter.closed, l10n.filterClosed),
-                  (StatusFilter.all, l10n.filterAll),
-                ])
+        return ScrollConfiguration(
+          behavior: ScrollConfiguration.of(context)
+              .copyWith(dragDevices: PointerDeviceKind.values.toSet()),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(gutter, 4, gutter, 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                row([
+                  for (final (status, label) in [
+                    (StatusFilter.open, l10n.filterOpen),
+                    (StatusFilter.closed, l10n.filterClosed),
+                    (StatusFilter.all, l10n.filterAll),
+                  ])
+                    ChoiceChip(
+                      label: Text(label),
+                      selected: filter.status == status,
+                      onSelected: (_) => controller.showStatus(status),
+                    ),
+                ]),
+                const SizedBox(height: 4),
+                row([
                   ChoiceChip(
-                    label: Text(label),
-                    selected: filter.status == status,
-                    onSelected: (_) => controller.showStatus(status),
+                    label: Text(l10n.filterAllKinds),
+                    selected: filter.kind == null,
+                    onSelected: (_) => controller.showKind(null),
                   ),
-              ]),
-              const SizedBox(height: 4),
-              row([
-                ChoiceChip(
-                  label: Text(l10n.filterAllKinds),
-                  selected: filter.kind == null,
-                  onSelected: (_) => controller.showKind(null),
-                ),
-                for (final kind in ItemKind.values)
-                  ChoiceChip(
-                    // The fill shows the choice; a checkmark would cover the icon.
-                    showCheckmark: false,
-                    avatar: Icon(kindIcon(kind)),
-                    label: Text(l10n.kindLabel(kind)),
-                    selected: filter.kind == kind,
-                    onSelected: (_) => controller.showKind(kind),
-                  ),
-              ]),
-            ],
+                  for (final kind in ItemKind.values)
+                    ChoiceChip(
+                      // The fill shows the choice; a checkmark would cover the icon.
+                      showCheckmark: false,
+                      avatar: Icon(kindIcon(kind)),
+                      label: Text(l10n.kindLabel(kind)),
+                      selected: filter.kind == kind,
+                      onSelected: (_) => controller.showKind(kind),
+                    ),
+                ]),
+              ],
+            ),
           ),
         );
       },

@@ -255,10 +255,10 @@ abstract class AppLocalizations {
   /// **'Language'**
   String get settingsLanguage;
 
-  /// Language option that follows the phone's language.
+  /// Language option that follows the phone's or browser's language.
   ///
   /// In en, this message translates to:
-  /// **'Same as phone'**
+  /// **'Same as device'**
   String get languageDevice;
 
   /// The English language, written in English in every locale.
@@ -279,10 +279,10 @@ abstract class AppLocalizations {
   /// **'Theme'**
   String get settingsTheme;
 
-  /// Theme option that follows the phone's light or dark setting.
+  /// Theme option that follows the phone's or computer's light or dark setting.
   ///
   /// In en, this message translates to:
-  /// **'Same as phone'**
+  /// **'Same as device'**
   String get themeSystem;
 
   /// Light theme option.
@@ -306,13 +306,13 @@ abstract class AppLocalizations {
   /// Explains the Large text switch.
   ///
   /// In en, this message translates to:
-  /// **'Makes text 30% larger than the phone setting'**
+  /// **'Makes text 30% larger than the device setting'**
   String get settingsLargeTextHint;
 
-  /// Opens the list of open-source licences for fonts and packages.
+  /// Opens the list of open-source licences for fonts and packages. Spelled as the licence page's own title in this locale.
   ///
   /// In en, this message translates to:
-  /// **'Open-source licences'**
+  /// **'Open-source licenses'**
   String get settingsLicenses;
 
   /// Spoken label for the progress indicator while the encrypted vault opens.
@@ -429,10 +429,10 @@ abstract class AppLocalizations {
   /// **'Demo with made-up families. What you type stays in this browser, is not encrypted and is not sent to us. Do not enter real ID numbers. The demo is hosted on GitHub Pages, which keeps standard access logs.'**
   String get webDemoNotice;
 
-  /// One-line strip above every screen of the web demo. Details opens the full notice.
+  /// Strip of at most two lines above every screen of the web demo, on a phone too. Details opens the full notice.
   ///
   /// In en, this message translates to:
-  /// **'Demo with made-up families. Not encrypted: do not enter real ID numbers.'**
+  /// **'Made-up families. Not encrypted: do not enter real ID numbers.'**
   String get webDemoNoticeShort;
 
   /// Button on the web demo's strip that opens the full privacy notice.
@@ -483,11 +483,17 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{Today: 1 more} other{Today: {count} more}}'**
   String summaryMoreToday(int count);
 
-  /// Morning summary line counting today's medicine times the user entered. Neutral wording: never advice.
+  /// Morning summary line counting today's medicine times the user has not marked yet, out of all of today's times. Neutral wording: never advice, never missed.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{Medicine: 1 time today} other{Medicine: {count} times today}}'**
-  String summaryDoses(int count);
+  /// **'{total, plural, =1{Medicine: today\'s time not marked yet} other{Medicine: {left} of {total} times not marked yet}}'**
+  String summaryDosesLeft(int left, int total);
+
+  /// Morning summary line once every medicine time of today is marked. Neutral wording: never advice.
+  ///
+  /// In en, this message translates to:
+  /// **'{total, plural, =1{Medicine: today\'s time marked} other{Medicine: all {total} times marked}}'**
+  String summaryDosesMarked(int total);
 
   /// Morning summary line naming the next item in the coming seven days.
   ///
@@ -540,7 +546,7 @@ abstract class AppLocalizations {
   /// Explanation on the Today screen when everything is paid or done.
   ///
   /// In en, this message translates to:
-  /// **'Nothing is open right now. Paid and done items are under Items.'**
+  /// **'Nothing is open right now. Finished items and every payment are under Items.'**
   String get todayAllDoneBody;
 
   /// Button that shows a made-up family's items instead of the user's own.
@@ -609,11 +615,11 @@ abstract class AppLocalizations {
   /// **'Starts {date}'**
   String startsOn(DateTime date);
 
-  /// A snoozed item's card. The real due date is always shown next to the snooze date.
+  /// A snoozed item's card. The real due date is always shown next to the snooze date. Same wording as the Snoozed until confirmation.
   ///
   /// In en, this message translates to:
-  /// **'Snoozed to {date} · due {due}'**
-  String snoozedTo(DateTime date, DateTime due);
+  /// **'Snoozed until {date} · due {due}'**
+  String snoozedTo(String date, String due);
 
   /// An ID card, passport or warranty that has already expired.
   ///
@@ -774,20 +780,32 @@ abstract class AppLocalizations {
   /// Confirmation after Paid, shown with an Undo button.
   ///
   /// In en, this message translates to:
-  /// **'Marked as paid'**
-  String get markedPaid;
+  /// **'Marked {title} as paid'**
+  String markedPaid(String title);
 
   /// Confirmation after Done, shown with an Undo button.
   ///
   /// In en, this message translates to:
-  /// **'Marked as done'**
-  String get markedDone;
+  /// **'Marked {title} as done'**
+  String markedDone(String title);
+
+  /// A confirmation such as Marked LESCO bill as paid, followed by the date a repeating item is due next.
+  ///
+  /// In en, this message translates to:
+  /// **'{message}. Next due {date}.'**
+  String withNextDue(String message, String date);
 
   /// Confirmation after the user marks one of today's medicine times. Neutral wording: never advice.
   ///
   /// In en, this message translates to:
   /// **'{time} marked'**
   String doseMarked(String time);
+
+  /// Confirmation after the user takes the mark off one of today's medicine times, for a time tapped by mistake. Neutral wording: never advice.
+  ///
+  /// In en, this message translates to:
+  /// **'{time} unmarked'**
+  String doseUnmarked(String time);
 
   /// What screen readers announce for a medicine time that is marked.
   ///
@@ -849,59 +867,47 @@ abstract class AppLocalizations {
   /// **'Due again'**
   String get reopened;
 
-  /// Button after paying an old bill that opens the other ways to handle the missed months.
+  /// Asked right after paying a bill months late: the bills due between the one just paid and today. Always the same word, missed.
   ///
   /// In en, this message translates to:
-  /// **'Change'**
-  String get catchUpChange;
+  /// **'{count, plural, =1{What about the missed bill of {first}?} other{What about the {count} missed bills, {first} to {last}?}}'**
+  String catchUpQuestion(int count, String first, String last);
 
-  /// After paying an old utility bill: the missed months in between were recorded as paid, without amounts.
+  /// Choice: record the missed bills as paid. Utility bills carry arrears into the next bill, so this is the usual choice for them.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 earlier bill recorded as paid.} other{{count} earlier bills recorded as paid.}}'**
-  String catchUpMarkedPaid(int count);
+  /// **'{count, plural, =1{It was paid too} other{They were paid too}}'**
+  String catchUpOptionPaid(int count);
 
-  /// After paying an old instalment: the missed ones in between were skipped.
+  /// Choice: leave the missed bills owed, so the next one to pay is the first missed one.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 earlier one skipped.} other{{count} earlier ones skipped.}}'**
-  String catchUpSkipped(int count);
+  /// **'{count, plural, =1{It is still to pay} other{They are still to pay}}'**
+  String catchUpOptionUnpaid(int count);
 
-  /// After paying an old instalment such as rent: the missed ones are still owed.
+  /// Choice: record the missed instalments as skipped and move on to the current one.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{1 more is still to pay.} other{{count} more are still to pay.}}'**
-  String catchUpStillOwed(int count);
+  /// **'{count, plural, =1{Skip it} other{Skip them}}'**
+  String catchUpOptionSkip(int count);
 
-  /// Choice: leave the missed months as still owed.
+  /// Second line after paying a bill months late: the missed bills were recorded as paid, without amounts.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{Keep the earlier one unpaid} other{Keep {count} earlier ones unpaid}}'**
-  String catchUpKeepUnpaid(int count);
+  /// **'{count, plural, =1{Also marked the missed bill of {first} as paid.} other{Also marked {count} missed bills, {first} to {last}, as paid.}}'**
+  String catchUpMarkedPaid(int count, String first, String last);
 
-  /// Choice: record the missed instalments as paid.
+  /// Second line after paying an instalment months late: the missed ones were skipped.
   ///
   /// In en, this message translates to:
-  /// **'{count, plural, =1{Mark the earlier one as paid} other{Mark {count} earlier ones as paid}}'**
-  String catchUpMarkEarlierPaid(int count);
+  /// **'{count, plural, =1{Skipped the missed bill of {first}.} other{Skipped {count} missed bills, {first} to {last}.}}'**
+  String catchUpSkipped(int count, String first, String last);
 
-  /// Choice: record the missed instalments as skipped and move to the current one.
+  /// Second line after paying an instalment such as rent months late: the missed ones are still owed.
   ///
   /// In en, this message translates to:
-  /// **'Skip to the current one'**
-  String get catchUpSkipToCurrent;
-
-  /// Heading of the sheet with the ways to handle missed months.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{What about the 1 missed in between?} other{What about the {count} missed in between?}}'**
-  String catchUpQuestion(int count);
-
-  /// Confirmation after choosing another way to handle missed months.
-  ///
-  /// In en, this message translates to:
-  /// **'Updated'**
-  String get catchUpUpdated;
+  /// **'{count, plural, =1{The missed bill of {first} is still to pay.} other{{count} missed bills, {first} to {last}, are still to pay.}}'**
+  String catchUpStillOwed(int count, String first, String last);
 
   /// Items screen when there are no items at all.
   ///
@@ -915,16 +921,28 @@ abstract class AppLocalizations {
   /// **'No items match these filters'**
   String get itemsNoMatch;
 
+  /// Items screen with the Finished filter when no item is finished.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing finished yet'**
+  String get itemsNoneFinished;
+
+  /// Explains what the Finished filter lists, under its empty message.
+  ///
+  /// In en, this message translates to:
+  /// **'One-off items you mark as paid or done, and medicine courses that have ended, show here. A repeating bill moves to its next date when paid, so it stays under Open, and its payments are in its History.'**
+  String get itemsFinishedExplain;
+
   /// Items filter: items still to pay or do.
   ///
   /// In en, this message translates to:
   /// **'Open'**
   String get filterOpen;
 
-  /// Items filter: finished items.
+  /// Items filter: one-off items paid or done, and medicine courses that have ended.
   ///
   /// In en, this message translates to:
-  /// **'Paid and done'**
+  /// **'Finished'**
   String get filterClosed;
 
   /// Items filter: open and finished items.
@@ -962,6 +980,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Skipped'**
   String get outcomeSkipped;
+
+  /// Label on a medicine course whose last day has passed.
+  ///
+  /// In en, this message translates to:
+  /// **'Course ended'**
+  String get courseEnded;
+
+  /// One line of an item's history: the bill that was due on one date, marked as paid on another.
+  ///
+  /// In en, this message translates to:
+  /// **'For {occurrence}: paid {recorded}'**
+  String historyPaid(String occurrence, String recorded);
+
+  /// One line of an item's history: the occurrence due on one date, marked as done on another.
+  ///
+  /// In en, this message translates to:
+  /// **'For {occurrence}: done {recorded}'**
+  String historyDone(String occurrence, String recorded);
+
+  /// One line of an item's history: an instalment the user chose to skip.
+  ///
+  /// In en, this message translates to:
+  /// **'For {occurrence}: skipped {recorded}'**
+  String historySkipped(String occurrence, String recorded);
+
+  /// One line of a medicine's history: one of the day's times, and when the user marked it. Neutral wording: never advice.
+  ///
+  /// In en, this message translates to:
+  /// **'For {time} on {date}: marked {recorded}'**
+  String historyDose(String time, String date, String recorded);
+
+  /// Separates the items of a short list, such as a medicine's times. Urdu uses its own comma.
+  ///
+  /// In en, this message translates to:
+  /// **', '**
+  String get listSeparator;
 
   /// Repeat choice: a one-off item.
   ///
@@ -1170,8 +1224,8 @@ abstract class AppLocalizations {
   /// Confirmation after deleting an item, shown with an Undo button.
   ///
   /// In en, this message translates to:
-  /// **'Deleted'**
-  String get deleted;
+  /// **'Deleted {title}'**
+  String deleted(String title);
 
   /// Shown when a delete is refused because the item changed in the meantime.
   ///
@@ -1374,14 +1428,14 @@ abstract class AppLocalizations {
   /// Confirmation after adding an item, shown with an Undo button.
   ///
   /// In en, this message translates to:
-  /// **'Added'**
-  String get added;
+  /// **'Added {title}'**
+  String added(String title);
 
   /// Confirmation after changing an item, shown with an Undo button.
   ///
   /// In en, this message translates to:
-  /// **'Saved'**
-  String get saved;
+  /// **'Saved {title}'**
+  String saved(String title);
 
   /// Shown when a save is refused because the item changed in the meantime.
   ///
@@ -1407,17 +1461,41 @@ abstract class AppLocalizations {
   /// **'The notes seem to contain an ID or account number. In Reference it stays hidden until you tap Show.'**
   String get misplacedInNotes;
 
+  /// Explains why a number in the title may be a problem when the Reference field is already filled.
+  ///
+  /// In en, this message translates to:
+  /// **'The title seems to contain an ID or account number, and the title is shown everywhere. Reference already holds a number.'**
+  String get misplacedInTitleFilled;
+
+  /// Explains why a number in the notes may be a problem when the Reference field is already filled.
+  ///
+  /// In en, this message translates to:
+  /// **'The notes seem to contain an ID or account number, and search shows the notes. Reference already holds a number.'**
+  String get misplacedInNotesFilled;
+
   /// Saves without moving the number.
   ///
   /// In en, this message translates to:
   /// **'Leave it there'**
   String get misplacedKeep;
 
-  /// Moves the number into the hidden Reference field and saves.
+  /// Moves the number into the hidden Reference field and goes back to the field it came from, so what is left can be tidied before saving.
   ///
   /// In en, this message translates to:
   /// **'Move to Reference'**
   String get misplacedMove;
+
+  /// Goes back to the field with the number instead of saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit it'**
+  String get misplacedEdit;
+
+  /// Shown after the number was moved into Reference, while the editor stays open.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved to Reference. Check what is left, then save.'**
+  String get misplacedMoved;
 
   /// Asked when leaving the editor with unsaved changes.
   ///
@@ -1587,6 +1665,18 @@ abstract class AppLocalizations {
   /// **'Pick a household to see how Yaadi keeps bills, appointments, expiry dates and medicine times. Everyone in it is invented.'**
   String get pickerBody;
 
+  /// On the web demo's first screen: what this version does and what comes later.
+  ///
+  /// In en, this message translates to:
+  /// **'This is Milestone 1: you type items in. Reading a paper from the camera or a PDF comes in Milestone 3.'**
+  String get pickerScope;
+
+  /// Opens the app's source code repository on GitHub.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code on GitHub'**
+  String get pickerSource;
+
   /// Explains demo households on a phone.
   ///
   /// In en, this message translates to:
@@ -1611,11 +1701,83 @@ abstract class AppLocalizations {
   /// **'My own items'**
   String get demoOwnItems;
 
-  /// Button that removes the demo household in one tap.
+  /// Button that removes the demo household, after confirmation.
   ///
   /// In en, this message translates to:
   /// **'Clear demo data'**
   String get clearDemo;
+
+  /// Asked before showing another demo household.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {household}?'**
+  String demoSwitchTitle(String household);
+
+  /// Asked before removing the demo household.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear the demo?'**
+  String get demoClearTitle;
+
+  /// Asked on a phone before going back from a demo household to the user's own items.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave the demo?'**
+  String get demoLeaveTitle;
+
+  /// Body of the question before leaving or switching a demo household.
+  ///
+  /// In en, this message translates to:
+  /// **'Anything you added or changed in this demo will be lost.'**
+  String get demoLoseChanges;
+
+  /// Confirms showing another demo household.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch'**
+  String get demoSwitch;
+
+  /// Confirms removing the demo household.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get demoClear;
+
+  /// Settings section for the currency new bills start in.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get settingsCurrency;
+
+  /// Explains the currency setting.
+  ///
+  /// In en, this message translates to:
+  /// **'New bills start in this currency, and search knows that country\'s billers.'**
+  String get settingsCurrencyHint;
+
+  /// Currency choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Pakistani rupee (Rs)'**
+  String get currencyPkr;
+
+  /// Currency choice.
+  ///
+  /// In en, this message translates to:
+  /// **'British pound (£)'**
+  String get currencyGbp;
+
+  /// Currency choice.
+  ///
+  /// In en, this message translates to:
+  /// **'US dollar (\$)'**
+  String get currencyUsd;
+
+  /// Shown in the web demo when typed or pasted characters were removed because its bundled fonts cannot draw them.
+  ///
+  /// In en, this message translates to:
+  /// **'The web demo cannot show emoji and some symbols yet, so they were left out.'**
+  String get webGlyphsLeftOut;
 
   /// Settings section for deleting the user's items.
   ///

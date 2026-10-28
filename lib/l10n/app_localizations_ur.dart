@@ -103,7 +103,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get settingsLanguage => 'زبان';
 
   @override
-  String get languageDevice => 'فون کے مطابق';
+  String get languageDevice => 'ڈیوائس کے مطابق';
 
   @override
   String get languageEnglish => 'English';
@@ -115,7 +115,7 @@ class AppLocalizationsUr extends AppLocalizations {
   String get settingsTheme => 'تھیم';
 
   @override
-  String get themeSystem => 'فون کے مطابق';
+  String get themeSystem => 'ڈیوائس کے مطابق';
 
   @override
   String get themeLight => 'روشن';
@@ -128,7 +128,7 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get settingsLargeTextHint =>
-      'متن کو فون کی ترتیب سے 30 فیصد بڑا کرتا ہے';
+      'متن کو ڈیوائس کی ترتیب سے 30 فیصد بڑا کرتا ہے';
 
   @override
   String get settingsLicenses => 'اوپن سورس لائسنس';
@@ -200,7 +200,7 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get webDemoNoticeShort =>
-      'فرضی خاندانوں کا ڈیمو۔ انکرپٹ نہیں ہوتا: اصلی شناختی نمبر نہ لکھیں۔';
+      'فرضی خاندان۔ انکرپٹ نہیں ہوتا: اصلی شناختی نمبر نہ لکھیں۔';
 
   @override
   String get demoNoticeDetails => 'تفصیل';
@@ -255,12 +255,23 @@ class AppLocalizationsUr extends AppLocalizations {
   }
 
   @override
-  String summaryDoses(int count) {
+  String summaryDosesLeft(int left, int total) {
     String _temp0 = intl.Intl.pluralLogic(
-      count,
+      total,
       locale: localeName,
-      other: 'دوا: آج $count اوقات',
-      one: 'دوا: آج 1 وقت',
+      other: 'دوا: آج کے $total میں سے $left اوقات ابھی نشان زد نہیں',
+      one: 'دوا: آج کا وقت ابھی نشان زد نہیں',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String summaryDosesMarked(int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: 'دوا: آج کے تمام $total اوقات نشان زد',
+      one: 'دوا: آج کا وقت نشان زد',
     );
     return '$_temp0';
   }
@@ -303,7 +314,7 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get todayAllDoneBody =>
-      'ابھی کچھ باقی نہیں۔ ادا شدہ اور مکمل چیزیں «چیزیں» میں ہیں۔';
+      'ابھی کچھ باقی نہیں۔ مکمل شدہ چیزیں اور ہر ادائیگی «چیزیں» میں ہیں۔';
 
   @override
   String get tryDemo => 'ڈیمو گھرانہ دیکھیں';
@@ -352,13 +363,8 @@ class AppLocalizationsUr extends AppLocalizations {
   }
 
   @override
-  String snoozedTo(DateTime date, DateTime due) {
-    final intl.DateFormat dateDateFormat = intl.DateFormat.MMMEd(localeName);
-    final String dateString = dateDateFormat.format(date);
-    final intl.DateFormat dueDateFormat = intl.DateFormat.MMMd(localeName);
-    final String dueString = dueDateFormat.format(due);
-
-    return '$dateString تک مؤخر · اصل تاریخ $dueString';
+  String snoozedTo(String date, String due) {
+    return '$date تک مؤخر · اصل تاریخ $due';
   }
 
   @override
@@ -510,14 +516,28 @@ class AppLocalizationsUr extends AppLocalizations {
   String get snoozeWeek => '1 ہفتہ';
 
   @override
-  String get markedPaid => 'ادا شدہ نشان زد';
+  String markedPaid(String title) {
+    return '$title ادا شدہ نشان زد';
+  }
 
   @override
-  String get markedDone => 'مکمل نشان زد';
+  String markedDone(String title) {
+    return '$title مکمل نشان زد';
+  }
+
+  @override
+  String withNextDue(String message, String date) {
+    return '$message۔ اگلی تاریخ $date۔';
+  }
 
   @override
   String doseMarked(String time) {
     return '$time نشان زد';
+  }
+
+  @override
+  String doseUnmarked(String time) {
+    return '$time کا نشان ہٹا دیا';
   }
 
   @override
@@ -556,79 +576,81 @@ class AppLocalizationsUr extends AppLocalizations {
   String get reopened => 'دوبارہ باقی';
 
   @override
-  String get catchUpChange => 'تبدیل کریں';
-
-  @override
-  String catchUpMarkedPaid(int count) {
+  String catchUpQuestion(int count, String first, String last) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'پچھلے $count بل ادا شدہ درج ہوئے۔',
-      one: 'پچھلا 1 بل ادا شدہ درج ہوا۔',
+      other: 'چھوٹے ہوئے $count بلوں ($first تا $last) کا کیا کریں؟',
+      one: '$first کے چھوٹے ہوئے بل کا کیا کریں؟',
     );
     return '$_temp0';
   }
 
   @override
-  String catchUpSkipped(int count) {
+  String catchUpOptionPaid(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'پچھلی $count قسطیں چھوڑ دی گئیں۔',
-      one: 'پچھلی 1 قسط چھوڑ دی گئی۔',
+      other: 'وہ بھی ادا ہو چکے',
+      one: 'وہ بھی ادا ہو چکا',
     );
     return '$_temp0';
   }
 
   @override
-  String catchUpStillOwed(int count) {
+  String catchUpOptionUnpaid(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: '$count مزید ادائیگیاں باقی ہیں۔',
-      one: '1 مزید ادائیگی باقی ہے۔',
+      other: 'وہ ابھی ادا کرنا باقی ہیں',
+      one: 'وہ ابھی ادا کرنا باقی ہے',
     );
     return '$_temp0';
   }
 
   @override
-  String catchUpKeepUnpaid(int count) {
+  String catchUpOptionSkip(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'پچھلی $count ادائیگیاں باقی رہنے دیں',
-      one: 'پچھلی 1 ادائیگی باقی رہنے دیں',
+      other: 'انہیں چھوڑ دیں',
+      one: 'اسے چھوڑ دیں',
     );
     return '$_temp0';
   }
 
   @override
-  String catchUpMarkEarlierPaid(int count) {
+  String catchUpMarkedPaid(int count, String first, String last) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'پچھلی $count قسطیں ادا شدہ نشان زد کریں',
-      one: 'پچھلی 1 قسط ادا شدہ نشان زد کریں',
+      other: 'چھوٹے ہوئے $count بل ($first تا $last) بھی ادا شدہ درج ہوئے۔',
+      one: '$first کا چھوٹا ہوا بل بھی ادا شدہ درج ہوا۔',
     );
     return '$_temp0';
   }
 
   @override
-  String get catchUpSkipToCurrent => 'موجودہ پر چلے جائیں';
-
-  @override
-  String catchUpQuestion(int count) {
+  String catchUpSkipped(int count, String first, String last) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
       locale: localeName,
-      other: 'درمیان میں رہ جانے والی $count ادائیگیوں کا کیا کریں؟',
-      one: 'درمیان میں رہ جانے والی 1 ادائیگی کا کیا کریں؟',
+      other: 'چھوٹے ہوئے $count بل ($first تا $last) چھوڑ دیے گئے۔',
+      one: '$first کا چھوٹا ہوا بل چھوڑ دیا گیا۔',
     );
     return '$_temp0';
   }
 
   @override
-  String get catchUpUpdated => 'تبدیل ہو گیا';
+  String catchUpStillOwed(int count, String first, String last) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'چھوٹے ہوئے $count بل ($first تا $last) ابھی ادا کرنا باقی ہیں۔',
+      one: '$first کا چھوٹا ہوا بل ابھی ادا کرنا باقی ہے۔',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get itemsEmpty => 'ابھی کوئی چیز نہیں';
@@ -637,10 +659,17 @@ class AppLocalizationsUr extends AppLocalizations {
   String get itemsNoMatch => 'ان فلٹرز کے مطابق کوئی چیز نہیں';
 
   @override
+  String get itemsNoneFinished => 'ابھی کوئی چیز مکمل نہیں ہوئی';
+
+  @override
+  String get itemsFinishedExplain =>
+      'جو ایک بار کی چیزیں آپ ادا شدہ یا مکمل نشان زد کریں، اور جن دواؤں کا کورس ختم ہو چکا ہو، وہ یہاں نظر آتی ہیں۔ دہرایا جانے والا بل ادا ہونے پر اپنی اگلی تاریخ پر چلا جاتا ہے، اس لیے «باقی» میں رہتا ہے، اور اس کی ادائیگیاں اس کے پچھلے ریکارڈ میں ہوتی ہیں۔';
+
+  @override
   String get filterOpen => 'باقی';
 
   @override
-  String get filterClosed => 'ادا شدہ اور مکمل';
+  String get filterClosed => 'مکمل شدہ';
 
   @override
   String get filterAll => 'سب';
@@ -659,6 +688,32 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get outcomeSkipped => 'چھوڑ دیا';
+
+  @override
+  String get courseEnded => 'کورس ختم';
+
+  @override
+  String historyPaid(String occurrence, String recorded) {
+    return '$occurrence کا: $recorded کو ادا شدہ';
+  }
+
+  @override
+  String historyDone(String occurrence, String recorded) {
+    return '$occurrence کا: $recorded کو مکمل';
+  }
+
+  @override
+  String historySkipped(String occurrence, String recorded) {
+    return '$occurrence کا: $recorded کو چھوڑ دیا';
+  }
+
+  @override
+  String historyDose(String time, String date, String recorded) {
+    return '$date $time کا: $recorded نشان زد';
+  }
+
+  @override
+  String get listSeparator => '، ';
 
   @override
   String get repeatNone => 'دہرایا نہیں جاتا';
@@ -795,7 +850,9 @@ class AppLocalizationsUr extends AppLocalizations {
   String get fieldDateOptional => 'تاریخ (اختیاری)';
 
   @override
-  String get deleted => 'حذف ہو گیا';
+  String deleted(String title) {
+    return '$title حذف ہو گیا';
+  }
 
   @override
   String get changedSince =>
@@ -907,10 +964,14 @@ class AppLocalizationsUr extends AppLocalizations {
   String get save => 'محفوظ کریں';
 
   @override
-  String get added => 'شامل ہو گیا';
+  String added(String title) {
+    return '$title شامل ہو گیا';
+  }
 
   @override
-  String get saved => 'محفوظ ہو گیا';
+  String saved(String title) {
+    return '$title محفوظ ہو گیا';
+  }
 
   @override
   String get saveConflict =>
@@ -928,10 +989,25 @@ class AppLocalizationsUr extends AppLocalizations {
       'لگتا ہے نوٹس میں کوئی شناختی یا اکاؤنٹ نمبر ہے۔ حوالہ نمبر میں یہ «دکھائیں» دبانے تک چھپا رہتا ہے۔';
 
   @override
+  String get misplacedInTitleFilled =>
+      'لگتا ہے عنوان میں کوئی شناختی یا اکاؤنٹ نمبر ہے، اور عنوان ہر جگہ نظر آتا ہے۔ حوالہ نمبر میں پہلے سے ایک نمبر موجود ہے۔';
+
+  @override
+  String get misplacedInNotesFilled =>
+      'لگتا ہے نوٹس میں کوئی شناختی یا اکاؤنٹ نمبر ہے، اور تلاش میں نوٹس نظر آتے ہیں۔ حوالہ نمبر میں پہلے سے ایک نمبر موجود ہے۔';
+
+  @override
   String get misplacedKeep => 'وہیں رہنے دیں';
 
   @override
   String get misplacedMove => 'حوالہ نمبر میں منتقل کریں';
+
+  @override
+  String get misplacedEdit => 'اسے بدلیں';
+
+  @override
+  String get misplacedMoved =>
+      'حوالہ نمبر میں منتقل ہو گیا۔ باقی متن دیکھ لیں، پھر محفوظ کریں۔';
 
   @override
   String get discardTitle => 'اپنی تبدیلیاں چھوڑ دیں؟';
@@ -1052,6 +1128,13 @@ class AppLocalizationsUr extends AppLocalizations {
       'ایک گھرانہ چنیں اور دیکھیں کہ یادی بل، اپوائنٹمنٹ، میعاد کی تاریخیں اور دوا کے اوقات کیسے سنبھالتا ہے۔ اس کے سب لوگ فرضی ہیں۔';
 
   @override
+  String get pickerScope =>
+      'یہ پہلا مرحلہ ہے: چیزیں آپ خود لکھتے ہیں۔ کیمرے یا PDF سے کاغذ پڑھنا تیسرے مرحلے میں آئے گا۔';
+
+  @override
+  String get pickerSource => 'GitHub پر سورس کوڈ';
+
+  @override
   String get demoExplain =>
       'ڈیمو گھرانے فرضی ہیں۔ جب تک کوئی ڈیمو کھلا ہو، آپ کی اپنی چیزیں جوں کی توں رہتی ہیں اور ڈیمو میں کی گئی کوئی تبدیلی محفوظ نہیں ہوتی۔';
 
@@ -1067,6 +1150,47 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get clearDemo => 'ڈیمو ڈیٹا صاف کریں';
+
+  @override
+  String demoSwitchTitle(String household) {
+    return '$household پر جائیں؟';
+  }
+
+  @override
+  String get demoClearTitle => 'ڈیمو صاف کریں؟';
+
+  @override
+  String get demoLeaveTitle => 'ڈیمو بند کریں؟';
+
+  @override
+  String get demoLoseChanges =>
+      'اس ڈیمو میں آپ نے جو کچھ شامل کیا یا بدلا، وہ ختم ہو جائے گا۔';
+
+  @override
+  String get demoSwitch => 'جائیں';
+
+  @override
+  String get demoClear => 'صاف کریں';
+
+  @override
+  String get settingsCurrency => 'کرنسی';
+
+  @override
+  String get settingsCurrencyHint =>
+      'نئے بل اسی کرنسی میں شروع ہوتے ہیں، اور تلاش اسی ملک کے بل بھیجنے والے اداروں کو پہچانتی ہے۔';
+
+  @override
+  String get currencyPkr => 'پاکستانی روپیہ (Rs)';
+
+  @override
+  String get currencyGbp => 'برطانوی پاؤنڈ (£)';
+
+  @override
+  String get currencyUsd => 'امریکی ڈالر (\$)';
+
+  @override
+  String get webGlyphsLeftOut =>
+      'ویب ڈیمو ابھی ایموجی اور کچھ علامتیں نہیں دکھا سکتا، اس لیے انہیں چھوڑ دیا گیا۔';
 
   @override
   String get settingsYourData => 'آپ کا ڈیٹا';

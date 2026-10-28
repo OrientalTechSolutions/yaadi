@@ -1,24 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/money/money_format.dart';
 import '../../../core/text/bidi.dart';
+import '../../../core/time/clock.dart';
+import '../../../core/time/local_date.dart';
 import '../../../core/widgets/user_text.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../today/domain/doses.dart';
 import '../domain/item.dart';
 import 'item_labels.dart';
 import 'item_routes.dart';
 
+/// The label for a finished item in a list: Paid, Done, or Course ended for
+/// a medicine course past its last day. Null while the item is active.
+String? finishedLabel(Item item, LocalDate today, AppLocalizations l10n) {
+  if (!item.isOpen) return l10n.statusLabel(item.status);
+  return item.courseEndedBefore(today) ? l10n.courseEnded : null;
+}
+
 /// One item in a list: what it is, when it is due and how much. Opens the
 /// item's page when tapped.
-class ItemTile extends StatelessWidget {
+class ItemTile extends ConsumerWidget {
   const ItemTile({super.key, required this.item});
 
   final Item item;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final amount = item.amount;
+    final finished = finishedLabel(item, ref.watch(todayProvider), l10n);
 
     return ListTile(
       contentPadding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
@@ -33,7 +45,8 @@ class ItemTile extends StatelessWidget {
                   '${l10n.dateSummary(item)}',
             ),
             if (amount != null) ...[
-              const TextSpan(text: ' · '),
+              // The dot travels with the amount when it wraps.
+              const TextSpan(text: ' ·$noBreakSpace'),
               TextSpan(
                 text: isolate(formatMoney(amount, l10n.localeName)),
                 // ListTile sets its subtitle in bodyMedium.
@@ -43,9 +56,7 @@ class ItemTile extends StatelessWidget {
           ],
         ),
       ),
-      trailing: item.isOpen
-          ? null
-          : StatusBadge(label: l10n.statusLabel(item.status)),
+      trailing: finished == null ? null : StatusBadge(label: finished),
       onTap: () => openItemDetails(context, item.id),
     );
   }

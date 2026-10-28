@@ -37,9 +37,9 @@ class DemoBadge extends ConsumerWidget {
 /// The strip above every screen while demo data is shown.
 ///
 /// On the web it carries the privacy notice: in full on the household
-/// picker, and as one line with Details above the app's own screens, which
-/// need the room more. On a phone it names the household, says changes are
-/// not kept, and leads back to the user's own items.
+/// picker, and in two short lines with Details above the app's own screens,
+/// which need the room more. On a phone it names the household, says
+/// changes are not kept, and leads back to the user's own items.
 class DemoNotice extends ConsumerWidget {
   const DemoNotice({super.key, this.compact = false});
 
@@ -69,14 +69,16 @@ class DemoNotice extends ConsumerWidget {
       action = TextButton(
         onPressed: ref.watch(demoControllerProvider)
             ? null
-            : ref.read(demoControllerProvider.notifier).clear,
+            : () => switchDemo(context, ref, null),
         child: Text(l10n.leaveDemo),
       );
     } else if (compact) {
+      // Two lines, so "do not enter real ID numbers" is never cut off on a
+      // phone.
       text = Text(
         notSaving ? l10n.webDemoNotSaving : l10n.webDemoNoticeShort,
         style: style,
-        maxLines: notSaving ? 2 : 1,
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
       );
       action = TextButton(
@@ -122,6 +124,50 @@ class DemoNotice extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Shows [target], or with null goes back to the user's own items on a
+/// phone and to the household picker on the web. While a demo household is
+/// on screen it asks first, because whatever was typed into it is lost.
+Future<void> switchDemo(
+  BuildContext context,
+  WidgetRef ref,
+  DemoHousehold? target,
+) async {
+  final current = ref.read(demoHouseholdProvider);
+  if (current == target || ref.read(demoControllerProvider)) return;
+  if (current != null) {
+    final l10n = AppLocalizations.of(context);
+    final web = ref.read(isWebDemoProvider);
+    final (title, confirm) = switch (target) {
+      null when web => (l10n.demoClearTitle, l10n.demoClear),
+      null => (l10n.demoLeaveTitle, l10n.leaveDemo),
+      final household => (
+        l10n.demoSwitchTitle(householdName(l10n, household)),
+        l10n.demoSwitch,
+      ),
+    };
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+        title: Text(title),
+        content: Text(l10n.demoLoseChanges),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialog, false),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialog, true),
+            child: Text(confirm),
+          ),
+        ],
+      ),
+    );
+    if (!(confirmed ?? false) || !context.mounted) return;
+  }
+  final demo = ref.read(demoControllerProvider.notifier);
+  await (target == null ? demo.clear() : demo.show(target));
 }
 
 /// The web demo's privacy notice (ARCHITECTURE.md section 8), and whether

@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:yaadi/core/time/clock.dart';
 import 'package:yaadi/features/items/application/items_providers.dart';
@@ -73,6 +74,22 @@ void main() {
 
     britain.read(searchQueryProvider.notifier).update('tesco');
     expect(resultIds(britain), ['tesco']);
+  });
+
+  test('the query is forgotten when other items are shown', () {
+    // The vault reopened after Delete all, or a demo household on a phone:
+    // last time's query ("CNIC", say) must not come back.
+    final shown = StateProvider<ItemRepository>((ref) => repository);
+    final container = ProviderContainer.test(
+      overrides: [
+        itemRepositoryProvider.overrideWith((ref) => ref.watch(shown)),
+        clockProvider.overrideWithValue(() => DateTime(2026, 11, 2, 9)),
+        searchRegionProvider.overrideWithValue(Region.pk),
+      ],
+    );
+    container.read(searchQueryProvider.notifier).update('cnic');
+    container.read(shown.notifier).state = MemoryItemRepository();
+    expect(container.read(searchQueryProvider), isEmpty);
   });
 
   test('the region follows the household currency', () {

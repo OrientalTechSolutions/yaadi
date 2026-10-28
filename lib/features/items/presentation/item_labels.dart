@@ -70,7 +70,9 @@ extension ItemLabels on AppLocalizations {
         DateTime(2000, month, day),
       ),
       DoseTimes(:final minutes) => repeatDosesAt(
-        minutes.map((minute) => formatMinute(minute, localeName)).join(', '),
+        minutes
+            .map((minute) => formatMinute(minute, localeName))
+            .join(listSeparator),
       ),
       UnsupportedRepeat() => repeatUnsupported,
     };

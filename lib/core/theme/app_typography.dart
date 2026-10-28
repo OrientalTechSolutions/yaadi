@@ -22,13 +22,31 @@ class AppTypography extends StatelessWidget {
     final mediaQuery = MediaQuery.of(context);
     final scaler = appTextScaler(mediaQuery.textScaler, largeText: largeText);
     final isUrdu = Localizations.localeOf(context).languageCode == 'ur';
-    final theme = Theme.of(context);
+    final base = Theme.of(context);
+    final theme = isUrdu ? urduTheme(base) : base;
 
     return MediaQuery(
       data: mediaQuery.copyWith(textScaler: scaler),
-      child: isUrdu ? Theme(data: urduTheme(theme), child: child) : child,
+      child: Theme(
+        data: theme.copyWith(
+          appBarTheme: theme.appBarTheme.copyWith(
+            toolbarHeight: toolbarHeightFor(theme.textTheme.titleLarge, scaler),
+          ),
+        ),
+        child: child,
+      ),
     );
   }
+}
+
+/// An app bar tall enough for its title at the current text size: Material's
+/// 56 dp until the title's line needs more, as a Nastaliq title at large
+/// text does, whose descenders would otherwise be cut off.
+double toolbarHeightFor(TextStyle? title, TextScaler scaler) {
+  final size = title?.fontSize ?? 22;
+  final line = scaler.scale(size) * (title?.height ?? 1.3);
+  // A little room above and below the line.
+  return math.max(kToolbarHeight, line + 6);
 }
 
 /// Key screens are tested up to 2.0x, so the total never goes beyond it.

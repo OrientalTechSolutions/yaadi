@@ -7,6 +7,7 @@ import 'package:intl/intl.dart' show DateFormat;
 import '../../../core/ids.dart';
 import '../../../core/money/money.dart';
 import '../../../core/money/money_format.dart';
+import '../../../core/text/bidi.dart';
 import '../../../core/time/clock.dart';
 import '../../../core/time/local_date.dart';
 import '../../../core/time/time_format.dart';
@@ -27,6 +28,14 @@ import '../domain/recurrence.dart';
 import '../domain/reference.dart';
 import 'item_labels.dart';
 import 'reference_view.dart';
+
+/// What to do about an ID or account number found in the title or notes.
+enum _NumberChoice { keep, move, edit }
+
+/// How far back a date can be picked. Further back than any bill or course
+/// still worth tracking, and short of the thousands of missed occurrences a
+/// daily bill from decades ago would bring.
+const _pastYears = 5;
 
 /// Adds an item, or edits [item].
 class ItemEditorScreen extends ConsumerStatefulWidget {
@@ -51,6 +60,7 @@ class _ItemEditorScreenState extends ConsumerState<ItemEditorScreen> {
 
   final _titleFocus = FocusNode();
   final _amountFocus = FocusNode();
+  final _notesFocus = FocusNode();
 
   /// Where Save scrolls to when a picker field needs fixing.
   final _fieldKeys = {
@@ -96,6 +106,7 @@ class _ItemEditorScreenState extends ConsumerState<ItemEditorScreen> {
     }
     _titleFocus.dispose();
     _amountFocus.dispose();
+    _notesFocus.dispose();
     super.dispose();
   }
 
@@ -191,6 +202,7 @@ class _ItemEditorScreenState extends ConsumerState<ItemEditorScreen> {
             ),
             _DetailsSection(
               notes: _notes,
+              notesFocus: _notesFocus,
               reference: _reference,
               notesError: problem(DraftField.notes),
               referenceError: problem(DraftField.reference),
@@ -232,11 +244,14 @@ class _ItemEditorScreenState extends ConsumerState<ItemEditorScreen> {
   );
 
   Future<LocalDate?> _pickDate(LocalDate? current) async {
-    final LocalDate initial = current ?? ref.read(todayProvider);
+    final today = ref.read(todayProvider);
+    final LocalDate initial = current ?? today;
+    final earliest = today.addMonths(-12 * _pastYears);
     final picked = await showDatePicker(
       context: context,
       initialDate: initial.toDateTime(),
-      firstDate: DateTime(2000),
+      // An older item keeps its own date pickable.
+      firstDate: (initial.isBefore(earliest) ? initial : earliest).toDateTime(),
       lastDate: DateTime(2100, 12, 31),
     );
     if (picked == null || !mounted) return null;
@@ -261,23 +276,26 @@ class _ItemEditorScreenState extends ConsumerState<ItemEditorScreen> {
       _reportProblems();
       return;
     }
-    if (_reference.text.trim().isEmpty) {
-      final misplaced = findMisplacedNumber(
-        title: _title.text,
-        notes: _notes.text,
-      );
-      if (misplaced != null) {
-        final move = await _offerToMove(misplaced);
-        if (move == null || !mounted) return;
-        if (move) {
-          final field = misplaced.field == NumberField.title ? _title : _notes;
+    final misplaced = _newMisplacedNumber();
+    if (misplaced != null) {
+      final referenceFilled = _reference.text.trim().isNotEmpty;
+      final choice = await _offerToMove(misplaced, referenceFilled);
+      if (choice == null || !mounted) return;
+      switch (choice) {
+        case _NumberChoice.keep:
+          break;
+        case _NumberChoice.move:
+          final field = _textOf(misplaced.field);
           field.text = misplaced.removeFrom(field.text);
           _reference.text = misplaced.value;
-          if (_current.validate(locale).isNotEmpty) {
-            _reportProblems();
-            return;
-          }
-        }
+          // Back to the field it came from, which may now read "Dentist
+          // for": it is saved once the user has looked at what is left.
+          _focus(misplaced.field);
+          Messenger.of(context).show(l10n.misplacedMoved);
+          return;
+        case _NumberChoice.edit:
+          _focus(misplaced.field);
+          return;
       }
     }
 
@@ -299,8 +317,9 @@ class _ItemEditorScreenState extends ConsumerState<ItemEditorScreen> {
       case ItemWritten(:final undo):
         setState(() => _leaving = true);
         navigator.pop();
+        final title = isolate(item.title);
         messenger.showUndo(
-          original == null ? l10n.added : l10n.saved,
+          original == null ? l10n.added(title) : l10n.saved(title),
           () async {
             if (await controller.undo(undo) is! ItemWritten) {
               messenger.show(l10n.undoRefused);
@@ -345,27 +364,73 @@ class _ItemEditorScreenState extends ConsumerState<ItemEditorScreen> {
     }
   }
 
-  /// Null when the dialog was dismissed: nothing is saved yet.
-  Future<bool?> _offerToMove(MisplacedNumber misplaced) {
+  /// An ID or account number in the title or notes that the user has not
+  /// already chosen to leave there: one the saved item had in the same
+  /// field is not asked about again on every save.
+  MisplacedNumber? _newMisplacedNumber() {
+    final misplaced = findMisplacedNumber(
+      title: _title.text,
+      notes: _notes.text,
+    );
+    final original = widget.item;
+    if (misplaced == null || original == null) return misplaced;
+    final before = findMisplacedNumber(
+      title: original.title,
+      notes: original.notes ?? '',
+    );
+    final kept =
+        before != null &&
+        before.field == misplaced.field &&
+        before.value == misplaced.value;
+    return kept ? null : misplaced;
+  }
+
+  TextEditingController _textOf(NumberField field) => switch (field) {
+    NumberField.title => _title,
+    NumberField.notes => _notes,
+  };
+
+  /// Puts the cursor at the end of [field], ready to tidy what is left.
+  void _focus(NumberField field) {
+    final text = _textOf(field);
+    text.selection = TextSelection.collapsed(offset: text.text.length);
+    (field == NumberField.title ? _titleFocus : _notesFocus).requestFocus();
+  }
+
+  /// Null when the dialog was dismissed: nothing is saved yet. With an empty
+  /// Reference the number can be moved there; with a filled one the user
+  /// can still go back and take it out.
+  Future<_NumberChoice?> _offerToMove(
+    MisplacedNumber misplaced,
+    bool referenceFilled,
+  ) {
     final l10n = AppLocalizations.of(context);
-    return showDialog<bool>(
+    final inTitle = misplaced.field == NumberField.title;
+    return showDialog<_NumberChoice>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.misplacedTitle),
-        content: Text(
-          misplaced.field == NumberField.title
-              ? l10n.misplacedInTitle
-              : l10n.misplacedInNotes,
-        ),
+        content: Text(switch ((inTitle, referenceFilled)) {
+          (true, false) => l10n.misplacedInTitle,
+          (false, false) => l10n.misplacedInNotes,
+          (true, true) => l10n.misplacedInTitleFilled,
+          (false, true) => l10n.misplacedInNotesFilled,
+        }),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context, false),
+            onPressed: () => Navigator.pop(context, _NumberChoice.keep),
             child: Text(l10n.misplacedKeep),
           ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(l10n.misplacedMove),
-          ),
+          if (referenceFilled)
+            FilledButton(
+              onPressed: () => Navigator.pop(context, _NumberChoice.edit),
+              child: Text(l10n.misplacedEdit),
+            )
+          else
+            FilledButton(
+              onPressed: () => Navigator.pop(context, _NumberChoice.move),
+              child: Text(l10n.misplacedMove),
+            ),
         ],
       ),
     );
@@ -529,16 +594,34 @@ class _AmountSection extends StatelessWidget {
                 decoration: InputDecoration(
                   labelText: l10n.fieldAmount,
                   labelStyle: latin.labelStyle,
-                  // Only needed while the field is empty.
-                  hintText: l10n.amountHint,
-                  hintStyle: latin.labelStyle,
-                  hintMaxLines: 2,
                   errorText: errorText,
-                  errorMaxLines: 2,
+                  errorMaxLines: 3,
                 ),
               ),
             ),
           ],
+        ),
+        // Under both fields rather than inside the amount: a hint that
+        // wraps at large text made the amount taller than the currency
+        // beside it, so their lines did not meet.
+        Padding(
+          padding: const EdgeInsetsDirectional.only(top: 4),
+          // A node of its own the size of the words, so it is not merged
+          // into the whole section.
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Semantics(
+              container: true,
+              child: Text(
+                l10n.amountHint,
+                // Medium weight, so 12 dp grey text keeps its contrast.
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
         ),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
@@ -741,12 +824,14 @@ class _WhenSection extends StatelessWidget {
 class _DetailsSection extends ConsumerWidget {
   const _DetailsSection({
     required this.notes,
+    required this.notesFocus,
     required this.reference,
     required this.notesError,
     required this.referenceError,
   });
 
   final TextEditingController notes;
+  final FocusNode notesFocus;
   final TextEditingController reference;
   final String? notesError;
   final String? referenceError;
@@ -759,6 +844,7 @@ class _DetailsSection extends ConsumerWidget {
         const SizedBox(height: 16),
         AutoDirectionField(
           controller: notes,
+          focusNode: notesFocus,
           keyboardType: TextInputType.multiline,
           textInputAction: TextInputAction.newline,
           minLines: 2,

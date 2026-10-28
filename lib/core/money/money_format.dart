@@ -1,10 +1,13 @@
 import 'package:intl/intl.dart';
 
+import '../text/bidi.dart';
 import '../text/digits.dart';
 import 'money.dart';
 
 /// Formats [money] for [locale]: `Rs 4,250`, `£12.50`, `$80`. A zero minor
-/// part is left out, the way bills print whole amounts.
+/// part is left out, the way bills print whole amounts. The space after a
+/// symbol is a no-break space, so "Rs" never ends a line with the digits on
+/// the next.
 String formatMoney(Money money, String locale) {
   final info = money.info;
   final numbers = NumberFormat.decimalPattern(locale);
@@ -12,7 +15,7 @@ String formatMoney(Money money, String locale) {
   final fraction = money.minorUnits % info.minorPerMajor;
 
   final buffer = StringBuffer(info.symbol);
-  if (info.spaceAfterSymbol) buffer.write(' ');
+  if (info.spaceAfterSymbol) buffer.write(noBreakSpace);
   buffer.write(stripBidiControls(numbers.format(whole)));
   if (fraction != 0) {
     buffer

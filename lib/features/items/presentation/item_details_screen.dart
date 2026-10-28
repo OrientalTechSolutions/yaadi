@@ -5,6 +5,7 @@ import 'package:intl/intl.dart' show DateFormat;
 import '../../../core/money/money_format.dart';
 import '../../../core/text/bidi.dart';
 import '../../../core/time/clock.dart';
+import '../../../core/time/local_date.dart';
 import '../../../core/time/time_format.dart';
 import '../../../core/widgets/content_list_view.dart';
 import '../../../core/widgets/heading.dart';
@@ -75,12 +76,14 @@ class _Details extends ConsumerWidget {
     );
     final due = item.dueOn;
     final scheduled = item.scheduledOn;
+    final today = ref.watch(todayProvider);
     // A snooze that ran out stays stored until the item is completed or
     // moved; by then it says nothing, and Today already shows it overdue.
     final snoozed = switch (item.snoozedUntil) {
-      final until? when !until.isBefore(ref.watch(todayProvider)) => until,
+      final until? when !until.isBefore(today) => until,
       _ => null,
     };
+    final finished = finishedLabel(item, today, l10n);
     final minute = item.dueMinute;
     final notes = item.notes;
     final reference = item.reference;
@@ -126,8 +129,7 @@ class _Details extends ConsumerWidget {
             runSpacing: 8,
             children: [
               StatusBadge(label: l10n.categoryLabel(item.category)),
-              if (!item.isOpen)
-                StatusBadge(label: l10n.statusLabel(item.status)),
+              if (finished != null) StatusBadge(label: finished),
             ],
           ),
           if (!supported)
@@ -220,7 +222,10 @@ class _Details extends ConsumerWidget {
                         action: (actions) => paid
                             ? actions.markPaid(item.id, item.scheduledOn)
                             : actions.markDone(item.id, item.scheduledOn),
-                        message: paid ? l10n.markedPaid : l10n.markedDone,
+                        message: paid
+                            ? l10n.markedPaid(isolate(item.title))
+                            : l10n.markedDone(isolate(item.title)),
+                        sayNextDue: true,
                       ),
                 icon: const Icon(Icons.check),
                 label: Text(label),
@@ -277,11 +282,14 @@ class _Details extends ConsumerWidget {
     Navigator.of(context).pop();
     switch (await controller.delete(item)) {
       case ItemWritten(:final undo):
-        messenger.showUndo(messenger.l10n.deleted, () async {
-          if (await controller.undo(undo) is! ItemWritten) {
-            messenger.show(messenger.l10n.undoRefused);
-          }
-        });
+        messenger.showUndo(
+          messenger.l10n.deleted(isolate(item.title)),
+          () async {
+            if (await controller.undo(undo) is! ItemWritten) {
+              messenger.show(messenger.l10n.undoRefused);
+            }
+          },
+        );
       case ItemStale():
         messenger.show(messenger.l10n.changedSince);
       case ItemNotWritten():
@@ -394,19 +402,47 @@ class _History extends ConsumerWidget {
     );
   }
 
+  /// What the line is for and when it was recorded, which can be days
+  /// apart: "For Oct 27: paid Oct 28", "For 9:00 PM on Oct 28: marked
+  /// 4:50 PM". A dose time alone would read as the moment it was marked.
   static TextSpan _describe(
     Completion completion,
     AppLocalizations l10n,
     TextStyle? style,
   ) {
     final locale = l10n.localeName;
+    String day(DateTime date) =>
+        isolate(unbreakable(DateFormat.yMMMd(locale).format(date)));
+    String time(int minute) =>
+        isolate(unbreakable(formatMinute(minute, locale)));
+
+    final occurrence = completion.occurrenceOn.toDateTime();
+    final recordedAt = completion.recordedAt.toLocal();
+    final recordedOn = LocalDate.fromDateTime(recordedAt);
+    final recordedTime = time(recordedAt.hour * 60 + recordedAt.minute);
     final minute = completion.occurrenceMinute;
     final amount = completion.amount;
-    final words = [
-      l10n.outcomeLabel(completion.outcome),
-      DateFormat.yMMMd(locale).format(completion.occurrenceOn.toDateTime()),
-      if (minute != null) isolate(formatMinute(minute, locale)),
-    ].join(' · ');
+    final words = switch (completion.outcome) {
+      _ when minute != null => l10n.historyDose(
+        time(minute),
+        day(occurrence),
+        recordedOn == completion.occurrenceOn
+            ? recordedTime
+            : '${day(recordedOn.toDateTime())} · $recordedTime',
+      ),
+      CompletionOutcome.paid => l10n.historyPaid(
+        day(occurrence),
+        day(recordedOn.toDateTime()),
+      ),
+      CompletionOutcome.done => l10n.historyDone(
+        day(occurrence),
+        day(recordedOn.toDateTime()),
+      ),
+      CompletionOutcome.skipped => l10n.historySkipped(
+        day(occurrence),
+        day(recordedOn.toDateTime()),
+      ),
+    };
     return TextSpan(
       children: [
         TextSpan(text: words),

@@ -6,6 +6,9 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <!-- For the loading screen on phones. Flutter puts its own in place when
+       it starts; flt-viewport tells it this one is expected. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1" flt-viewport>
   <meta name="description" content="Yaadi turns household papers into reminders, in English and Urdu. A web demo with made-up families.">
 
   <meta name="mobile-web-app-capable" content="yes">
@@ -17,8 +20,56 @@
 
   <title>Yaadi</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- The app's code starts downloading with the page rather than after
+       the loader script has run. -->
+  <link rel="preload" href="main.dart.js" as="script">
+
+  <!-- Shown until Flutter draws its first frame: the first visit downloads
+       about 3.5 MB, which takes a while on a phone. System fonts only, so
+       it needs no request of its own. -->
+  <style>
+    html, body { margin: 0; height: 100%; }
+    body { background: #ffffff; }
+    #splash {
+      position: fixed; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 16px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: #3f4948; text-align: center; padding: 16px;
+    }
+    #splash .name { font-size: 32px; font-weight: 600; color: #0f766e; }
+    #splash .spinner {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 4px solid #cce8e4; border-top-color: #0f766e;
+      animation: spin 1s linear infinite;
+    }
+    #splash p { margin: 0; font-size: 15px; line-height: 1.6; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (prefers-reduced-motion: reduce) {
+      #splash .spinner { animation-duration: 3s; }
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #0e1514; }
+      #splash { color: #bec9c7; }
+      #splash .name { color: #82d5c8; }
+      #splash .spinner { border-color: #1f3532; border-top-color: #82d5c8; }
+    }
+  </style>
 </head>
 <body>
+  <div id="splash" role="status" aria-live="polite">
+    <div class="name">Yaadi</div>
+    <div class="spinner" aria-hidden="true"></div>
+    <p>Loading the demo…<br><span lang="ur" dir="rtl">ڈیمو لوڈ ہو رہا ہے</span></p>
+    <noscript><p>This demo needs JavaScript.</p></noscript>
+  </div>
+  <script>
+    window.addEventListener('flutter-first-frame', function () {
+      var splash = document.getElementById('splash');
+      if (splash) splash.remove();
+    });
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

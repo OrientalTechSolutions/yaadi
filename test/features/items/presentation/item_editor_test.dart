@@ -101,7 +101,7 @@ void main() {
     await save(tester);
 
     expect(find.byType(ItemEditorScreen), findsNothing);
-    expect(find.text('Added'), findsOneWidget);
+    expect(findPlain('Added LESCO bill'), findsOneWidget);
     final saved = (await vault.items.find('new-1'))!;
     expect(saved.title, 'LESCO bill');
     expect(saved.kind, ItemKind.bill);
@@ -138,11 +138,54 @@ void main() {
     await tester.tap(find.text('Move to Reference'));
     await tester.pumpAndSettle();
 
+    // Nothing is saved yet: the title is back in focus to be tidied.
+    expect(await vault.items.find('new-1'), isNull);
+    expect(
+      find.text('Moved to Reference. Check what is left, then save.'),
+      findsOneWidget,
+    );
+    final title = tester.widget<EditableText>(
+      find.descendant(of: field('Title'), matching: find.byType(EditableText)),
+    );
+    expect(title.focusNode.hasFocus, isTrue);
+    expect(title.controller.text, 'Abbu CNIC');
+    await save(tester);
+
     final saved = (await vault.items.find('new-1'))!;
     expect(saved.kind, ItemKind.expiry);
     expect(saved.category, ItemCategory.idDocument);
     expect(saved.title, 'Abbu CNIC');
     expect(saved.reference, '35202-1234567-1');
+  });
+
+  testWidgets('a number left in the title is pointed out with Reference full', (
+    tester,
+  ) async {
+    final vault = FakeStorageBackend();
+    await pumpApp(tester, vault);
+    await openEditor(tester);
+
+    await tester.tap(kindChip('Task'));
+    await tester.pumpAndSettle();
+    await tester.enterText(field('Title'), 'Test bill 4210123456789');
+    final reference = field('Reference number');
+    await tester.ensureVisible(reference);
+    await tester.enterText(reference, '0000001234');
+    await save(tester);
+
+    expect(
+      find.textContaining('Reference already holds a number'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Edit it'));
+    await tester.pumpAndSettle();
+    expect(await vault.items.find('new-1'), isNull);
+
+    // Left there on purpose, it is saved as typed.
+    await save(tester);
+    await tester.tap(find.text('Leave it there'));
+    await tester.pumpAndSettle();
+    expect((await vault.items.find('new-1'))?.title, 'Test bill 4210123456789');
   });
 
   testWidgets('the Reference field stays hidden while typing', (tester) async {
@@ -232,7 +275,7 @@ void main() {
     expect(inEditor(find.text('Repeat from the new date')), findsOneWidget);
     await save(tester);
 
-    expect(find.text('Saved'), findsOneWidget);
+    expect(findPlain('Saved LESCO bill'), findsOneWidget);
     final saved = (await vault.items.find('lesco'))!;
     expect(saved.dueOn, LocalDate(2026, 11, 13));
     expect(saved.scheduledOn, LocalDate(2026, 11, 10));

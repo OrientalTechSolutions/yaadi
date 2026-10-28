@@ -117,9 +117,9 @@
   "@settingsLanguage": {
     "description": "Settings section for the app language."
   },
-  "languageDevice": "Same as phone",
+  "languageDevice": "Same as device",
   "@languageDevice": {
-    "description": "Language option that follows the phone's language."
+    "description": "Language option that follows the phone's or browser's language."
   },
   "languageEnglish": "English",
   "@languageEnglish": {
@@ -133,9 +133,9 @@
   "@settingsTheme": {
     "description": "Settings section for light or dark colours."
   },
-  "themeSystem": "Same as phone",
+  "themeSystem": "Same as device",
   "@themeSystem": {
-    "description": "Theme option that follows the phone's light or dark setting."
+    "description": "Theme option that follows the phone's or computer's light or dark setting."
   },
   "themeLight": "Light",
   "@themeLight": {
@@ -149,13 +149,13 @@
   "@settingsLargeText": {
     "description": "Switch that makes all text larger."
   },
-  "settingsLargeTextHint": "Makes text 30% larger than the phone setting",
+  "settingsLargeTextHint": "Makes text 30% larger than the device setting",
   "@settingsLargeTextHint": {
     "description": "Explains the Large text switch."
   },
-  "settingsLicenses": "Open-source licences",
+  "settingsLicenses": "Open-source licenses",
   "@settingsLicenses": {
-    "description": "Opens the list of open-source licences for fonts and packages."
+    "description": "Opens the list of open-source licences for fonts and packages. Spelled as the licence page's own title in this locale."
   },
   "vaultOpening": "Opening your items",
   "@vaultOpening": {
@@ -233,9 +233,9 @@
   "@webDemoNotice": {
     "description": "Full privacy notice of the web demo, on its first screen, in Settings and behind Details. Must match the privacy text in ARCHITECTURE.md section 8."
   },
-  "webDemoNoticeShort": "Demo with made-up families. Not encrypted: do not enter real ID numbers.",
+  "webDemoNoticeShort": "Made-up families. Not encrypted: do not enter real ID numbers.",
   "@webDemoNoticeShort": {
-    "description": "One-line strip above every screen of the web demo. Details opens the full notice."
+    "description": "Strip of at most two lines above every screen of the web demo, on a phone too. Details opens the full notice."
   },
   "demoNoticeDetails": "Details",
   "@demoNoticeDetails": {
@@ -297,11 +297,25 @@
       }
     }
   },
-  "summaryDoses": "{count, plural, =1{Medicine: 1 time today} other{Medicine: {count} times today}}",
-  "@summaryDoses": {
-    "description": "Morning summary line counting today's medicine times the user entered. Neutral wording: never advice.",
+  "summaryDosesLeft": "{total, plural, =1{Medicine: today's time not marked yet} other{Medicine: {left} of {total} times not marked yet}}",
+  "@summaryDosesLeft": {
+    "description": "Morning summary line counting today's medicine times the user has not marked yet, out of all of today's times. Neutral wording: never advice, never missed.",
     "placeholders": {
-      "count": {
+      "left": {
+        "type": "int",
+        "description": "How many of today's medicine times are not marked yet, at least 1."
+      },
+      "total": {
+        "type": "int",
+        "description": "How many medicine times there are today."
+      }
+    }
+  },
+  "summaryDosesMarked": "{total, plural, =1{Medicine: today's time marked} other{Medicine: all {total} times marked}}",
+  "@summaryDosesMarked": {
+    "description": "Morning summary line once every medicine time of today is marked. Neutral wording: never advice.",
+    "placeholders": {
+      "total": {
         "type": "int",
         "description": "How many medicine times there are today."
       }
@@ -365,7 +379,7 @@
   "@todayAllDoneTitle": {
     "description": "Heading on the Today screen when there are items but none is open."
   },
-  "todayAllDoneBody": "Nothing is open right now. Paid and done items are under Items.",
+  "todayAllDoneBody": "Nothing is open right now. Finished items and every payment are under Items.",
   "@todayAllDoneBody": {
     "description": "Explanation on the Today screen when everything is paid or done."
   },
@@ -430,19 +444,17 @@
       }
     }
   },
-  "snoozedTo": "Snoozed to {date} · due {due}",
+  "snoozedTo": "Snoozed until {date} · due {due}",
   "@snoozedTo": {
-    "description": "A snoozed item's card. The real due date is always shown next to the snooze date.",
+    "description": "A snoozed item's card. The real due date is always shown next to the snooze date. Same wording as the Snoozed until confirmation.",
     "placeholders": {
       "date": {
-        "type": "DateTime",
-        "format": "MMMEd",
-        "description": "The day the item shows again."
+        "type": "String",
+        "description": "The day the item shows again, with the weekday, already formatted so it never breaks across lines."
       },
       "due": {
-        "type": "DateTime",
-        "format": "MMMd",
-        "description": "The item's real due date."
+        "type": "String",
+        "description": "The item's real due date, already formatted so it never breaks across lines."
       }
     }
   },
@@ -644,17 +656,53 @@
   "@snoozeWeek": {
     "description": "A choice in the Snooze menu: seven days."
   },
-  "markedPaid": "Marked as paid",
+  "markedPaid": "Marked {title} as paid",
   "@markedPaid": {
-    "description": "Confirmation after Paid, shown with an Undo button."
+    "description": "Confirmation after Paid, shown with an Undo button.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The item's title, as the user typed it."
+      }
+    }
   },
-  "markedDone": "Marked as done",
+  "markedDone": "Marked {title} as done",
   "@markedDone": {
-    "description": "Confirmation after Done, shown with an Undo button."
+    "description": "Confirmation after Done, shown with an Undo button.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The item's title, as the user typed it."
+      }
+    }
+  },
+  "withNextDue": "{message}. Next due {date}.",
+  "@withNextDue": {
+    "description": "A confirmation such as Marked LESCO bill as paid, followed by the date a repeating item is due next.",
+    "placeholders": {
+      "message": {
+        "type": "String",
+        "description": "The confirmation, without a full stop."
+      },
+      "date": {
+        "type": "String",
+        "description": "The next due date, with the weekday, already formatted so it never breaks across lines."
+      }
+    }
   },
   "doseMarked": "{time} marked",
   "@doseMarked": {
     "description": "Confirmation after the user marks one of today's medicine times. Neutral wording: never advice.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "description": "The medicine time, such as 8:00 AM."
+      }
+    }
+  },
+  "doseUnmarked": "{time} unmarked",
+  "@doseUnmarked": {
+    "description": "Confirmation after the user takes the mark off one of today's medicine times, for a time tapped by mistake. Neutral wording: never advice.",
     "placeholders": {
       "time": {
         "type": "String",
@@ -722,77 +770,107 @@
   "@reopened": {
     "description": "Confirmation after taking back a payment or a Done, shown with an Undo button."
   },
-  "catchUpChange": "Change",
-  "@catchUpChange": {
-    "description": "Button after paying an old bill that opens the other ways to handle the missed months."
-  },
-  "catchUpMarkedPaid": "{count, plural, =1{1 earlier bill recorded as paid.} other{{count} earlier bills recorded as paid.}}",
-  "@catchUpMarkedPaid": {
-    "description": "After paying an old utility bill: the missed months in between were recorded as paid, without amounts.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "description": "How many missed months were recorded."
-      }
-    }
-  },
-  "catchUpSkipped": "{count, plural, =1{1 earlier one skipped.} other{{count} earlier ones skipped.}}",
-  "@catchUpSkipped": {
-    "description": "After paying an old instalment: the missed ones in between were skipped.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "description": "How many were skipped."
-      }
-    }
-  },
-  "catchUpStillOwed": "{count, plural, =1{1 more is still to pay.} other{{count} more are still to pay.}}",
-  "@catchUpStillOwed": {
-    "description": "After paying an old instalment such as rent: the missed ones are still owed.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "description": "How many are still owed."
-      }
-    }
-  },
-  "catchUpKeepUnpaid": "{count, plural, =1{Keep the earlier one unpaid} other{Keep {count} earlier ones unpaid}}",
-  "@catchUpKeepUnpaid": {
-    "description": "Choice: leave the missed months as still owed.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "description": "How many missed months there are."
-      }
-    }
-  },
-  "catchUpMarkEarlierPaid": "{count, plural, =1{Mark the earlier one as paid} other{Mark {count} earlier ones as paid}}",
-  "@catchUpMarkEarlierPaid": {
-    "description": "Choice: record the missed instalments as paid.",
-    "placeholders": {
-      "count": {
-        "type": "int",
-        "description": "How many missed instalments there are."
-      }
-    }
-  },
-  "catchUpSkipToCurrent": "Skip to the current one",
-  "@catchUpSkipToCurrent": {
-    "description": "Choice: record the missed instalments as skipped and move to the current one."
-  },
-  "catchUpQuestion": "{count, plural, =1{What about the 1 missed in between?} other{What about the {count} missed in between?}}",
+  "catchUpQuestion": "{count, plural, =1{What about the missed bill of {first}?} other{What about the {count} missed bills, {first} to {last}?}}",
   "@catchUpQuestion": {
-    "description": "Heading of the sheet with the ways to handle missed months.",
+    "description": "Asked right after paying a bill months late: the bills due between the one just paid and today. Always the same word, missed.",
     "placeholders": {
       "count": {
         "type": "int",
-        "description": "How many were missed."
+        "description": "How many bills were missed."
+      },
+      "first": {
+        "type": "String",
+        "description": "The first missed due date, already formatted so it never breaks across lines."
+      },
+      "last": {
+        "type": "String",
+        "description": "The last missed due date, already formatted so it never breaks across lines."
       }
     }
   },
-  "catchUpUpdated": "Updated",
-  "@catchUpUpdated": {
-    "description": "Confirmation after choosing another way to handle missed months."
+  "catchUpOptionPaid": "{count, plural, =1{It was paid too} other{They were paid too}}",
+  "@catchUpOptionPaid": {
+    "description": "Choice: record the missed bills as paid. Utility bills carry arrears into the next bill, so this is the usual choice for them.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many bills were missed."
+      }
+    }
+  },
+  "catchUpOptionUnpaid": "{count, plural, =1{It is still to pay} other{They are still to pay}}",
+  "@catchUpOptionUnpaid": {
+    "description": "Choice: leave the missed bills owed, so the next one to pay is the first missed one.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many bills were missed."
+      }
+    }
+  },
+  "catchUpOptionSkip": "{count, plural, =1{Skip it} other{Skip them}}",
+  "@catchUpOptionSkip": {
+    "description": "Choice: record the missed instalments as skipped and move on to the current one.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many bills were missed."
+      }
+    }
+  },
+  "catchUpMarkedPaid": "{count, plural, =1{Also marked the missed bill of {first} as paid.} other{Also marked {count} missed bills, {first} to {last}, as paid.}}",
+  "@catchUpMarkedPaid": {
+    "description": "Second line after paying a bill months late: the missed bills were recorded as paid, without amounts.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many bills were missed."
+      },
+      "first": {
+        "type": "String",
+        "description": "The first missed due date, already formatted so it never breaks across lines."
+      },
+      "last": {
+        "type": "String",
+        "description": "The last missed due date, already formatted so it never breaks across lines."
+      }
+    }
+  },
+  "catchUpSkipped": "{count, plural, =1{Skipped the missed bill of {first}.} other{Skipped {count} missed bills, {first} to {last}.}}",
+  "@catchUpSkipped": {
+    "description": "Second line after paying an instalment months late: the missed ones were skipped.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many bills were missed."
+      },
+      "first": {
+        "type": "String",
+        "description": "The first missed due date, already formatted so it never breaks across lines."
+      },
+      "last": {
+        "type": "String",
+        "description": "The last missed due date, already formatted so it never breaks across lines."
+      }
+    }
+  },
+  "catchUpStillOwed": "{count, plural, =1{The missed bill of {first} is still to pay.} other{{count} missed bills, {first} to {last}, are still to pay.}}",
+  "@catchUpStillOwed": {
+    "description": "Second line after paying an instalment such as rent months late: the missed ones are still owed.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "description": "How many bills were missed."
+      },
+      "first": {
+        "type": "String",
+        "description": "The first missed due date, already formatted so it never breaks across lines."
+      },
+      "last": {
+        "type": "String",
+        "description": "The last missed due date, already formatted so it never breaks across lines."
+      }
+    }
   },
   "itemsEmpty": "No items yet",
   "@itemsEmpty": {
@@ -802,13 +880,21 @@
   "@itemsNoMatch": {
     "description": "Items screen when the chosen filters hide everything."
   },
+  "itemsNoneFinished": "Nothing finished yet",
+  "@itemsNoneFinished": {
+    "description": "Items screen with the Finished filter when no item is finished."
+  },
+  "itemsFinishedExplain": "One-off items you mark as paid or done, and medicine courses that have ended, show here. A repeating bill moves to its next date when paid, so it stays under Open, and its payments are in its History.",
+  "@itemsFinishedExplain": {
+    "description": "Explains what the Finished filter lists, under its empty message."
+  },
   "filterOpen": "Open",
   "@filterOpen": {
     "description": "Items filter: items still to pay or do."
   },
-  "filterClosed": "Paid and done",
+  "filterClosed": "Finished",
   "@filterClosed": {
-    "description": "Items filter: finished items."
+    "description": "Items filter: one-off items paid or done, and medicine courses that have ended."
   },
   "filterAll": "All",
   "@filterAll": {
@@ -833,6 +919,74 @@
   "outcomeSkipped": "Skipped",
   "@outcomeSkipped": {
     "description": "History entry for an instalment the user chose to skip."
+  },
+  "courseEnded": "Course ended",
+  "@courseEnded": {
+    "description": "Label on a medicine course whose last day has passed."
+  },
+  "historyPaid": "For {occurrence}: paid {recorded}",
+  "@historyPaid": {
+    "description": "One line of an item's history: the bill that was due on one date, marked as paid on another.",
+    "placeholders": {
+      "occurrence": {
+        "type": "String",
+        "description": "The date the bill was due."
+      },
+      "recorded": {
+        "type": "String",
+        "description": "The date it was marked as paid."
+      }
+    }
+  },
+  "historyDone": "For {occurrence}: done {recorded}",
+  "@historyDone": {
+    "description": "One line of an item's history: the occurrence due on one date, marked as done on another.",
+    "placeholders": {
+      "occurrence": {
+        "type": "String",
+        "description": "The date it was due."
+      },
+      "recorded": {
+        "type": "String",
+        "description": "The date it was marked as done."
+      }
+    }
+  },
+  "historySkipped": "For {occurrence}: skipped {recorded}",
+  "@historySkipped": {
+    "description": "One line of an item's history: an instalment the user chose to skip.",
+    "placeholders": {
+      "occurrence": {
+        "type": "String",
+        "description": "The date it was due."
+      },
+      "recorded": {
+        "type": "String",
+        "description": "The date it was skipped."
+      }
+    }
+  },
+  "historyDose": "For {time} on {date}: marked {recorded}",
+  "@historyDose": {
+    "description": "One line of a medicine's history: one of the day's times, and when the user marked it. Neutral wording: never advice.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "description": "The medicine time, such as 9:00 PM."
+      },
+      "date": {
+        "type": "String",
+        "description": "The day of that medicine time."
+      },
+      "recorded": {
+        "type": "String",
+        "description": "When it was marked: a time on the same day, otherwise a date and time."
+      }
+    }
+  },
+  "listSeparator": ", ",
+  "@listSeparator": {
+    "description": "Separates the items of a short list, such as a medicine's times. Urdu uses its own comma."
   },
   "repeatNone": "Does not repeat",
   "@repeatNone": {
@@ -1031,9 +1185,15 @@
   "@fieldDateOptional": {
     "description": "A task's date, which may be left empty."
   },
-  "deleted": "Deleted",
+  "deleted": "Deleted {title}",
   "@deleted": {
-    "description": "Confirmation after deleting an item, shown with an Undo button."
+    "description": "Confirmation after deleting an item, shown with an Undo button.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The item's title, as the user typed it."
+      }
+    }
   },
   "changedSince": "This item changed since you opened it. Nothing was deleted.",
   "@changedSince": {
@@ -1185,13 +1345,25 @@
   "@save": {
     "description": "Button that saves the item being edited."
   },
-  "added": "Added",
+  "added": "Added {title}",
   "@added": {
-    "description": "Confirmation after adding an item, shown with an Undo button."
+    "description": "Confirmation after adding an item, shown with an Undo button.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The item's title, as the user typed it."
+      }
+    }
   },
-  "saved": "Saved",
+  "saved": "Saved {title}",
   "@saved": {
-    "description": "Confirmation after changing an item, shown with an Undo button."
+    "description": "Confirmation after changing an item, shown with an Undo button.",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "description": "The item's title, as the user typed it."
+      }
+    }
   },
   "saveConflict": "This item changed while you were editing. Your changes were not saved.",
   "@saveConflict": {
@@ -1209,13 +1381,29 @@
   "@misplacedInNotes": {
     "description": "Explains why moving a number out of the notes helps."
   },
+  "misplacedInTitleFilled": "The title seems to contain an ID or account number, and the title is shown everywhere. Reference already holds a number.",
+  "@misplacedInTitleFilled": {
+    "description": "Explains why a number in the title may be a problem when the Reference field is already filled."
+  },
+  "misplacedInNotesFilled": "The notes seem to contain an ID or account number, and search shows the notes. Reference already holds a number.",
+  "@misplacedInNotesFilled": {
+    "description": "Explains why a number in the notes may be a problem when the Reference field is already filled."
+  },
   "misplacedKeep": "Leave it there",
   "@misplacedKeep": {
     "description": "Saves without moving the number."
   },
   "misplacedMove": "Move to Reference",
   "@misplacedMove": {
-    "description": "Moves the number into the hidden Reference field and saves."
+    "description": "Moves the number into the hidden Reference field and goes back to the field it came from, so what is left can be tidied before saving."
+  },
+  "misplacedEdit": "Edit it",
+  "@misplacedEdit": {
+    "description": "Goes back to the field with the number instead of saving."
+  },
+  "misplacedMoved": "Moved to Reference. Check what is left, then save.",
+  "@misplacedMoved": {
+    "description": "Shown after the number was moved into Reference, while the editor stays open."
   },
   "discardTitle": "Discard your changes?",
   "@discardTitle": {
@@ -1376,6 +1564,14 @@
   "@pickerBody": {
     "description": "Explanation on the web demo's first screen."
   },
+  "pickerScope": "This is Milestone 1: you type items in. Reading a paper from the camera or a PDF comes in Milestone 3.",
+  "@pickerScope": {
+    "description": "On the web demo's first screen: what this version does and what comes later."
+  },
+  "pickerSource": "Source code on GitHub",
+  "@pickerSource": {
+    "description": "Opens the app's source code repository on GitHub."
+  },
   "demoExplain": "Demo households are made up. While one is shown, your own items stay as they are, and nothing you change in the demo is kept.",
   "@demoExplain": {
     "description": "Explains demo households on a phone."
@@ -1394,7 +1590,61 @@
   },
   "clearDemo": "Clear demo data",
   "@clearDemo": {
-    "description": "Button that removes the demo household in one tap."
+    "description": "Button that removes the demo household, after confirmation."
+  },
+  "demoSwitchTitle": "Switch to {household}?",
+  "@demoSwitchTitle": {
+    "description": "Asked before showing another demo household.",
+    "placeholders": {
+      "household": {
+        "type": "String",
+        "description": "The household's name, such as Taylor family, Manchester."
+      }
+    }
+  },
+  "demoClearTitle": "Clear the demo?",
+  "@demoClearTitle": {
+    "description": "Asked before removing the demo household."
+  },
+  "demoLeaveTitle": "Leave the demo?",
+  "@demoLeaveTitle": {
+    "description": "Asked on a phone before going back from a demo household to the user's own items."
+  },
+  "demoLoseChanges": "Anything you added or changed in this demo will be lost.",
+  "@demoLoseChanges": {
+    "description": "Body of the question before leaving or switching a demo household."
+  },
+  "demoSwitch": "Switch",
+  "@demoSwitch": {
+    "description": "Confirms showing another demo household."
+  },
+  "demoClear": "Clear",
+  "@demoClear": {
+    "description": "Confirms removing the demo household."
+  },
+  "settingsCurrency": "Currency",
+  "@settingsCurrency": {
+    "description": "Settings section for the currency new bills start in."
+  },
+  "settingsCurrencyHint": "New bills start in this currency, and search knows that country's billers.",
+  "@settingsCurrencyHint": {
+    "description": "Explains the currency setting."
+  },
+  "currencyPkr": "Pakistani rupee (Rs)",
+  "@currencyPkr": {
+    "description": "Currency choice."
+  },
+  "currencyGbp": "British pound (£)",
+  "@currencyGbp": {
+    "description": "Currency choice."
+  },
+  "currencyUsd": "US dollar ($)",
+  "@currencyUsd": {
+    "description": "Currency choice."
+  },
+  "webGlyphsLeftOut": "The web demo cannot show emoji and some symbols yet, so they were left out.",
+  "@webGlyphsLeftOut": {
+    "description": "Shown in the web demo when typed or pasted characters were removed because its bundled fonts cannot draw them."
   },
   "settingsYourData": "Your data",
   "@settingsYourData": {

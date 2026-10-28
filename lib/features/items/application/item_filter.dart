@@ -1,11 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:meta/meta.dart';
 
+import '../../../core/time/clock.dart';
+import '../../../core/time/local_date.dart';
+import '../../today/domain/doses.dart';
 import '../domain/item.dart';
 import '../domain/item_kind.dart';
 import 'items_providers.dart';
 
 enum StatusFilter { open, closed, all }
+
+/// Whether [item] still needs something on [today]: open, and not a
+/// medicine course whose last day has passed. Such a course has left Today
+/// and is listed with the finished items.
+bool isActive(Item item, LocalDate today) =>
+    item.isOpen && !item.courseEndedBefore(today);
 
 /// Which items the Items screen lists.
 @immutable
@@ -17,11 +26,11 @@ final class ItemFilter {
   /// Null lists every kind.
   final ItemKind? kind;
 
-  bool matches(Item item) =>
+  bool matches(Item item, LocalDate today) =>
       (kind == null || item.kind == kind) &&
       switch (status) {
-        StatusFilter.open => item.isOpen,
-        StatusFilter.closed => !item.isOpen,
+        StatusFilter.open => isActive(item, today),
+        StatusFilter.closed => !isActive(item, today),
         StatusFilter.all => true,
       };
 
@@ -46,8 +55,15 @@ final itemFilterProvider = NotifierProvider<ItemFilterController, ItemFilter>(
 );
 
 class ItemFilterController extends Notifier<ItemFilter> {
+  /// Starts afresh with other items: after Delete all, or in another demo
+  /// household on a phone, last time's filter would only hide things. The
+  /// web demo keeps one repository, so its household switch resets this
+  /// from the home screen.
   @override
-  ItemFilter build() => const ItemFilter();
+  ItemFilter build() {
+    ref.watch(itemRepositoryProvider);
+    return const ItemFilter();
+  }
 
   void showStatus(StatusFilter status) =>
       state = state.copyWith(status: status);
@@ -56,19 +72,20 @@ class ItemFilterController extends Notifier<ItemFilter> {
   void showKind(ItemKind? kind) => state = state.copyWith(kind: kind);
 }
 
-/// The Items screen's list: open items in due order, closed ones most
-/// recently finished first.
+/// The Items screen's list: open items in due order, finished ones most
+/// recently changed first.
 final filteredItemsProvider = Provider<AsyncValue<List<Item>>>((ref) {
   final filter = ref.watch(itemFilterProvider);
+  final today = ref.watch(todayProvider);
   return ref.watch(itemsProvider).whenData((items) {
-    final open = [
+    final active = [
       for (final item in items)
-        if (item.isOpen && filter.matches(item)) item,
+        if (isActive(item, today) && filter.matches(item, today)) item,
     ];
-    final closed = [
+    final finished = [
       for (final item in items)
-        if (!item.isOpen && filter.matches(item)) item,
+        if (!isActive(item, today) && filter.matches(item, today)) item,
     ]..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    return [...open, ...closed];
+    return [...active, ...finished];
   });
 });

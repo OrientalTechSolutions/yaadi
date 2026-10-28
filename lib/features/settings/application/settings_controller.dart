@@ -46,6 +46,14 @@ class SettingsController extends AsyncNotifier<AppSettings> {
     '$enabled',
   );
 
+  /// The currency new bills start in, and whose country's billers search
+  /// knows (ARCHITECTURE.md section 12).
+  Future<void> setDefaultCurrency(String code) => _save(
+    (settings) => settings.copyWith(defaultCurrency: code),
+    SettingKeys.defaultCurrency,
+    code,
+  );
+
   /// Null goes back to the user's own items. Only the demo controller calls
   /// this, because the web demo must replace its items first.
   Future<void> setDemoHousehold(DemoHousehold? household) => _save(

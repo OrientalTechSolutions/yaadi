@@ -4,6 +4,7 @@ import '../../items/domain/completion.dart';
 import '../../items/domain/item.dart';
 import '../../items/domain/item_category.dart';
 import '../../items/domain/item_kind.dart';
+import '../../items/domain/item_status.dart';
 import '../../items/domain/recurrence.dart';
 import '../domain/demo_household.dart';
 
@@ -144,6 +145,17 @@ void _khan(_SeedBuilder seed) {
       ItemCategory.warranty,
       inDays: 70,
       notes: 'The card is in the kitchen drawer.',
+    )
+    // Already paid, so the Finished filter has something to show.
+    ..add(
+      'plumber',
+      ItemKind.bill,
+      'پلمبر کا بل',
+      ItemCategory.other,
+      inDays: -4,
+      amount: rupees(2500),
+      notes: 'Kitchen tap',
+      finishedDaysAgo: 3,
     );
 }
 
@@ -229,7 +241,17 @@ void _taylor(_SeedBuilder seed) {
       inDays: 0,
       repeat: RepeatRule.weekly,
     )
-    ..add('boiler', ItemKind.task, 'Book a boiler service', ItemCategory.other);
+    ..add('boiler', ItemKind.task, 'Book a boiler service', ItemCategory.other)
+    // Already paid, so the Finished filter has something to show.
+    ..add(
+      'window',
+      ItemKind.bill,
+      'Window cleaner',
+      ItemCategory.other,
+      inDays: -2,
+      amount: pounds(2000),
+      finishedDaysAgo: 2,
+    );
 }
 
 final class _SeedBuilder {
@@ -241,8 +263,13 @@ final class _SeedBuilder {
   final items = <Item>[];
   final completions = <Completion>[];
 
+  /// Noon on [day], as a payment or a Done would have been recorded.
+  DateTime _noonOn(LocalDate day) => DateTime(day.year, day.month, day.day, 12);
+
   /// Adds one item; [inDays] is null for an undated task. [lastPaid] records
-  /// last month's payment, so the item has some history to show.
+  /// last month's payment, two days before it was due, so the item has some
+  /// history to show. [finishedDaysAgo] makes a one-off item already paid or
+  /// done that many days ago.
   void add(
     String key,
     ItemKind kind,
@@ -258,11 +285,18 @@ final class _SeedBuilder {
     String? notes,
     String? reference,
     Money? lastPaid,
+    int? finishedDaysAgo,
   }) {
     final id = '$prefix-$key';
     final due = inDays == null ? null : today.addDays(inDays);
     final end =
         until ?? (untilInDays == null ? null : today.addDays(untilInDays));
+    final finishedAt = finishedDaysAgo == null
+        ? null
+        : _noonOn(today.addDays(-finishedDaysAgo));
+    final outcome = kind == ItemKind.bill
+        ? CompletionOutcome.paid
+        : CompletionOutcome.done;
     final recurrence = due == null
         ? Recurrence.none
         : Recurrence.anchored(
@@ -283,19 +317,38 @@ final class _SeedBuilder {
         recurrence: recurrence,
         notes: notes,
         reference: reference,
-        createdAt: now,
-        updatedAt: now,
+        status: finishedAt == null
+            ? ItemStatus.open
+            : outcome == CompletionOutcome.paid
+            ? ItemStatus.paid
+            : ItemStatus.done,
+        completedAt: finishedAt,
+        createdAt: finishedAt ?? now,
+        updatedAt: finishedAt ?? now,
       ),
     );
+    if (finishedAt != null) {
+      completions.add(
+        Completion(
+          id: '$id-${outcome.name}',
+          itemId: id,
+          occurrenceOn: due ?? today,
+          outcome: outcome,
+          amount: outcome == CompletionOutcome.paid ? amount : null,
+          recordedAt: finishedAt,
+        ),
+      );
+    }
     if (lastPaid != null && due != null) {
+      final previous = due.addMonths(-1);
       completions.add(
         Completion(
           id: '$id-paid',
           itemId: id,
-          occurrenceOn: due.addMonths(-1),
+          occurrenceOn: previous,
           outcome: CompletionOutcome.paid,
           amount: lastPaid,
-          recordedAt: now,
+          recordedAt: _noonOn(previous.addDays(-2)),
         ),
       );
     }

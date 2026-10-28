@@ -1,7 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:yaadi/core/time/clock.dart';
+import 'package:yaadi/core/time/local_date.dart';
 import 'package:yaadi/features/items/application/item_filter.dart';
 import 'package:yaadi/features/items/application/items_providers.dart';
+import 'package:yaadi/features/items/data/item_repository.dart';
 import 'package:yaadi/features/items/data/memory_item_repository.dart';
 import 'package:yaadi/features/items/domain/item_kind.dart';
 import 'package:yaadi/features/items/domain/item_status.dart';
@@ -35,14 +39,46 @@ void main() {
       status: StatusFilter.closed,
       kind: ItemKind.bill,
     );
-    expect(open.matches(paidWater), isFalse);
-    expect(open.matches(khanHousehold.first), isTrue);
-    expect(closedBills.matches(paidWater), isTrue);
-    expect(closedBills.matches(doneTask), isFalse);
+    expect(open.matches(paidWater, fixtureToday), isFalse);
+    expect(open.matches(khanHousehold.first, fixtureToday), isTrue);
+    expect(closedBills.matches(paidWater, fixtureToday), isTrue);
+    expect(closedBills.matches(doneTask, fixtureToday), isFalse);
     expect(
-      const ItemFilter(status: StatusFilter.all).matches(doneTask),
+      const ItemFilter(status: StatusFilter.all)
+          .matches(doneTask, fixtureToday),
       isTrue,
     );
+  });
+
+  test('a medicine course past its last day counts as finished', () {
+    // The course runs from Oct 27 to Nov 3.
+    final course = medicine();
+    const open = ItemFilter();
+    const finished = ItemFilter(status: StatusFilter.closed);
+    expect(open.matches(course, fixtureToday), isTrue);
+    expect(open.matches(course, LocalDate(2026, 11, 3)), isTrue);
+    expect(open.matches(course, LocalDate(2026, 11, 4)), isFalse);
+    expect(finished.matches(course, LocalDate(2026, 11, 4)), isTrue);
+    expect(isActive(course, LocalDate(2026, 11, 4)), isFalse);
+  });
+
+  test('the filter starts afresh when other items are shown', () {
+    // A demo household on a phone, or the vault again after Delete all.
+    final repository = StateProvider<ItemRepository>(
+      (ref) => MemoryItemRepository(items: items),
+    );
+    final container = ProviderContainer.test(
+      overrides: [
+        itemRepositoryProvider.overrideWith((ref) => ref.watch(repository)),
+      ],
+    );
+    container.read(itemFilterProvider.notifier)
+      ..showStatus(StatusFilter.closed)
+      ..showKind(ItemKind.bill);
+    expect(container.read(itemFilterProvider), isNot(const ItemFilter()));
+
+    container.read(repository.notifier).state = MemoryItemRepository();
+    expect(container.read(itemFilterProvider), const ItemFilter());
   });
 
   test(
@@ -53,6 +89,7 @@ void main() {
           itemRepositoryProvider.overrideWithValue(
             MemoryItemRepository(items: items),
           ),
+          clockProvider.overrideWithValue(() => DateTime(2026, 11, 2, 9)),
         ],
       );
       container.listen(filteredItemsProvider, (_, _) {});

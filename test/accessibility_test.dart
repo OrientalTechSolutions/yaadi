@@ -121,7 +121,7 @@ void main() {
       semantics.dispose();
     });
 
-    testWidgets('the two "Same as phone" choices say which group', (
+    testWidgets('the two "Same as device" choices say which group', (
       tester,
     ) async {
       final semantics = tester.ensureSemantics();
@@ -141,7 +141,7 @@ void main() {
             widget.container,
       );
       expect(
-        find.descendant(of: themeGroup, matching: find.text('Same as phone')),
+        find.descendant(of: themeGroup, matching: find.text('Same as device')),
         findsOneWidget,
       );
       semantics.dispose();

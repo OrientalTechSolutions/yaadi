@@ -155,7 +155,8 @@ class _ActionButton extends StatelessWidget {
                   context,
                   action: (actions) =>
                       actions.markPaid(item.id, item.scheduledOn),
-                  message: l10n.markedPaid,
+                  message: l10n.markedPaid(isolate(title)),
+                  sayNextDue: true,
                 )
               : null,
           icon: const Icon(Icons.check),
@@ -171,7 +172,8 @@ class _ActionButton extends StatelessWidget {
                   context,
                   action: (actions) =>
                       actions.markDone(item.id, item.scheduledOn),
-                  message: l10n.markedDone,
+                  message: l10n.markedDone(isolate(title)),
+                  sayNextDue: true,
                 )
               : null,
           icon: const Icon(Icons.check),
@@ -259,8 +261,10 @@ class _SnoozeButton extends StatelessWidget {
   }
 }
 
-/// One of today's medicine times. Marking is the only action, and the
-/// wording stays neutral: never "missed", never "take now".
+/// One of today's medicine times. A tap marks it, and a tap on a marked time
+/// takes the mark off again, so a mistaken tap can be put right after its
+/// Undo has gone. The wording stays neutral: never "missed", never "take
+/// now".
 class _DoseChip extends ConsumerWidget {
   const _DoseChip({
     required this.item,
@@ -289,13 +293,14 @@ class _DoseChip extends ConsumerWidget {
             ? l10n.doseMarkedLabel(item.title, time)
             : l10n.doseNotMarkedLabel(item.title, time),
       ),
-      onSelected: dose.marked || pending
+      onSelected: pending
           ? null
-          : (_) => runQuickAction(
+          : (mark) => runQuickAction(
               context,
-              action: (actions) =>
-                  actions.markDose(item.id, today, dose.minute),
-              message: l10n.doseMarked(time),
+              action: (actions) => mark
+                  ? actions.markDose(item.id, today, dose.minute)
+                  : actions.unmarkDose(item.id, today, dose.minute),
+              message: mark ? l10n.doseMarked(time) : l10n.doseUnmarked(time),
             ),
     );
   }

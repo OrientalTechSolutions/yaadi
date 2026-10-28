@@ -37,8 +37,15 @@ final searchQueryProvider = NotifierProvider<SearchQueryController, String>(
 );
 
 class SearchQueryController extends Notifier<String> {
+  /// Empty again whenever other items are shown: after Delete all, the last
+  /// query (perhaps "CNIC") must not come back, and one household's query
+  /// means nothing in another's. The web demo keeps one repository, so its
+  /// household switch resets this from the home screen.
   @override
-  String build() => '';
+  String build() {
+    ref.watch(itemRepositoryProvider);
+    return '';
+  }
 
   void update(String query) => state = query;
 

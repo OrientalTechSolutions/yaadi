@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../text/drawable_text.dart';
 import '../theme/app_theme.dart';
+import 'messenger.dart';
 import 'user_text.dart';
+
+/// Tells the user that characters the web demo cannot draw were left out
+/// of what they typed or pasted.
+void showLeftOut(BuildContext context) {
+  if (!context.mounted) return;
+  final messenger = Messenger.of(context);
+  messenger.show(messenger.l10n.webGlyphsLeftOut);
+}
 
 /// A text field for titles, notes and search, where the user may type Urdu,
 /// English or both whatever the UI language.
@@ -70,7 +80,10 @@ class AutoDirectionField extends StatelessWidget {
           minLines: minLines,
           maxLines: maxLines,
           maxLength: maxLength,
-          inputFormatters: inputFormatters,
+          inputFormatters: [
+            ...drawableTextFormatters(() => showLeftOut(context)),
+            ...?inputFormatters,
+          ],
           onChanged: onChanged,
           onSubmitted: onSubmitted,
         );

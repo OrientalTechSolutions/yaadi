@@ -137,6 +137,53 @@ void main() {
     ]);
   });
 
+  test('a snoozed overdue instalment still counts every one owed', () {
+    // A weekly 1,000 five weeks overdue: snoozing it for a day hides it
+    // from Overdue but owes exactly as much.
+    final weekly = item(
+      'committee',
+      kind: ItemKind.bill,
+      category: ItemCategory.other,
+      due: fixtureToday.addDays(-35),
+      recurrence: WeeklyRepeat(fixtureToday.weekday),
+      amount: Money(100000, 'PKR'),
+    );
+    final owed = summarize([weekly]).totals;
+    final snoozed = summarize([
+      weekly.copyWith(snoozedUntil: fixtureToday.addDays(1)),
+    ]).totals;
+    expect(snoozed, owed);
+    // Five missed weeks, today's and next Monday's.
+    expect(owed, [Money(700000, 'PKR')]);
+  });
+
+  test('a weekly instalment due today is due again within the week', () {
+    final weekly = item(
+      'tuition',
+      kind: ItemKind.bill,
+      category: ItemCategory.school,
+      due: fixtureToday,
+      recurrence: WeeklyRepeat(fixtureToday.weekday),
+      amount: Money(150000, 'PKR'),
+    );
+    expect(summarize([weekly]).totals, [Money(300000, 'PKR')]);
+  });
+
+  test("today's medicine times count the ones marked", () {
+    final course = medicine(minutes: const [480, 840, 1260]);
+    final view = TodayView.build(
+      [course],
+      today: fixtureToday,
+      marks: [
+        completed(course.id, id: 'm1', on: fixtureToday, minute: 480),
+        completed(course.id, id: 'm2', on: fixtureToday, minute: 1260),
+      ],
+    );
+    final summary = MorningSummary.of(view);
+    expect(summary.dosesToday, 3);
+    expect(summary.dosesMarked, 2);
+  });
+
   test('past appointments are counted for confirmation', () {
     final summary = summarize([
       item(

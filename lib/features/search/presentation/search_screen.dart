@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/time/clock.dart';
 import '../../../core/widgets/auto_direction_field.dart';
 import '../../../core/widgets/content_list_view.dart';
 import '../../../core/widgets/heading.dart';
@@ -44,6 +45,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // The query resets when other items are shown; the field follows.
+    ref.listen(searchQueryProvider, (_, query) {
+      if (_query.text != query) _query.text = query;
+    });
     final query = ref.watch(searchQueryProvider);
     final results = ref.watch(searchResultsProvider);
 
@@ -147,14 +152,15 @@ class _Results extends StatelessWidget {
   }
 }
 
-class _ResultTile extends StatelessWidget {
+class _ResultTile extends ConsumerWidget {
   const _ResultTile({super.key, required this.result});
 
   final SearchResult result;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final finished = finishedLabel(result.item, ref.watch(todayProvider), l10n);
     final theme = Theme.of(context);
     final item = result.item;
     final highlight = TextStyle(
@@ -209,9 +215,7 @@ class _ResultTile extends StatelessWidget {
             ),
         ],
       ),
-      trailing: item.isOpen
-          ? null
-          : StatusBadge(label: l10n.statusLabel(item.status)),
+      trailing: finished == null ? null : StatusBadge(label: finished),
       onTap: () => openItemDetails(context, item.id),
     );
   }

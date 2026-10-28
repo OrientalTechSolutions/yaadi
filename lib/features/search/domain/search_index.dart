@@ -1,5 +1,6 @@
 import '../../../core/time/local_date.dart';
 import '../../items/domain/item.dart';
+import '../../today/domain/doses.dart';
 import 'edit_distance.dart';
 import 'highlight.dart';
 import 'household_lexicon.dart';
@@ -124,7 +125,12 @@ final class LinearSearchIndex implements SearchIndex {
     final ranked = [
       for (final document in documents)
         if (_match(document, matchers) case final result?)
-          (result: result, distance: _distance(result.item, today)),
+          (
+            result: result,
+            distance: _distance(result.item, today),
+            // A medicine course past its last day is finished too.
+            active: result.item.isOpen && !result.item.courseEndedBefore(today),
+          ),
     ]..sort(_compare);
     return [for (final entry in ranked) entry.result];
   }
@@ -252,6 +258,13 @@ final class _TermMatcher {
     return List.generate(vocabulary.length, (id) {
       final folded = vocabulary.foldedOf(id);
       if (folded == word.folded) return MatchTier.exact;
+      // A plain English plural is the same word: "bill" finds "File the
+      // bills" as surely as "the bill", and above a name like "Billo".
+      if (!word.isArabic &&
+          word.folded.length >= 3 &&
+          folded == '${word.folded}s') {
+        return MatchTier.exact;
+      }
       if (prefix &&
           (vocabulary.baseOf(id).startsWith(word.base) ||
               (byFolded && folded.startsWith(word.folded)))) {
@@ -327,7 +340,7 @@ final class _TermMatcher {
   }
 }
 
-typedef _Ranked = ({SearchResult result, int? distance});
+typedef _Ranked = ({SearchResult result, int? distance, bool active});
 
 /// Days between [today] and the item's date in either direction, or null
 /// for an undated task.
@@ -336,15 +349,14 @@ int? _distance(Item item, LocalDate today) => switch (item.effectiveOn(today)) {
   final on => today.daysUntil(on).abs(),
 };
 
-/// Tier first, then score. Ties go to open items, then the nearest date,
-/// then the title.
+/// Tier first, then score. Ties go to items still active, then the nearest
+/// date, then the title.
 int _compare(_Ranked a, _Ranked b) {
   final byTier = a.result.tier.index.compareTo(b.result.tier.index);
   if (byTier != 0) return byTier;
   final byScore = b.result.score.compareTo(a.result.score);
   if (byScore != 0) return byScore;
-  final aOpen = a.result.item.isOpen;
-  if (aOpen != b.result.item.isOpen) return aOpen ? -1 : 1;
+  if (a.active != b.active) return a.active ? -1 : 1;
   final aDistance = a.distance;
   final bDistance = b.distance;
   if (aDistance != bDistance) {

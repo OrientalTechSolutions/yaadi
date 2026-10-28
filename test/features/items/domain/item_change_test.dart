@@ -51,6 +51,46 @@ void main() {
       expect(reversal.addCompletions, history);
     });
 
+    test('of two writes in a row puts back the first one\'s before', () {
+      // A late payment recorded the missed months as paid; the user then
+      // chose to keep them unpaid, which removed those and moved the bill.
+      final before = bill();
+      final payment = completed(before.id, id: 'paid');
+      final missed = completed(before.id, id: 'missed', on: before.dueOn);
+      final first = UndoSnapshot(
+        origin: _repository,
+        itemId: before.id,
+        before: before,
+        writtenRevision: 2,
+        added: [payment, missed],
+      );
+      final second = UndoSnapshot(
+        origin: _repository,
+        itemId: before.id,
+        before: before.copyWith(revision: 2),
+        writtenRevision: 3,
+        removed: [missed],
+      );
+
+      final both = first.then(second).reversal;
+      expect(both.expectedRevision, 3);
+      expect(both.after, before);
+      expect(both.removeCompletionIds, ['paid']);
+      expect(both.addCompletions, isEmpty);
+
+      expect(
+        () => first.then(
+          UndoSnapshot(
+            origin: 'elsewhere',
+            itemId: before.id,
+            before: before,
+            writtenRevision: 3,
+          ),
+        ),
+        throwsArgumentError,
+      );
+    });
+
     test('of a create deletes the item', () {
       const undo = UndoSnapshot(
         origin: _repository,
