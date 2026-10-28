@@ -1,10 +1,19 @@
 version: 2
 updates:
+  # A sqlite3 bump changes the SQLCipher version named in
+  # assets/licenses/sqlcipher/LICENSE.txt and the docs; a test fails until
+  # the licence header names the new version.
   - package-ecosystem: pub
     directory: /
     schedule:
       interval: weekly
+    groups:
+      pub-minor-patch:
+        update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]

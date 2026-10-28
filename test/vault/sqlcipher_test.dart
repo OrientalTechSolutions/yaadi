@@ -37,6 +37,19 @@ void main() {
     expect(_single(db, 'PRAGMA cipher_provider'), 'openssl');
   });
 
+  test('the bundled licence names the SQLCipher version that loaded', () {
+    // A sqlite3 bump brings a new SQLCipher; the licence header and the docs
+    // that name the version must move with it.
+    final db = sqlite3.openInMemory();
+    addTearDown(db.close);
+    final cipher = _single(db, 'PRAGMA cipher_version')! as String;
+    final version = cipher.split(' ').first;
+    expect(
+      File('assets/licenses/sqlcipher/LICENSE.txt').readAsStringSync(),
+      contains('Community Edition $version '),
+    );
+  });
+
   late Directory directory;
   late VaultFiles files;
 

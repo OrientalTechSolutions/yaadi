@@ -4,25 +4,34 @@ on:
   push:
     branches: [main]
   pull_request:
+  # Lets the web demo be rebuilt and published again by hand.
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+# A newer push to a pull request replaces its older run. Runs on main are
+# never cancelled, so a Pages deploy is never cut off halfway.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   app:
     name: Flutter app
-    runs-on: ubuntu-latest
+    # Pinned while ubuntu-latest moves to 26.04 (actions/runner-images#14748);
+    # lcov, glibc and tzdata are verified on this image.
+    runs-on: ubuntu-24.04
     timeout-minutes: 30
     permissions:
       contents: read
       # Lets gh attestation verify read the sqlite3 release's attestations.
       attestations: read
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
+        with:
+          # No later step pushes or fetches; gh uses GH_TOKEN.
+          persist-credentials: false
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: 3.47.8
@@ -35,7 +44,7 @@ jobs:
       # against the same hash before using it.
       - name: Cache the SQLCipher library
         id: sqlcipher-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .dart_tool/hooks_runner/shared/sqlite3/build
           key: sqlcipher-${{ runner.os }}-${{ hashFiles('pubspec.lock') }}
@@ -102,7 +111,10 @@ jobs:
           done
 
       - run: flutter build web --release --no-web-resources-cdn --base-href /yaadi/
-      - uses: actions/upload-pages-artifact@v4
+      # Only main is published, so pull requests build the demo without
+      # uploading it.
+      - uses: actions/upload-pages-artifact@v5
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         with:
           path: build/web
 
@@ -111,9 +123,13 @@ jobs:
   deploy:
     name: Web demo
     needs: app
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
+    # One deploy at a time, and a running one is never cancelled.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     permissions:
       pages: write
       id-token: write
@@ -122,4 +138,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
