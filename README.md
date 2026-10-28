@@ -4,6 +4,8 @@ Yaadi is for the person who handles a family's bills, notices and medicines. It 
 
 This is Milestone 1 (version 0.1.0): the app, an encrypted SQLCipher vault (encryption at rest is tested on the desktop test runner, and on-device checks come in M2; see Privacy), the Today screen, offline search in three ways of writing, and a web demo with two made-up households. In this milestone you type items in; reading a paper from the camera, a PDF or the share button comes in M3. Nothing is in an app store yet.
 
+**[Try the web demo](https://orientaltechsolutions.github.io/yaadi/)**: pick a made-up household and use the app in your browser. The demo is not encrypted and keeps what you type in that browser tab only, so do not enter real details.
+
 ## Screenshots
 
 | Today | Today in Urdu, dark theme | Search in Roman Urdu |
