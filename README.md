@@ -1,8 +1,10 @@
 # Yaadi: paper to reminder
 
+[![CI](https://github.com/OrientalTechSolutions/yaadi/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/OrientalTechSolutions/yaadi/actions/workflows/ci.yml)
+
 Yaadi is for the person who handles a family's bills, notices and medicines. It turns each paper into a reminder they can read in their own language, so they can act on time, every day. Pakistan first (Urdu, Roman Urdu and English), and English-speaking homes in the UK and US. It works offline.
 
-This is Milestone 1 (version 0.1.0): the app, an encrypted SQLCipher vault (encryption at rest is tested on the desktop test runner, and on-device checks come in M2; see Privacy), the Today screen, offline search in three ways of writing, and a web demo with two made-up households. In this milestone you type items in; reading a paper from the camera, a PDF or the share button comes in M3. Nothing is in an app store yet.
+This is Milestone 1 (version 0.1.0): the app, an encrypted SQLCipher vault (encryption at rest is tested on every CI run, and on-device checks come in M2; see Privacy), the Today screen, offline search in three ways of writing, and a web demo with two made-up households. In this milestone you type items in; reading a paper from the camera, a PDF or the share button comes in M3. Nothing is in an app store yet.
 
 **[Try the web demo](https://orientaltechsolutions.github.io/yaadi/)**: pick a made-up household and use the app in your browser. The demo is not encrypted and keeps what you type in that browser tab only, so do not enter real details.
 
@@ -25,16 +27,17 @@ This is Milestone 1 (version 0.1.0): the app, an encrypted SQLCipher vault (encr
 ## What Milestone 1 does
 
 - **Today, at a glance.** A morning summary worked out on the phone ("Overdue: gas bill", "To pay by Mon, Nov 9: Rs 20,530"), then past appointments to confirm, overdue items, today, the next 7 days, expiry dates coming up and later. Expiry dates show 30 days early, because renewing an ID card takes weeks.
-- **Paid, Done, Snooze and Undo.** Paying a monthly bill moves it to next month and keeps its day: a bill on the 31st falls on 28 or 29 February and is back on 31 March. A bill paid months late asks what to do with the missed ones, and utility bills never invent arrears. Every action can be undone, a double tap counts once, and a Paid tapped by mistake can be taken back from the item's page later.
-- **Medicine times you type.** Each day's times are marked one by one, in any order. Yaadi never suggests a medicine, a dose or a time, and never calls a dose "missed".
-- **Items added by hand.** Bills, appointments, expiry dates, medicine and tasks, with amounts in rupees, pounds or dollars, repeats (daily, weekly, monthly, yearly, or medicine times), end dates and notes. A reference number such as a CNIC or consumer number is hidden until you tap Show, and an ID number typed into the title is offered a move into it.
+- **Paid, Done, Snooze and Undo.** Paying a monthly bill moves it to next month and keeps its day: a bill on the 31st falls on 28 or 29 February and is back on 31 March. The confirmation names the item and says when it is due next. A bill paid months late asks straight away what happened to the missed ones, with the usual answer for that kind of bill already chosen, and utility bills never invent arrears. Every action can be undone, a double tap counts once, and a Paid tapped by mistake can be taken back from the item's page later.
+- **Medicine times you type.** Each day's times are marked one by one, in any order, and a time marked by mistake is unmarked with another tap. Yaadi never suggests a medicine, a dose or a time, and never calls a dose "missed".
+- **Items added by hand.** Bills, appointments, expiry dates, medicine and tasks, with amounts in rupees, pounds or dollars (new bills start in the currency chosen in Settings), repeats (daily, weekly, monthly, yearly, or medicine times), end dates and notes. A reference number such as a CNIC or consumer number is hidden until you tap Show, and an ID number typed into the title or notes is pointed out, with an offer to move it there.
+- **Items, open and finished.** Every item, filtered by kind and by Open or Finished. A repeating bill moves to its next date when paid and stays under Open; its payments are in its history.
 - **Search in English, Urdu and Roman Urdu.** "bijli ka bill", "بجلی کا بل" and "electricity" find the same LESCO bill; "ammi ki dawai" finds "امی کی دوائی"; "lesco" never finds an IESCO bill. Typos are forgiven and the matched words are highlighted. It runs on the phone, offline.
 - **English and Urdu.** Full right-to-left layout, Noto Nastaliq Urdu sized and spaced for its tall letters at every text size, dates written day first outside the US, and text you type keeps its own direction in either interface. Light and dark themes, a Large text setting, screen reader labels and headings, and 48 dp touch targets.
-- **Demo households.** The Khan family in Lahore and the Taylor family in Manchester, both made up. On a phone they are shown from memory and your own items are never touched; one tap goes back. The web demo is always a demo and keeps what you type in this browser's session storage for that tab (browsers may save it to disk to restore tabs).
+- **Demo households.** The Khan family in Lahore and the Taylor family in Manchester, both made up. On a phone they are shown from memory and your own items are never touched; one tap goes back, after a question, since changes made in the demo are lost. The web demo is always a demo and keeps what you type in this browser's session storage for that tab (browsers may save it to disk to restore tabs).
 
 ## Roadmap
 
-- **M2:** reminders that still fire after a restart or a time-zone change, and repair themselves; a home-screen widget; the morning summary on a schedule; the encrypted vault checked on devices (Android Keystore, the iOS Keychain and backup rules); a first export, since there is no backup yet.
+- **M2:** reminders that still fire after a restart or a time-zone change, and repair themselves; a home-screen widget; the morning summary on a schedule; the encrypted vault checked on devices (Android Keystore, the iOS Keychain and backup rules); a first export, since there is no backup yet; tax and vehicle categories and a per-item lead time with schema v2, and the next expiry date asked for when an ID card or passport is renewed.
 - **M3:** capture by camera, PDF or the share button. A small server, reusing the proxy from our flutter-ai-chat-starter project, reads the paper into a card you check and confirm, with each number linked to where it came from.
 - **M4:** voice, Explain in Urdu, Roman Urdu or English, Ask my papers, sharing to WhatsApp, app lock and a simple mode.
 
@@ -49,17 +52,17 @@ This is Milestone 1 (version 0.1.0): the app, an encrypted SQLCipher vault (encr
 
 ## Privacy
 
-Encryption at rest is tested on the desktop test runner with SQLCipher 4.19.0, from the same sqlite3 release the Android and iPhone builds bundle. The phone builds themselves, with Android Keystore, the iOS Keychain and the backup rules, are checked on devices in M2.
+Encryption at rest is tested with SQLCipher 4.19.0 on every CI run on Linux and on the Windows test VM, from the same sqlite3 release the Android and iPhone builds bundle. The phone builds themselves, with Android Keystore, the iOS Keychain and the backup rules, are checked on devices in M2.
 
 When phone builds ship (M2), this is the statement they will carry:
 
 > On Android and iPhone, Yaadi keeps your items in an encrypted database on the phone (SQLCipher, AES-256). The key is created on the phone, protected by Android Keystore or stored in the iOS Keychain, and never leaves it. This version makes no network requests and has no analytics or crash reporting. Encryption protects a copy of the database file on its own. It does not protect against someone who can unlock your phone and open Yaadi, a rooted or jailbroken phone, or malware. On a shared phone, the main protection is that the Reference field is hidden until you tap Show. There is no backup yet: if you lose or reset your phone, your Yaadi data cannot be recovered.
 
-The web demo shows this notice. It is built for GitHub Pages, and CI publishes it from the main branch once the repository is public:
+The web demo shows this notice. CI publishes it to GitHub Pages from every passing run on main:
 
 > Demo with made-up families. What you type stays in this browser, is not encrypted and is not sent to us. Do not enter real ID numbers. The demo is hosted on GitHub Pages, which keeps standard access logs.
 
-The two links in Settings open GitHub and Upwork in your browser; the app itself requests nothing.
+The links in Settings and on the household picker open GitHub and Upwork in your browser. Otherwise the web demo requests only its own files: its fonts are bundled, and characters they cannot draw, such as emoji, are left out as you type, with a note, rather than fetched as fonts from Google.
 
 ## Run it
 
@@ -91,16 +94,16 @@ flutter analyze
 flutter test
 ```
 
-About 860 tests run without a device or a real clock, and without a network once the SQLCipher library is downloaded:
+About 900 tests run without a device or a real clock, and without a network once the SQLCipher library is downloaded:
 
 - table-driven domain tests for recurrence (month ends, leap years, `until`), catch-up, taking a payment back, Today grouping, medicine times, the morning summary, money and Urdu digits, the editor's rules and the reference mask;
 - 90 search queries in English, Urdu script and Roman Urdu, normalizer rules, highlight boundaries and a 5,000-item time budget;
 - one repository contract run against the vault, memory and the browser session, plus the vault's key handling, startup states, migrations, constraints and the open path refusing to run without SQLCipher;
 - encryption at rest on SQLCipher: no plaintext in the file, its header or its write-ahead log; "not a database" without the key; a wrong key, a missing key or a plaintext file landing on Recovery with the file untouched; the production open path in its background isolate; and a committed encrypted vault opened through the startup path on every run;
-- widget tests of the main flows in English and Urdu with the real fonts loaded: quick actions and undo, the editor, hidden reference numbers, search highlights, the demo households, right-to-left layout and large text at 2x;
+- widget tests of the main flows in English and Urdu with the real fonts loaded: quick actions and undo, marking and unmarking medicine times, the late-payment question, the editor, hidden reference numbers, search highlights, the demo households, right-to-left layout and large text at 2x;
 - Flutter's tap-target and label guidelines on six screens in both languages and themes, its contrast guideline on the English screens (it cannot measure thin Nastaliq strokes), and every colour pair of the theme checked at 4.5:1 for both.
 
-The encryption tests (tag `sqlcipher`) never skip. GitHub Actions runs the same checks on every push to main and every pull request: generated code must be up to date, then format, analyze, the tests, the encryption tests again on their own (the job fails if SQLCipher is not loaded), a provenance check of a freshly downloaded SQLCipher library, the date tests again under London, New York, Karachi and Santiago time zones, and a release web build. The workflow first runs when the repository is pushed.
+The encryption tests (tag `sqlcipher`) never skip. GitHub Actions runs the same checks on every push to main and every pull request: generated code must be up to date, then format, analyze, the tests, the encryption tests again on their own (the job fails if SQLCipher is not loaded), a provenance check of a freshly downloaded SQLCipher library, the date tests again under London, New York, Karachi and Santiago time zones, and a release web build. Each passing run on main also publishes the web demo; the badge at the top links to every run.
 
 Generated code is committed. After changing ARB files, tables or the schema, regenerate it with the same commands CI checks:
 

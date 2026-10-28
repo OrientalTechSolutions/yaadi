@@ -1,6 +1,6 @@
 # Yaadi architecture
 
-Yaadi turns household papers into reminders: bills, appointments, expiry dates, medicine times and tasks, in English and Urdu, on the phone and offline. This document covers Milestone 1 (a SQLCipher vault whose encryption at rest is tested on the test VM, items added by hand, the Today screen, offline search, a bilingual UI and demo households) and the decisions that leave room for later milestones:
+Yaadi turns household papers into reminders: bills, appointments, expiry dates, medicine times and tasks, in English and Urdu, on the phone and offline. This document covers Milestone 1 (a SQLCipher vault whose encryption at rest is tested on the Windows test VM and on every Linux CI run, items added by hand, the Today screen, offline search, a bilingual UI and demo households) and the decisions that leave room for later milestones:
 
 - **M2:** reminders that repair themselves after reboots and time-zone changes, and a home-screen widget.
 - **M3:** camera, PDF and share capture, using the server proxy from flutter-ai-chat-starter.
@@ -29,7 +29,7 @@ Versions and APIs were checked on Flutter 3.47.8 and Dart 3.13.7 by running them
 | IDs | `uuid` 4.6.0 | UUIDv7, made offline |
 | Web demo | `web` 1.1.2 | `window.sessionStorage` only |
 | Fonts | Noto Nastaliq Urdu (OFL), Roboto (Apache-2.0) | Bundled; Roboto copied from the pinned Flutter SDK |
-| Links | `url_launcher` 6.3.3 | The two About links open in the browser |
+| Links | `url_launcher` 6.3.3 | The About links and the web picker's source link open in the browser |
 
 Not used: the end-of-life `sqlcipher_flutter_libs`, codegen for a few models (`riverpod_generator`, `freezed`), a router for four tabs, and `shared_preferences` (phone settings live in the vault).
 
@@ -128,10 +128,10 @@ hooks:
         default: sqlcipher
 ```
 
-Tests load, and CI and phone builds are configured to load, the same release's SQLCipher build: SQLCipher 4.19.0 community on SQLite 3.53.4, from the `sqlite3-3.8.0` release. The phones keep their own entries so a change to `default` never reaches them. Each platform gets its own file, fetched on first use into `.dart_tool/hooks_runner/shared/sqlite3/build/download-<hash>/` and checked against the pinned sha256 before use, also when the file is already there. A mismatch fails the build.
+Tests on Windows and in Linux CI load, and phone builds are configured to load, the same release's SQLCipher build: SQLCipher 4.19.0 community on SQLite 3.53.4, from the `sqlite3-3.8.0` release. The phones keep their own entries so a change to `default` never reaches them. Each platform gets its own file, fetched on first use into `.dart_tool/hooks_runner/shared/sqlite3/build/download-<hash>/` and checked against the pinned sha256 before use, also when the file is already there. A mismatch fails the build.
 
 - **Windows VM tests** (verified): `sqlcipher.x64.windows.dll`, 4,688,896 bytes, sha256 `3a2f228b…7595`, as pinned. OpenSSL 4.0.3 is linked in statically; the DLL imports only Windows system libraries.
-- **Linux CI:** `libsqlcipher.x64.linux.so`. CI caches the download directory, so the hook checks the cached file's hash again before use, and runs `gh attestation verify --repo simolus3/sqlite3.dart` after a fresh download.
+- **Linux CI** (verified): `libsqlcipher.x64.linux.so`. CI caches the download directory, so the hook checks the cached file's hash again before use, and runs `gh attestation verify --repo simolus3/sqlite3.dart` after a fresh download. A fresh download passed the attestation check, and later runs restore it from the cache.
 - **Phones:** the Android ABIs and `libsqlcipher.arm64.ios.dylib`, fetched when a device build first runs (M2). The Apple builds use Apple's own crypto library instead of OpenSSL.
 
 The encryption tests (`@Tags(['sqlcipher'])`, in `sqlcipher_test.dart` and `native_open_test.dart`) never skip. Without SQLCipher every one of them fails. CI also runs the tag on its own with `--run-skipped`, which fails if SQLCipher is missing, if a skip creeps in (the test runs anyway) or if no test carries the tag (exit 79). The fail-closed open (5.4) stays tested on every run: a test-only view hides the cipher pragmas the way plain SQLite does, both directly and inside a background isolate. The hook supplies one library per build, so real plain SQLite cannot run next to SQLCipher in the same test run.
@@ -210,7 +210,7 @@ Also accepted: the derived key stays in memory while the vault is open; losing t
 - **Reveal:** Show is local widget state, undone when the route pops, when the app goes inactive or hidden, and after 30 seconds. Revealed text is not selectable and cannot be copied.
 - **Editor field:** no personalized learning, autocorrect or suggestions, a `visiblePassword` keyboard and `autofillHints: null`. Only null keeps a field from the platform's autofill service; the default empty list still offers it to a password manager, which could save the number and sync it.
 - **Screen readers:** hidden, it is "Reference, hidden"; shown, it is read digit by digit, and the tap hint says Show or Hide.
-- **Misplaced numbers:** a CNIC-shaped value or a run of 10 digits in the title or notes triggers an offer to move it; nothing moves without a tap, and only the gap it leaves is tidied.
+- **Misplaced numbers:** a CNIC-shaped value or a run of 10 digits in the title or notes triggers an offer to move it; nothing moves without a tap, and only the gap it leaves is tidied. After a move the editor stays open with that field focused, so "Dentist for" can be fixed before saving. With Reference already filled the number is still pointed out, with an offer to edit it. A number the saved item already had in the same field is not asked about again.
 - References stay out of search, the morning summary, M2 notifications and widgets, and M4 share text. The claim is "the Reference field is hidden until you tap Show", never "ID numbers are hidden".
 
 ## 8. Privacy claims
@@ -221,7 +221,7 @@ The README copies these texts word for word.
 
 > On Android and iPhone, Yaadi keeps your items in an encrypted database on the phone (SQLCipher, AES-256). The key is created on the phone, protected by Android Keystore or stored in the iOS Keychain, and never leaves it. This version makes no network requests and has no analytics or crash reporting. Encryption protects a copy of the database file on its own. It does not protect against someone who can unlock your phone and open Yaadi, a rooted or jailbroken phone, or malware. On a shared phone, the main protection is that the Reference field is hidden until you tap Show. There is no backup yet: if you lose or reset your phone, your Yaadi data cannot be recovered.
 
-**Status line**, above it: "Encryption at rest is tested on the desktop test runner with SQLCipher 4.19.0, from the same sqlite3 release the Android and iPhone builds bundle. The phone builds themselves, with Android Keystore, the iOS Keychain and the backup rules, are checked on devices in M2." (It said "is not tested yet" until the tests moved to SQLCipher.)
+**Status line**, above it: "Encryption at rest is tested with SQLCipher 4.19.0 on every CI run on Linux and on the Windows test VM, from the same sqlite3 release the Android and iPhone builds bundle. The phone builds themselves, with Android Keystore, the iOS Keychain and the backup rules, are checked on devices in M2." (It said "is not tested yet" until the tests moved to SQLCipher, and "on the desktop test runner" until CI first ran.)
 
 **Web demo**, on its first screen, in Settings and behind Details:
 
@@ -237,14 +237,15 @@ The README copies these texts word for word.
 
 - **Storage.** The web build never opens a database: in-memory repositories are saved as JSON to `sessionStorage` after each write. Storage exceptions (quota, Safari private mode) are caught; the demo carries on in memory and says "This browser is not saving the demo; it will reset when you reload."
 - **What sessionStorage does.** It survives a reload and belongs to one tab, but Chrome and Edge also save it to disk for session restore, and Duplicate tab copies it. Clear demo data removes the items and household and keeps language and theme.
-- **Notice.** The full notice is on the household picker and in Settings; above the app's screens a one-line strip links to it with Details, so the screens keep their room at large text sizes.
-- **Network.** `--no-web-resources-cdn` serves CanvasKit from the same origin; Roboto is bundled under its own name so the engine never fetches it, and the font fallback points at the same origin. A headless-browser network check through the demo found only same-origin requests.
-- **Hosting.** CI builds with `--base-href /yaadi/`, and a deploy job publishes main to GitHub Pages once Pages is enabled for the repository.
+- **Notice.** The full notice is on the household picker and in Settings; above the app's screens a strip of at most two short lines ("Not encrypted: do not enter real ID numbers") links to it with Details, so the screens keep their room at large text sizes.
+- **Loading.** The first visit downloads about 3.5 MB, mostly CanvasKit and the compiled app. `web/index.html` shows a plain loading screen in system fonts (the name, a spinner, and a line in English and Urdu) until Flutter's `flutter-first-frame` event, and preloads `main.dart.js` so it downloads alongside the loader.
+- **Network.** `--no-web-resources-cdn` serves CanvasKit from the same origin; Roboto is bundled under its own name so the engine never fetches it, and the font fallback points at the same origin. Characters neither bundled font can draw (emoji, other scripts, a check mark) would make the engine fetch fallback fonts, so on the web every text field leaves them out as they are typed or pasted and says so; `core/text/drawable_text.dart` holds the fonts' cmap coverage, which a test checks against the font files. Phones draw such characters with the system's fonts and keep them. A headless-browser check through the demo, typing emoji, Devanagari and ₹ into a title, found only same-origin requests, no 404s and no console warnings.
+- **Hosting.** CI builds with `--base-href /yaadi/`, and a deploy job publishes every passing run on main to GitHub Pages, live at https://orientaltechsolutions.github.io/yaadi/.
 - **Not Drift WASM:** it needs extra binaries and COOP/COEP headers, and would suggest a durability the demo does not have.
 
 ## 11. Today, recurrence and quick actions
 
-**Time.** `LocalDate` arithmetic goes through `DateTime.utc`, so DST never shifts a date. For labels and pickers a date becomes a local `DateTime` at noon, because where clocks change at midnight (America/Santiago) local midnight can be missing and would fall back a day. "Today" comes from an injected clock re-read every minute and on resume. Screenshot builds pin it with `--dart-define=YAADI_TODAY=2026-11-02`.
+**Time.** `LocalDate` arithmetic goes through `DateTime.utc`, so DST never shifts a date. For labels and pickers a date becomes a local `DateTime` at noon, because where clocks change at midnight (America/Santiago) local midnight can be missing and would fall back a day. "Today" comes from an injected clock re-read every minute, on resume, and again before Snooze and Paid plan a write, so one just after midnight never uses yesterday. Screenshot builds pin it with `--dart-define=YAADI_TODAY=2026-11-02`.
 
 **Groups** of open items, by effective date (a snooze while it is in force, otherwise the due date):
 
@@ -257,7 +258,7 @@ The README copies these texts word for word.
 | Expiring soon | Expiry dates 8 to 30 days away, because renewals take weeks |
 | Later | Everything after, then undated tasks |
 
-**Medicine** times are marked one by one, in any order. Past days never show as overdue or missed, and the wording stays neutral.
+**Medicine** times are marked one by one, in any order, and a tap on a marked time removes its mark, with its own Undo, so a mistaken tap never stands for the rest of the day. Past days never show as overdue or missed, and the wording stays neutral.
 
 **Quick actions.** Paid on bills, Done on everything else and on each dose, and Snooze (1 day, 3 days, 1 week) on overdue and today's items only, because pushing a bill past a due date that has not arrived is how late fees happen. The card always shows the real due date next to a snooze.
 
@@ -265,13 +266,13 @@ The README copies these texts word for word.
 
 **Roll-forward** starts from `scheduled_on`: monthly on day N clamps to short months and keeps the anchor (31 Jan, 28 or 29 Feb, 31 Mar); yearly 29 February falls on 28 February in other years; the next occurrence past `until` closes the item. The new due date equals the new scheduled date, so a moved date applies once.
 
-**Catching up**, when the next occurrence is still in the past: a variable bill records the missed months as paid without amounts and moves to the current one, because utilities carry arrears into the next bill; a fixed instalment steps one period, since each is really owed; tasks, appointments and expiry dates jump to the current occurrence. The snack bar offers the alternatives. A fixed bill keeps its amount when it rolls; a variable bill's is cleared until the next paper.
+**Catching up**, when the next occurrence is still in the past: a variable bill records the missed months as paid without amounts and moves to the current one, because utilities carry arrears into the next bill; a fixed instalment steps one period, since each is really owed; tasks, appointments and expiry dates jump to the current occurrence. For a bill, a sheet then asks at once what happened to the missed ones, with the usual answer already recorded and selected and the others a tap away; the confirmation that follows names the dates and offers one Undo for the payment and the choice together (`UndoSnapshot.then`). At most 400 missed occurrences, the most recent, are settled one by one; a daily bill dated decades back would otherwise write thousands of rows, and the editor only offers dates from five years back. A fixed bill keeps its amount when it rolls; a variable bill's is cleared until the next paper.
 
-**Undo** lasts as long as its snack bar (six seconds, or until dismissed with a screen reader on). Each snapshot holds the item before, the completions changed, the revision written and the repository written to; undo applies only there and only while the revision is unchanged. Switching to or from a demo household also clears pending snack bars, so a demo item never lands in the vault.
+**Undo** lasts as long as its snack bar (six seconds, or until dismissed with a screen reader on). Changing tab, opening a screen or a dialog on top, or changing language hides the message, so a kept Undo never follows a screen reader user to a screen where it does not belong. Each snapshot holds the item before, the completions changed, the revision written and the repository written to; undo applies only there and only while the revision is unchanged. Switching to or from a demo household also clears pending snack bars, so a demo item never lands in the vault.
 
 **Taking a completion back.** Once Undo has gone, the item page offers "Mark as not paid" (or done, or skipped) for the newest completion by occurrence: that occurrence is due again, a closed item reopens on its own date, and a variable bill gets the paid amount back. Editing the date instead would record the payment against the wrong month.
 
-**Morning summary.** A pure function of the Today view: the overdue count and oldest title, up to three items today, the dose count, the next item this week, and bill totals per currency due by today + 7, from known amounts only, counting every instalment still owed. ICU messages render label-style lines (`آج: {title} · {amount}`), so Urdu never agrees with the gender of a typed title, and dates never break across lines.
+**Morning summary.** A pure function of the Today view: the overdue count and oldest title, up to three items today, today's medicine times with how many are not marked yet, the next item this week, and bill totals per currency due by today + 7, from known amounts only, counting every fixed instalment still owed from the rule's own date, so a snooze never lowers the total. ICU messages render label-style lines (`آج: {title} · {amount}`), so Urdu never agrees with the gender of a typed title, and dates never break across lines.
 
 **Tests** are table-driven: month ends and leap years, anchors under edits, catch-up, doses, snooze, the groups, idempotent Paid, a write refused between plan and apply, reopening, undo from other storage, the tolerant decoder and every 2026 date through a local `DateTime`. Dart on Windows ignores `TZ`, so Linux CI repeats the date tests in London, New York, Karachi and Santiago.
 
@@ -296,9 +297,9 @@ Concept.biller('iesco', ItemCategory.electricity, region: Region.pk),
 Concept.kind(ItemKind.bill, ['bill', 'invoice', 'بل']),
 ```
 
-It covers the household words of both demos in all three ways of writing. A biller tags its items with its category, so "bijli" finds the LESCO bill while "lesco" never finds IESCO. Names that belong to one country apply only in its region (PKR and the Khan demo, GBP and the Taylor demo), so "Tesco" in Manchester is a shop.
+It covers the household words of both demos in all three ways of writing. A biller tags its items with its category, so "bijli" finds the LESCO bill while "lesco" never finds IESCO. Names that belong to one country apply only in its region, taken from the household's currency (the Settings choice on a phone, PKR unless changed, or the demo household's), so "Tesco" in Manchester is a shop. Words like "net" for the internet bill are Pakistan-only for the same reason.
 
-**Ranking.** Fields weigh title 3.0, category and concepts 2.0, kind 1.5, notes 1.0. Match tiers come before weights: exact or concept, then prefix, then one edit, so `bill` ranks the electricity bill above "Bilal school fee". Every term must match. Ties go to open items, the nearest date, then the title.
+**Ranking.** Fields weigh title 3.0, category and concepts 2.0, kind 1.5, notes 1.0. Match tiers come before weights: exact or concept, then prefix, then one edit, so `bill` ranks the electricity bill above "Bilal school fee". A plain English plural counts as exact, so "bill" finds "File the bills" above a name such as "Billo". Every term must match. Ties go to items still active (a medicine course past its last day is finished), the nearest date, then the title.
 
 **Typing.** The last word matches as a prefix from two letters, against both keys, and completes lexicon phrases ("shanakhti ca"). A word ending in a doubled vowel is compared by its unfolded key only, because "fee" folded to "fi" would match "final". Stopwords (`ka ki ke ko se mein hai`, `کا کی کے`, `the a of my for`) are dropped, except a lone word still being typed: "me" on its way to "meeting" keeps its results. One-edit matching (four letters or more) is off for a word that is itself a lexicon term.
 
@@ -308,21 +309,23 @@ It covers the household words of both demos in all three ways of writing. A bill
 
 ## 13. Localization, RTL and type
 
-- **Languages:** English and Urdu, from the device by default and switchable in Settings. English dates are day first (`en_GB`, which shares every English message) except in the US, since Pakistan and the UK both write 2 November 2026. Roman Urdu is understood by search, not a UI language.
+- **Languages:** English and Urdu, from the device by default and switchable in Settings. English dates are day first (`en_GB`, which shares every English message but one: the licences link, spelled like the licence page's own title in each) except in the US, since Pakistan and the UK both write 2 November 2026. Roman Urdu is understood by search, not a UI language. Android names the app یادی on an Urdu phone and both platforms declare English and Urdu for their per-app language settings; the iOS display name stays Latin until the device builds of M2.
 - **Urdu review:** `app_ur.arb` waits for a review by a native speaker before tests pin its wording; until then Urdu tests check structure. The review also covers `Rs` against `روپے`, the part-of-day words used in times (صبح, دوپہر, شام, رات, since `intl` writes a bare "a" and "p"), and the weekday names given to Flutter's date picker, whose CLDR data uses Latin letters.
 - **RTL:** directional layout throughout; LTR values inside Urdu sentences are wrapped in isolates, and left-to-right fields align with the layout's start side.
 - **User text** goes through `UserText` and `AutoDirectionField`: direction from the first strong character, Nastaliq for Arabic-script runs and Roboto for the rest, each span tagged with its language so screen readers switch voice. A field keeps a Nastaliq line box from the start, so it does not grow at the first Urdu letter.
 - **Urdu metrics:** line height 1.9 at every text scale (the font's own line is 2.5 em), and type 15% larger than Roboto with a 13 sp floor, because Nastaliq looks about a quarter smaller. Material's display styles stay in Roboto: they are only numerals, such as the time picker's readout, whose 80 dp box would cut a Nastaliq line in half. Inputs get 4 dp more above the text so floating labels clear گ and ک, and amounts in Urdu text stay in one typeface.
 - **Input:** Urdu keyboards type Extended Arabic-Indic digits; one normalizer feeds amounts, times and search.
-- **Large text** multiplies the system scale by 1.3, capped at 2.0; key screens are tested at 2.0 in both languages with the real fonts.
+- **Large text** multiplies the system scale by 1.3, capped at 2.0; key screens are tested at 2.0 in both languages with the real fonts. App bars grow with their title's line, so a Nastaliq title is never cut off, and on a narrow phone or with large text the Add button is the round one, which covers less of a card.
+- **No-break runs:** an amount's symbol and digits, short dates and the "·" before an amount are joined with no-break spaces, so "Rs" never ends a line with "12,500" on the next. Urdu lists use the Urdu comma.
 - **Accessibility:** headings are their own semantics nodes, quick actions carry full labels, radio groups are named, picker fields stay focusable and announce errors, a failed save is announced and focuses the first field, an empty search is announced, and tap targets are at least 48 dp. Flutter's tap-target and label guidelines run in both languages and themes; its contrast guideline misreads thin Nastaliq strokes, so colour pairs are also checked numerically at 4.5:1.
 
 ## 14. Demo mode
 
 - Two fictional households dated relative to today: the **Khan family, Lahore** (PKR; LESCO, SNGPL, school fees, a CNIC expiry, Ammi's medicine times titled in Urdu, PTCL) and the **Taylor family, Manchester** (GBP; council tax in 10 instalments, energy, the dentist, a passport, an MOT, prescription times). Names are invented and references are obvious placeholders.
 - On a phone a demo runs on its own memory repository built from the seed when chosen, so the vault is never written; the seed is read once, so midnight keeps the visitor's changes. It is rebuilt on the next launch.
-- A Demo badge stays in the app bar, a strip names the household, and one tap goes back.
-- The web build is always a demo: a household picker first, then the household's items in the tab's session. Switching replaces the items before the setting changes.
+- Each household has one finished item, so the Items screen's Finished filter has something to show.
+- A Demo badge stays in the app bar, a strip names the household, and one tap goes back, after a question, because changes made in the demo are lost. Switching or clearing a household asks the same way.
+- The web build is always a demo: a household picker first, which says what this milestone does and links the source code, then the household's items in the tab's session. Switching replaces the items before the setting changes, and search and the Items filters start afresh.
 
 ## 15. State
 
@@ -345,14 +348,14 @@ Controllers expose intents and track pending writes; widgets never call reposito
 | Repository | One contract suite per repository type, run against Drift, memory and the session store, including a store that throws |
 | Vault | Migrations, enum names against the schema version, CHECKs, the WAL after a delete, the startup matrix, failure mapping, wipe crash points, the open failing closed without SQLCipher (simulated, 5.1) |
 | Vault, `sqlcipher` tag | SQLCipher 4.x with OpenSSL loaded; file and WAL never plaintext, with no plaintext header; no key means "not a database"; a wrong key or a plaintext file reaches Recovery untouched; the production open in drift_flutter's isolate applies every setting; startup creates the vault and reopens it with the stored key; the committed fixture opens through the startup path, and a missing or different key sends it to Recovery. Never skipped; CI also runs the tag on its own |
-| Widgets | Today, quick actions with Undo and stale feedback, the editor's rules and announcements, the Reference field, delete, taking a payment back, search, demo households on a phone and the web, the Urdu time picker, layouts, large text, accessibility guidelines on six screens |
-| Theme and sources | Colour pairs at 4.5:1, Urdu line heights at 1.0, 1.3 and 2.0; no `print`, no TODOs, pure domain, no literal bidi characters or byte-order marks |
+| Widgets | Today, quick actions with Undo and stale feedback, unmarking a dose, the late-payment question, messages hidden on another tab or screen for screen reader users, the editor's rules and announcements, the Reference field, delete, taking a payment back, search, demo households on a phone and the web, the Urdu time picker, layouts, large text, accessibility guidelines on six screens |
+| Theme and sources | Colour pairs at 4.5:1, Urdu line heights at 1.0, 1.3 and 2.0; the web glyph table against the bundled fonts' cmaps; no `print`, no TODOs, pure domain, no literal bidi characters or byte-order marks |
 
 Widget tests load the real fonts, because the test font draws Urdu as boxes and hides clipping. A tap that lands only because an ancestor catches it fails. No test touches the network or a real platform channel; only the sqlite3 hook downloads, once, before the first test run (5.1). Planned (M2): golden images of Today and the editor in both languages, rendered on Linux CI.
 
 ## 17. CI, licences and reproducibility
 
-GitHub Actions on Ubuntu with Flutter 3.47.8, read-only token permissions, one run per branch and a 30-minute limit: restore the cached SQLCipher download and install lcov; check that `gen-l10n`, `build_runner`, `make-migrations` and `schema generate` change nothing and that no message is untranslated; `dart format`; `flutter analyze`; `flutter test --coverage` with an lcov summary in the job summary; the `sqlcipher` tag again on its own with `--run-skipped`; `gh attestation verify` on a freshly downloaded SQLCipher library; the date tests again in four time zones; a release web build, deployed to Pages from main. Dependabot watches `pub` and `github-actions`. The CHANGELOG notes every `sqlite3`, SQLCipher or OpenSSL change, since their security fixes arrive through `sqlite3` releases.
+GitHub Actions on Ubuntu 24.04 (pinned while `ubuntu-latest` moves to 26.04) with Flutter 3.47.8, actions on their Node 24 releases, read-only token permissions, a checkout without persisted credentials, and a 30-minute limit. A newer push to a pull request replaces its run; runs on main are never cancelled, and Pages deploys queue one at a time. The job: restore the cached SQLCipher download and install lcov; check that `gen-l10n`, `build_runner`, `make-migrations` and `schema generate` change nothing and that no message is untranslated; `dart format`; `flutter analyze`; `flutter test --coverage` with an lcov summary in the job summary; the `sqlcipher` tag again on its own with `--run-skipped`; `gh attestation verify` on a freshly downloaded SQLCipher library; the date tests again in four time zones; a release web build, uploaded and deployed to Pages from main only. Dependabot watches `pub` and `github-actions`, grouping action bumps and minor pub bumps. The CHANGELOG notes every `sqlite3`, SQLCipher or OpenSSL change, since their security fixes arrive through `sqlite3` releases, and a `sqlcipher` test fails while the bundled licence names a different SQLCipher version from the library that loaded.
 
 The Noto Nastaliq Urdu and Roboto licences ship in `assets/fonts` and appear on the in-app licence page. The SQLCipher and OpenSSL notices ship in `assets/licenses`. `registerBundledLicenses` adds SQLCipher to the licence page of phone builds, and OpenSSL where the library links it: Android, not iOS. The web demo has no database library and lists neither. A test checks both platforms. Desktop is left out of M1: Windows plugin builds need Developer Mode, and desktop keyrings need their own threat-model rows.
 
@@ -387,9 +390,11 @@ The Noto Nastaliq Urdu and Roboto licences ship in `assets/fonts` and appear on 
 
 ## 20. Verified and not verified yet
 
-Verified on Flutter 3.47.8 (Windows VM tests and a release web build): the packages resolve and Drift runs in tests; the migration harness works; the sqlite3 hook fetches `sqlcipher.x64.windows.dll` and its sha256 matches the pinned hash; encryption at rest on SQLCipher 4.19.0 (no plaintext in the file, its WAL or its header, "not a database" without the key, a wrong key, a missing key and a plaintext file all reaching Recovery without the file changing, and the production open in drift_flutter's isolate); the committed fixture opens through the startup path; the open path refuses a build without SQLCipher (simulated, 5.1) and leaves a 0-byte file and a key-free error; a delete leaves nothing in the WAL under the vault's PRAGMAs; Urdu, RTL and large text render with the real fonts; the web bundle has no native database code and the demo made only same-origin requests. The package behaviour this design leans on (sections 2, 5.2, 9 and 10) was read in the sources.
+Verified on Flutter 3.47.8 (Windows VM tests and a release web build): the packages resolve and Drift runs in tests; the migration harness works; the sqlite3 hook fetches `sqlcipher.x64.windows.dll` and its sha256 matches the pinned hash; encryption at rest on SQLCipher 4.19.0 (no plaintext in the file, its WAL or its header, "not a database" without the key, a wrong key, a missing key and a plaintext file all reaching Recovery without the file changing, and the production open in drift_flutter's isolate); the committed fixture opens through the startup path; the open path refuses a build without SQLCipher (simulated, 5.1) and leaves a 0-byte file and a key-free error; a delete leaves nothing in the WAL under the vault's PRAGMAs; Urdu, RTL and large text render with the real fonts; the web bundle has no native database code and the demo made only same-origin requests, with no 404s or console warnings, also when emoji were typed. The package behaviour this design leans on (sections 2, 5.2, 9 and 10) was read in the sources.
 
-Not verified yet: the CI workflow, which first runs when the repository is pushed, and with it the Linux SQLCipher library, its cache, `gh attestation verify` and the date tests in real time zones; the Android and iOS SQLCipher libraries, fetched when a device build first runs; the Android and iOS backup rules and Keystore options on devices (M2); golden images (M2).
+Verified in GitHub Actions on Ubuntu since the first public push: the generated-code check, format and analyze; the full suite and the `sqlcipher` tag on `libsqlcipher.x64.linux.so`, hash-checked by the hook; `gh attestation verify` on a fresh download, and the cached copy checked again on later runs; the date tests under London, New York, Karachi and Santiago; and the release web build, deployed to GitHub Pages.
+
+Not verified yet: the Android and iOS SQLCipher libraries, fetched when a device build first runs; the Android and iOS backup rules and Keystore options on devices (M2); golden images (M2). No Android or iOS build has run yet, so the Android resources added for the Urdu app name and the release signing (still the debug key) are checked with the device builds in M2; no APK is handed out before a release key replaces it. The masked Reference field is a password input on the web, and whether a desktop or Android browser offers to save it as a password needs a real browser profile (M2).
 
 ## 21. Changes from the original plan
 
@@ -405,3 +410,10 @@ Not verified yet: the CI workflow, which first runs when the repository is pushe
 | The `sqlcipher` tests never skip, and CI runs the tag on its own with `--run-skipped` instead of setting `YAADI_REQUIRE_SQLCIPHER=1` | Every configuration now loads SQLCipher, so a skip could only hide a broken build. The separate run also fails when no test carries the tag |
 | Fail-closed tests simulate a build without SQLCipher | The hook supplies one library per build, and tests now get SQLCipher |
 | SQLCipher moved to the test VM in M1 instead of M2 | Encryption at rest is tested before any phone build exists; device checks stay in M2 |
+| A late payment asks about the missed bills at once, with Undo on the confirmation | Behind a Change button the choice went unseen, and the snack bar had no Undo |
+| A marked medicine time can be unmarked | One mistaken tap left a dose recorded as taken for the rest of the day |
+| The Items status filter is Open or Finished, and an ended medicine course is finished | "Paid and done" stayed empty because paid repeating bills move on and stay open |
+| The currency for new bills is a Setting | Only demo households could leave PKR, so search read every household as Pakistani |
+| The web demo leaves out characters its fonts cannot draw | The engine fetched fallback fonts that were not there: boxes and 404s. Shipping Noto emoji is a later option |
+| Switching or leaving a demo household asks first | One tap threw away everything typed, while Delete elsewhere has Undo |
+| Tax and vehicle categories wait for schema v2 (M2) | A new stored enum name is a schema bump; council tax and an MOT show as Other until then |
