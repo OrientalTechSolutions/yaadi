@@ -1,6 +1,20 @@
 # Changelog
 
-## Unreleased
+## Unreleased (Milestone 2)
+
+### Reminders
+
+- Bills the day before and on the day, tasks on the day, appointments the day before and an hour before, expiry dates 30, 7 and 1 days before and on the day, and every medicine time typed in, three days ahead. Only what is still ahead: an overdue item is in the morning summary instead.
+- A morning summary notification on days that have something in them, at 8:00 unless changed.
+- Paid, Done, Tomorrow and Taken on the notification open Yaadi and do the same as on the Today screen, with Undo. Tapping a reminder opens its item.
+- By default notifications never name an item, because the phone keeps them outside the encrypted vault. "Show titles in notifications" turns names on; references and notes never appear.
+- The whole schedule is planned again after every change, on every launch and when the app comes back, so reminders follow edits, payments, midnight and time-zone changes. Times that a clock change skips move to the next minute that exists.
+- Settings: Remind me, the reminder time, the morning summary and its time, titles, and "Will reminders arrive?", which checks notifications, exact times and battery saving, gives an Autostart tip on Xiaomi, Oppo, Vivo and similar phones, and sends a test reminder.
+- Today asks once, with a card, while the phone blocks notifications. Demo households pause reminders.
+
+### Android
+
+- First Android build. CI builds a test APK on every push, signed with the debug key: for the maker's own phones only.
 
 ### Urdu
 

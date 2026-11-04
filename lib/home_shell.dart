@@ -8,6 +8,7 @@ import 'features/items/application/item_filter.dart';
 import 'features/items/application/items_providers.dart';
 import 'features/items/presentation/item_routes.dart';
 import 'features/items/presentation/items_screen.dart';
+import 'features/reminders/presentation/reminder_sync.dart';
 import 'features/search/application/search_providers.dart';
 import 'features/search/presentation/search_screen.dart';
 import 'features/settings/application/settings_controller.dart';
@@ -72,8 +73,16 @@ class _HomeShellState extends ConsumerState<HomeShell> {
       ..invalidate(itemFilterProvider);
   }
 
+  /// A tapped reminder lands on Today, the screen its item belongs to.
+  void _showToday() {
+    if (_selected != _Destination.today) _select(_Destination.today.index);
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      ReminderSync(onShowToday: _showToday, child: _shell(context));
+
+  Widget _shell(BuildContext context) {
     ref
       ..listen(itemRepositoryProvider, (_, _) => _dropStaleUndo())
       ..listen(demoHouseholdProvider, (_, _) => _startAfresh())

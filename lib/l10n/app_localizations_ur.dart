@@ -1225,4 +1225,217 @@ class AppLocalizationsUr extends AppLocalizations {
 
   @override
   String get linkFailed => 'لنک نہیں کھل سکا۔';
+
+  @override
+  String get settingsReminders => 'یاد دہانیاں';
+
+  @override
+  String get remindersSwitch => 'یاد دلائیں';
+
+  @override
+  String get remindersSwitchHint =>
+      'بل ایک دن پہلے اور اسی دن، اپوائنٹمنٹ، میعاد کی تاریخیں، دوا کے اوقات اور کام';
+
+  @override
+  String get reminderTime => 'یاد دہانی کا وقت';
+
+  @override
+  String get reminderTimeHint =>
+      'ان بلوں، میعاد کی تاریخوں اور کاموں کے لیے جن کا اپنا وقت نہیں';
+
+  @override
+  String get summaryReminderSwitch => 'صبح کا خلاصہ';
+
+  @override
+  String get summaryReminderHint => 'آج کیا کرنا ہے، دن میں ایک بار';
+
+  @override
+  String get summaryTime => 'خلاصے کا وقت';
+
+  @override
+  String get reminderTitlesSwitch => 'اطلاعات میں عنوان دکھائیں';
+
+  @override
+  String get reminderTitlesHint =>
+      'فون اطلاعات کو یادی کے محفوظ والٹ سے باہر رکھتا ہے، اس لیے وہاں عنوان انکرپٹ نہیں ہوتے۔ بند ہو تو اطلاع میں لکھا ہوتا ہے «آج ایک بل کی آخری تاریخ ہے»۔';
+
+  @override
+  String get remindersDemoPaused =>
+      'جب تک ڈیمو گھرانہ کھلا ہے، یاد دہانیاں رکی ہوئی ہیں۔';
+
+  @override
+  String get reminderHealthTitle => 'کیا یاد دہانیاں پہنچیں گی؟';
+
+  @override
+  String get healthNotificationsOk => 'اطلاعات کی اجازت ہے';
+
+  @override
+  String get healthNotificationsOff => 'یادی کی اطلاعات بند ہیں';
+
+  @override
+  String get healthAllow => 'اجازت دیں';
+
+  @override
+  String get healthExactOk => 'یاد دہانیاں وقت پر آتی ہیں';
+
+  @override
+  String get healthExactOff => 'یاد دہانیاں چند منٹ دیر سے آ سکتی ہیں';
+
+  @override
+  String get healthFix => 'ٹھیک کریں';
+
+  @override
+  String get healthBatteryOk => 'بیٹری بچت یادی کو نہیں روکتی';
+
+  @override
+  String get healthBatteryOff =>
+      'بیٹری بچت یاد دہانیاں روک سکتی ہے۔ یادی کو «Unrestricted» یا «Don\'t optimise» پر رکھیں۔';
+
+  @override
+  String healthMakerTip(String maker) {
+    return '$maker فون پر یادی کے لیے Autostart بھی آن کریں اور اسے حالیہ ایپس میں لاک کر دیں، ورنہ یاد دہانیاں شاید نہ آئیں۔';
+  }
+
+  @override
+  String get testReminder => 'آزمائشی یاد دہانی بھیجیں';
+
+  @override
+  String get testReminderHint =>
+      '10 سیکنڈ میں آئے گی۔ فون لاک کر کے دیکھیں کہ کیسے نظر آتی ہے۔';
+
+  @override
+  String get testReminderSent => 'آزمائشی یاد دہانی آ رہی ہے';
+
+  @override
+  String get testReminderTitle => 'یادی کی آزمائشی یاد دہانی';
+
+  @override
+  String get testReminderBody => 'اس فون پر یاد دہانیاں کام کر رہی ہیں۔';
+
+  @override
+  String get remindersOffTitle => 'یاد دہانیاں آن کریں؟';
+
+  @override
+  String get remindersOffBody =>
+      'یادی آپ کو بل کی آخری تاریخ سے پہلے اور دوا کے وقت یاد دلا سکتا ہے۔';
+
+  @override
+  String get remindersTurnOn => 'آن کریں';
+
+  @override
+  String get remindersNotNow => 'ابھی نہیں';
+
+  @override
+  String get remindersBlocked => 'فون کی ترتیبات میں یادی کی اطلاعات بند ہیں۔';
+
+  @override
+  String get channelReminders => 'یاد دہانیاں';
+
+  @override
+  String get channelRemindersDescription =>
+      'بل، اپوائنٹمنٹ، میعاد کی تاریخیں، دوا کے اوقات اور کام';
+
+  @override
+  String get channelSummary => 'صبح کا خلاصہ';
+
+  @override
+  String get channelSummaryDescription => 'آج کیا کرنا ہے، دن میں ایک بار';
+
+  @override
+  String get notifyBillToday => 'آج ایک بل کی آخری تاریخ ہے';
+
+  @override
+  String get notifyBillTomorrow => 'کل ایک بل کی آخری تاریخ ہے';
+
+  @override
+  String get notifyTaskToday => 'آج کا ایک کام';
+
+  @override
+  String get notifyAppointmentToday => 'آج ایک اپوائنٹمنٹ ہے';
+
+  @override
+  String get notifyAppointmentTomorrow => 'کل ایک اپوائنٹمنٹ ہے';
+
+  @override
+  String notifyAppointmentAt(String time) {
+    return '$time پر ایک اپوائنٹمنٹ ہے';
+  }
+
+  @override
+  String notifyExpiry(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days دن میں کسی چیز کی میعاد ختم ہو رہی ہے',
+      one: 'کل کسی چیز کی میعاد ختم ہو رہی ہے',
+      zero: 'آج کسی چیز کی میعاد ختم ہو رہی ہے',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifyMedicine(String time) {
+    return 'دوا کا وقت، $time';
+  }
+
+  @override
+  String get notifyOpen => 'یادی کھولنے کے لیے دبائیں';
+
+  @override
+  String get notifyDueToday => 'آج آخری تاریخ';
+
+  @override
+  String get notifyDueTomorrow => 'کل آخری تاریخ';
+
+  @override
+  String notifyAt(String time) {
+    return '$time پر';
+  }
+
+  @override
+  String notifyExpiresIn(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days دن میں میعاد ختم',
+      one: 'کل میعاد ختم',
+      zero: 'آج میعاد ختم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifySummaryOverdue(int count) {
+    return 'زائد المیعاد: $count';
+  }
+
+  @override
+  String notifySummaryToConfirm(int count) {
+    return 'تصدیق باقی: $count';
+  }
+
+  @override
+  String notifySummaryToday(int count) {
+    return 'آج: $count';
+  }
+
+  @override
+  String notifySummaryDoses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'دوا کے $count اوقات',
+      one: 'دوا کا 1 وقت',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifySnoozeTomorrow => 'کل';
+
+  @override
+  String get notifyTaken => 'لے لی';
+
+  @override
+  String get notifyItemGone => 'اس یاد دہانی کی چیز حذف ہو چکی ہے۔';
 }

@@ -1223,6 +1223,220 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkFailed => 'The link could not be opened.';
+
+  @override
+  String get settingsReminders => 'Reminders';
+
+  @override
+  String get remindersSwitch => 'Remind me';
+
+  @override
+  String get remindersSwitchHint =>
+      'Bills the day before and on the day, appointments, expiry dates, medicine times and tasks';
+
+  @override
+  String get reminderTime => 'Reminder time';
+
+  @override
+  String get reminderTimeHint =>
+      'For bills, expiry dates and tasks without a time';
+
+  @override
+  String get summaryReminderSwitch => 'Morning summary';
+
+  @override
+  String get summaryReminderHint => 'What today holds, once a day';
+
+  @override
+  String get summaryTime => 'Summary time';
+
+  @override
+  String get reminderTitlesSwitch => 'Show titles in notifications';
+
+  @override
+  String get reminderTitlesHint =>
+      'The phone keeps notifications outside Yaadi\'s encrypted vault, so titles there are not encrypted. Off, they say \"A bill is due today\".';
+
+  @override
+  String get remindersDemoPaused =>
+      'Reminders are paused while a demo household is shown.';
+
+  @override
+  String get reminderHealthTitle => 'Will reminders arrive?';
+
+  @override
+  String get healthNotificationsOk => 'Notifications are allowed';
+
+  @override
+  String get healthNotificationsOff => 'Notifications are turned off for Yaadi';
+
+  @override
+  String get healthAllow => 'Allow';
+
+  @override
+  String get healthExactOk => 'Reminders come on time';
+
+  @override
+  String get healthExactOff => 'Reminders may come a few minutes late';
+
+  @override
+  String get healthFix => 'Fix';
+
+  @override
+  String get healthBatteryOk => 'Battery saving leaves Yaadi alone';
+
+  @override
+  String get healthBatteryOff =>
+      'Battery saving may stop reminders. Set Yaadi to \"Unrestricted\" or \"Don\'t optimise\".';
+
+  @override
+  String healthMakerTip(String maker) {
+    return 'On $maker phones, also turn on Autostart for Yaadi and lock it in recent apps, or reminders may not arrive.';
+  }
+
+  @override
+  String get testReminder => 'Send a test reminder';
+
+  @override
+  String get testReminderHint =>
+      'Arrives in 10 seconds. Lock your phone to see it as you would.';
+
+  @override
+  String get testReminderSent => 'Test reminder on its way';
+
+  @override
+  String get testReminderTitle => 'Yaadi test reminder';
+
+  @override
+  String get testReminderBody => 'Reminders work on this phone.';
+
+  @override
+  String get remindersOffTitle => 'Turn on reminders?';
+
+  @override
+  String get remindersOffBody =>
+      'Yaadi can remind you before a bill is due and at your medicine times.';
+
+  @override
+  String get remindersTurnOn => 'Turn on';
+
+  @override
+  String get remindersNotNow => 'Not now';
+
+  @override
+  String get remindersBlocked =>
+      'Notifications are turned off for Yaadi in the phone\'s settings.';
+
+  @override
+  String get channelReminders => 'Reminders';
+
+  @override
+  String get channelRemindersDescription =>
+      'Bills, appointments, expiry dates, medicine times and tasks';
+
+  @override
+  String get channelSummary => 'Morning summary';
+
+  @override
+  String get channelSummaryDescription => 'What today holds, once a day';
+
+  @override
+  String get notifyBillToday => 'A bill is due today';
+
+  @override
+  String get notifyBillTomorrow => 'A bill is due tomorrow';
+
+  @override
+  String get notifyTaskToday => 'A task for today';
+
+  @override
+  String get notifyAppointmentToday => 'An appointment today';
+
+  @override
+  String get notifyAppointmentTomorrow => 'An appointment tomorrow';
+
+  @override
+  String notifyAppointmentAt(String time) {
+    return 'An appointment at $time';
+  }
+
+  @override
+  String notifyExpiry(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Something expires in $days days',
+      one: 'Something expires tomorrow',
+      zero: 'Something expires today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifyMedicine(String time) {
+    return 'Medicine time, $time';
+  }
+
+  @override
+  String get notifyOpen => 'Tap to open Yaadi';
+
+  @override
+  String get notifyDueToday => 'Due today';
+
+  @override
+  String get notifyDueTomorrow => 'Due tomorrow';
+
+  @override
+  String notifyAt(String time) {
+    return 'At $time';
+  }
+
+  @override
+  String notifyExpiresIn(int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Expires in $days days',
+      one: 'Expires tomorrow',
+      zero: 'Expires today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String notifySummaryOverdue(int count) {
+    return '$count overdue';
+  }
+
+  @override
+  String notifySummaryToConfirm(int count) {
+    return '$count to confirm';
+  }
+
+  @override
+  String notifySummaryToday(int count) {
+    return '$count due today';
+  }
+
+  @override
+  String notifySummaryDoses(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count medicine times',
+      one: '1 medicine time',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get notifySnoozeTomorrow => 'Tomorrow';
+
+  @override
+  String get notifyTaken => 'Taken';
+
+  @override
+  String get notifyItemGone => 'That reminder\'s item has been deleted.';
 }
 
 /// The translations for English, as used in the United Kingdom (`en_GB`).

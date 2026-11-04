@@ -11,6 +11,7 @@ import '../../demo/presentation/demo_badge.dart';
 import '../../demo/presentation/demo_picker.dart';
 import '../../items/application/items_providers.dart';
 import '../../items/presentation/item_routes.dart';
+import '../../reminders/presentation/reminders_prompt.dart';
 import '../application/today_providers.dart';
 import '../domain/today_view.dart';
 import 'morning_summary_card.dart';
@@ -67,6 +68,7 @@ class _TodayList extends StatelessWidget {
             ),
           ),
         ),
+        const RemindersPrompt(),
         const MorningSummaryCard(),
         for (final section in TodaySection.values)
           if (view[section].isNotEmpty) ...[

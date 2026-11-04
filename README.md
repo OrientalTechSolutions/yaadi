@@ -35,9 +35,17 @@ This is Milestone 1 (version 0.1.0): the app, an encrypted SQLCipher vault (encr
 - **English and Urdu.** Full right-to-left layout, Noto Nastaliq Urdu sized and spaced for its tall letters at every text size, dates written day first outside the US, and text you type keeps its own direction in either interface. Light and dark themes, a Large text setting, screen reader labels and headings, and 48 dp touch targets.
 - **Demo households.** The Khan family in Lahore and the Taylor family in Manchester, both made up. On a phone they are shown from memory and your own items are never touched; one tap goes back, after a question, since changes made in the demo are lost. The web demo is always a demo and keeps what you type in this browser's session storage for that tab (browsers may save it to disk to restore tabs).
 
+## Reminders (Milestone 2, Android)
+
+- **What is reminded.** Bills the day before and on the day, tasks on the day, appointments the day before and an hour before, expiry dates 30, 7 and 1 days before and on the day, and every medicine time you typed. A morning summary at 8:00 on days that have something in them. All times can be changed in Settings.
+- **Act from the notification.** Paid, Done, Tomorrow and Taken open Yaadi and do the same as the Today screen, with Undo.
+- **Private by default.** The phone keeps notifications outside the encrypted vault, so they say "A bill is due today" without naming it, unless you turn titles on. Reference numbers and notes never appear.
+- **They keep working.** The schedule is planned again after every change and whenever the app opens, so it follows payments, edits, midnight, restarts and time-zone changes.
+- **Will reminders arrive?** Settings checks notifications, exact times and battery saving, with a button to fix each, a tip for Xiaomi, Oppo, Vivo and similar phones, and a test reminder.
+
 ## Roadmap
 
-- **M2:** reminders that still fire after a restart or a time-zone change, and repair themselves; a home-screen widget; the morning summary on a schedule; the encrypted vault checked on devices (Android Keystore, the iOS Keychain and backup rules); a first export, since there is no backup yet; tax and vehicle categories and a per-item lead time with schema v2, and the next expiry date asked for when an ID card or passport is renewed.
+- **M2 (in progress):** reminders that still fire after a restart or a time-zone change, and repair themselves, with the morning summary on a schedule (built, see below); the first Android build (built); the encrypted vault checked on devices (Android Keystore, the iOS Keychain and backup rules). Moved to later: a home-screen widget, a first export, and tax and vehicle categories with a per-item lead time in schema v2.
 - **M3:** capture by camera, PDF or the share button. A small server, reusing the proxy from our flutter-ai-chat-starter project, reads the paper into a card you check and confirm, with each number linked to where it came from.
 - **M4:** voice, Explain in Urdu, Roman Urdu or English, Ask my papers, sharing to WhatsApp, app lock and a simple mode.
 
@@ -85,7 +93,13 @@ The release web build used for the screenshots:
 flutter build web --release --no-web-resources-cdn --dart-define=YAADI_TODAY=2026-11-02
 ```
 
-Android and iOS builds are configured but are not part of Milestone 1. They bundle the same release's SQLCipher library, fetched when a device build first runs, and are checked on devices in M2 (ARCHITECTURE.md section 5.1).
+An Android test build needs Java 17 and the Android SDK:
+
+```sh
+flutter build apk --release
+```
+
+It is signed with the debug key, so it is for testing on your own phone only; CI builds the same APK on every push and keeps it for 14 days. The iOS build is configured but has not run yet. Both bundle the same release's SQLCipher library (ARCHITECTURE.md section 5.1).
 
 ## Tests
 

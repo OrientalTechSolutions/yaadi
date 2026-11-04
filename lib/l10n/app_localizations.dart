@@ -1832,6 +1832,336 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The link could not be opened.'**
   String get linkFailed;
+
+  /// Settings section about notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get settingsReminders;
+
+  /// Switch that turns all reminders on or off.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me'**
+  String get remindersSwitch;
+
+  /// What the reminders switch covers.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills the day before and on the day, appointments, expiry dates, medicine times and tasks'**
+  String get remindersSwitchHint;
+
+  /// Setting: when reminders without a time of their own go off.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time'**
+  String get reminderTime;
+
+  /// Explains the reminder time setting.
+  ///
+  /// In en, this message translates to:
+  /// **'For bills, expiry dates and tasks without a time'**
+  String get reminderTimeHint;
+
+  /// Switch for the daily summary notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning summary'**
+  String get summaryReminderSwitch;
+
+  /// Explains the morning summary notification.
+  ///
+  /// In en, this message translates to:
+  /// **'What today holds, once a day'**
+  String get summaryReminderHint;
+
+  /// Setting: when the morning summary notification goes off.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary time'**
+  String get summaryTime;
+
+  /// Switch: whether notifications name the item.
+  ///
+  /// In en, this message translates to:
+  /// **'Show titles in notifications'**
+  String get reminderTitlesSwitch;
+
+  /// Explains why titles are hidden in notifications by default.
+  ///
+  /// In en, this message translates to:
+  /// **'The phone keeps notifications outside Yaadi\'s encrypted vault, so titles there are not encrypted. Off, they say \"A bill is due today\".'**
+  String get reminderTitlesHint;
+
+  /// Shown in Settings when a demo is active on a phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders are paused while a demo household is shown.'**
+  String get remindersDemoPaused;
+
+  /// Heading for the checks of phone settings that stop reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Will reminders arrive?'**
+  String get reminderHealthTitle;
+
+  /// Check passed: the phone allows Yaadi's notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are allowed'**
+  String get healthNotificationsOk;
+
+  /// Check failed: the phone blocks Yaadi's notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are turned off for Yaadi'**
+  String get healthNotificationsOff;
+
+  /// Button that asks the phone for notification permission.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow'**
+  String get healthAllow;
+
+  /// Check passed: exact alarms are allowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders come on time'**
+  String get healthExactOk;
+
+  /// Check failed: the phone withholds exact alarms.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders may come a few minutes late'**
+  String get healthExactOff;
+
+  /// Button that opens the phone setting behind a failed check.
+  ///
+  /// In en, this message translates to:
+  /// **'Fix'**
+  String get healthFix;
+
+  /// Check passed: battery optimisation does not restrict Yaadi.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery saving leaves Yaadi alone'**
+  String get healthBatteryOk;
+
+  /// Check failed: battery optimisation may stop reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery saving may stop reminders. Set Yaadi to \"Unrestricted\" or \"Don\'t optimise\".'**
+  String get healthBatteryOff;
+
+  /// Advice for phone makers known to stop background alarms.
+  ///
+  /// In en, this message translates to:
+  /// **'On {maker} phones, also turn on Autostart for Yaadi and lock it in recent apps, or reminders may not arrive.'**
+  String healthMakerTip(String maker);
+
+  /// Button that sends one notification soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a test reminder'**
+  String get testReminder;
+
+  /// Explains the test reminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrives in 10 seconds. Lock your phone to see it as you would.'**
+  String get testReminderHint;
+
+  /// Confirms the test reminder was scheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Test reminder on its way'**
+  String get testReminderSent;
+
+  /// Title of the test notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Yaadi test reminder'**
+  String get testReminderTitle;
+
+  /// Text of the test notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders work on this phone.'**
+  String get testReminderBody;
+
+  /// Card on Today when the phone does not allow notifications yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on reminders?'**
+  String get remindersOffTitle;
+
+  /// Explains what turning on reminders gives.
+  ///
+  /// In en, this message translates to:
+  /// **'Yaadi can remind you before a bill is due and at your medicine times.'**
+  String get remindersOffBody;
+
+  /// Button that asks the phone for notification permission.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on'**
+  String get remindersTurnOn;
+
+  /// Button that hides the turn-on card.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get remindersNotNow;
+
+  /// Shown when the phone refused notification permission.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are turned off for Yaadi in the phone\'s settings.'**
+  String get remindersBlocked;
+
+  /// Name of the Android notification channel for item reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get channelReminders;
+
+  /// Description of the reminders notification channel.
+  ///
+  /// In en, this message translates to:
+  /// **'Bills, appointments, expiry dates, medicine times and tasks'**
+  String get channelRemindersDescription;
+
+  /// Name of the Android notification channel for the daily summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning summary'**
+  String get channelSummary;
+
+  /// Description of the summary notification channel.
+  ///
+  /// In en, this message translates to:
+  /// **'What today holds, once a day'**
+  String get channelSummaryDescription;
+
+  /// Notification title without the item's name: a bill due today.
+  ///
+  /// In en, this message translates to:
+  /// **'A bill is due today'**
+  String get notifyBillToday;
+
+  /// Notification title without the item's name: a bill due tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'A bill is due tomorrow'**
+  String get notifyBillTomorrow;
+
+  /// Notification title without the item's name: a task due today.
+  ///
+  /// In en, this message translates to:
+  /// **'A task for today'**
+  String get notifyTaskToday;
+
+  /// Notification title without the item's name: an untimed appointment today.
+  ///
+  /// In en, this message translates to:
+  /// **'An appointment today'**
+  String get notifyAppointmentToday;
+
+  /// Notification title without the item's name: an appointment tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'An appointment tomorrow'**
+  String get notifyAppointmentTomorrow;
+
+  /// Notification title without the item's name: an appointment within the hour.
+  ///
+  /// In en, this message translates to:
+  /// **'An appointment at {time}'**
+  String notifyAppointmentAt(String time);
+
+  /// Notification title without the item's name: an expiry date ahead.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Something expires today} =1{Something expires tomorrow} other{Something expires in {days} days}}'**
+  String notifyExpiry(int days);
+
+  /// Notification title without the item's name: a medicine time.
+  ///
+  /// In en, this message translates to:
+  /// **'Medicine time, {time}'**
+  String notifyMedicine(String time);
+
+  /// Notification text when titles are hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to open Yaadi'**
+  String get notifyOpen;
+
+  /// Notification text under an item's title: due today.
+  ///
+  /// In en, this message translates to:
+  /// **'Due today'**
+  String get notifyDueToday;
+
+  /// Notification text under an item's title: due tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Due tomorrow'**
+  String get notifyDueTomorrow;
+
+  /// Notification text under an appointment's title: its time.
+  ///
+  /// In en, this message translates to:
+  /// **'At {time}'**
+  String notifyAt(String time);
+
+  /// Notification text under an expiry item's title.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Expires today} =1{Expires tomorrow} other{Expires in {days} days}}'**
+  String notifyExpiresIn(int days);
+
+  /// Part of the morning summary notification without titles.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} overdue'**
+  String notifySummaryOverdue(int count);
+
+  /// Part of the morning summary notification without titles: past appointments to confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} to confirm'**
+  String notifySummaryToConfirm(int count);
+
+  /// Part of the morning summary notification without titles.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} due today'**
+  String notifySummaryToday(int count);
+
+  /// Part of the morning summary notification without titles.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 medicine time} other{{count} medicine times}}'**
+  String notifySummaryDoses(int count);
+
+  /// Notification button: remind again tomorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get notifySnoozeTomorrow;
+
+  /// Notification button: marks a medicine time as taken.
+  ///
+  /// In en, this message translates to:
+  /// **'Taken'**
+  String get notifyTaken;
+
+  /// Shown when a tapped reminder's item no longer exists.
+  ///
+  /// In en, this message translates to:
+  /// **'That reminder\'s item has been deleted.'**
+  String get notifyItemGone;
 }
 
 class _AppLocalizationsDelegate

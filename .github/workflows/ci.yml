@@ -118,6 +118,36 @@ jobs:
         with:
           path: build/web
 
+  # The phone build: Gradle, the manifest, desugaring and the SQLCipher
+  # libraries for every Android ABI. The APK is signed with the debug key,
+  # so it is a test build for the maker's own phones, never a release.
+  android:
+    name: Android test build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.8
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v5
+        with:
+          name: yaadi-test-build
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 14
+
   # Publishes the web demo from main. Needs Pages enabled with GitHub Actions
   # as its source in the repository settings.
   deploy:

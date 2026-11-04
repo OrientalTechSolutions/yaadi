@@ -12,6 +12,8 @@ import '../../demo/application/demo_controller.dart';
 import '../../demo/application/demo_providers.dart';
 import '../../demo/domain/demo_household.dart';
 import '../../demo/presentation/demo_badge.dart';
+import '../../reminders/application/reminder_providers.dart';
+import '../../reminders/presentation/reminders_section.dart';
 import '../application/settings_controller.dart';
 import '../domain/app_settings.dart';
 
@@ -88,6 +90,10 @@ class SettingsScreen extends ConsumerWidget {
               ],
             ),
           ),
+          if (ref.watch(remindersAvailableProvider)) ...[
+            const Divider(),
+            const RemindersSection(),
+          ],
           const Divider(),
           SwitchListTile(
             value: settings.largeText,

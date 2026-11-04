@@ -1693,5 +1693,281 @@
   "linkFailed": "The link could not be opened.",
   "@linkFailed": {
     "description": "Shown when no browser could open a link."
+  },
+  "settingsReminders": "Reminders",
+  "@settingsReminders": {
+    "description": "Settings section about notifications."
+  },
+  "remindersSwitch": "Remind me",
+  "@remindersSwitch": {
+    "description": "Switch that turns all reminders on or off."
+  },
+  "remindersSwitchHint": "Bills the day before and on the day, appointments, expiry dates, medicine times and tasks",
+  "@remindersSwitchHint": {
+    "description": "What the reminders switch covers."
+  },
+  "reminderTime": "Reminder time",
+  "@reminderTime": {
+    "description": "Setting: when reminders without a time of their own go off."
+  },
+  "reminderTimeHint": "For bills, expiry dates and tasks without a time",
+  "@reminderTimeHint": {
+    "description": "Explains the reminder time setting."
+  },
+  "summaryReminderSwitch": "Morning summary",
+  "@summaryReminderSwitch": {
+    "description": "Switch for the daily summary notification."
+  },
+  "summaryReminderHint": "What today holds, once a day",
+  "@summaryReminderHint": {
+    "description": "Explains the morning summary notification."
+  },
+  "summaryTime": "Summary time",
+  "@summaryTime": {
+    "description": "Setting: when the morning summary notification goes off."
+  },
+  "reminderTitlesSwitch": "Show titles in notifications",
+  "@reminderTitlesSwitch": {
+    "description": "Switch: whether notifications name the item."
+  },
+  "reminderTitlesHint": "The phone keeps notifications outside Yaadi's encrypted vault, so titles there are not encrypted. Off, they say \"A bill is due today\".",
+  "@reminderTitlesHint": {
+    "description": "Explains why titles are hidden in notifications by default."
+  },
+  "remindersDemoPaused": "Reminders are paused while a demo household is shown.",
+  "@remindersDemoPaused": {
+    "description": "Shown in Settings when a demo is active on a phone."
+  },
+  "reminderHealthTitle": "Will reminders arrive?",
+  "@reminderHealthTitle": {
+    "description": "Heading for the checks of phone settings that stop reminders."
+  },
+  "healthNotificationsOk": "Notifications are allowed",
+  "@healthNotificationsOk": {
+    "description": "Check passed: the phone allows Yaadi's notifications."
+  },
+  "healthNotificationsOff": "Notifications are turned off for Yaadi",
+  "@healthNotificationsOff": {
+    "description": "Check failed: the phone blocks Yaadi's notifications."
+  },
+  "healthAllow": "Allow",
+  "@healthAllow": {
+    "description": "Button that asks the phone for notification permission."
+  },
+  "healthExactOk": "Reminders come on time",
+  "@healthExactOk": {
+    "description": "Check passed: exact alarms are allowed."
+  },
+  "healthExactOff": "Reminders may come a few minutes late",
+  "@healthExactOff": {
+    "description": "Check failed: the phone withholds exact alarms."
+  },
+  "healthFix": "Fix",
+  "@healthFix": {
+    "description": "Button that opens the phone setting behind a failed check."
+  },
+  "healthBatteryOk": "Battery saving leaves Yaadi alone",
+  "@healthBatteryOk": {
+    "description": "Check passed: battery optimisation does not restrict Yaadi."
+  },
+  "healthBatteryOff": "Battery saving may stop reminders. Set Yaadi to \"Unrestricted\" or \"Don't optimise\".",
+  "@healthBatteryOff": {
+    "description": "Check failed: battery optimisation may stop reminders."
+  },
+  "healthMakerTip": "On {maker} phones, also turn on Autostart for Yaadi and lock it in recent apps, or reminders may not arrive.",
+  "@healthMakerTip": {
+    "description": "Advice for phone makers known to stop background alarms.",
+    "placeholders": {
+      "maker": {
+        "type": "String",
+        "description": "The phone's maker, such as Xiaomi."
+      }
+    }
+  },
+  "testReminder": "Send a test reminder",
+  "@testReminder": {
+    "description": "Button that sends one notification soon."
+  },
+  "testReminderHint": "Arrives in 10 seconds. Lock your phone to see it as you would.",
+  "@testReminderHint": {
+    "description": "Explains the test reminder."
+  },
+  "testReminderSent": "Test reminder on its way",
+  "@testReminderSent": {
+    "description": "Confirms the test reminder was scheduled."
+  },
+  "testReminderTitle": "Yaadi test reminder",
+  "@testReminderTitle": {
+    "description": "Title of the test notification."
+  },
+  "testReminderBody": "Reminders work on this phone.",
+  "@testReminderBody": {
+    "description": "Text of the test notification."
+  },
+  "remindersOffTitle": "Turn on reminders?",
+  "@remindersOffTitle": {
+    "description": "Card on Today when the phone does not allow notifications yet."
+  },
+  "remindersOffBody": "Yaadi can remind you before a bill is due and at your medicine times.",
+  "@remindersOffBody": {
+    "description": "Explains what turning on reminders gives."
+  },
+  "remindersTurnOn": "Turn on",
+  "@remindersTurnOn": {
+    "description": "Button that asks the phone for notification permission."
+  },
+  "remindersNotNow": "Not now",
+  "@remindersNotNow": {
+    "description": "Button that hides the turn-on card."
+  },
+  "remindersBlocked": "Notifications are turned off for Yaadi in the phone's settings.",
+  "@remindersBlocked": {
+    "description": "Shown when the phone refused notification permission."
+  },
+  "channelReminders": "Reminders",
+  "@channelReminders": {
+    "description": "Name of the Android notification channel for item reminders."
+  },
+  "channelRemindersDescription": "Bills, appointments, expiry dates, medicine times and tasks",
+  "@channelRemindersDescription": {
+    "description": "Description of the reminders notification channel."
+  },
+  "channelSummary": "Morning summary",
+  "@channelSummary": {
+    "description": "Name of the Android notification channel for the daily summary."
+  },
+  "channelSummaryDescription": "What today holds, once a day",
+  "@channelSummaryDescription": {
+    "description": "Description of the summary notification channel."
+  },
+  "notifyBillToday": "A bill is due today",
+  "@notifyBillToday": {
+    "description": "Notification title without the item's name: a bill due today."
+  },
+  "notifyBillTomorrow": "A bill is due tomorrow",
+  "@notifyBillTomorrow": {
+    "description": "Notification title without the item's name: a bill due tomorrow."
+  },
+  "notifyTaskToday": "A task for today",
+  "@notifyTaskToday": {
+    "description": "Notification title without the item's name: a task due today."
+  },
+  "notifyAppointmentToday": "An appointment today",
+  "@notifyAppointmentToday": {
+    "description": "Notification title without the item's name: an untimed appointment today."
+  },
+  "notifyAppointmentTomorrow": "An appointment tomorrow",
+  "@notifyAppointmentTomorrow": {
+    "description": "Notification title without the item's name: an appointment tomorrow."
+  },
+  "notifyAppointmentAt": "An appointment at {time}",
+  "@notifyAppointmentAt": {
+    "description": "Notification title without the item's name: an appointment within the hour.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "description": "The appointment's time, such as 5:00 PM."
+      }
+    }
+  },
+  "notifyExpiry": "{days, plural, =0{Something expires today} =1{Something expires tomorrow} other{Something expires in {days} days}}",
+  "@notifyExpiry": {
+    "description": "Notification title without the item's name: an expiry date ahead.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "description": "Days until the expiry date."
+      }
+    }
+  },
+  "notifyMedicine": "Medicine time, {time}",
+  "@notifyMedicine": {
+    "description": "Notification title without the item's name: a medicine time.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "description": "The medicine time, such as 8:00 AM."
+      }
+    }
+  },
+  "notifyOpen": "Tap to open Yaadi",
+  "@notifyOpen": {
+    "description": "Notification text when titles are hidden."
+  },
+  "notifyDueToday": "Due today",
+  "@notifyDueToday": {
+    "description": "Notification text under an item's title: due today."
+  },
+  "notifyDueTomorrow": "Due tomorrow",
+  "@notifyDueTomorrow": {
+    "description": "Notification text under an item's title: due tomorrow."
+  },
+  "notifyAt": "At {time}",
+  "@notifyAt": {
+    "description": "Notification text under an appointment's title: its time.",
+    "placeholders": {
+      "time": {
+        "type": "String",
+        "description": "The time, such as 5:00 PM."
+      }
+    }
+  },
+  "notifyExpiresIn": "{days, plural, =0{Expires today} =1{Expires tomorrow} other{Expires in {days} days}}",
+  "@notifyExpiresIn": {
+    "description": "Notification text under an expiry item's title.",
+    "placeholders": {
+      "days": {
+        "type": "int",
+        "description": "Days until the expiry date."
+      }
+    }
+  },
+  "notifySummaryOverdue": "{count} overdue",
+  "@notifySummaryOverdue": {
+    "description": "Part of the morning summary notification without titles.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notifySummaryToConfirm": "{count} to confirm",
+  "@notifySummaryToConfirm": {
+    "description": "Part of the morning summary notification without titles: past appointments to confirm.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notifySummaryToday": "{count} due today",
+  "@notifySummaryToday": {
+    "description": "Part of the morning summary notification without titles.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notifySummaryDoses": "{count, plural, =1{1 medicine time} other{{count} medicine times}}",
+  "@notifySummaryDoses": {
+    "description": "Part of the morning summary notification without titles.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "notifySnoozeTomorrow": "Tomorrow",
+  "@notifySnoozeTomorrow": {
+    "description": "Notification button: remind again tomorrow."
+  },
+  "notifyTaken": "Taken",
+  "@notifyTaken": {
+    "description": "Notification button: marks a medicine time as taken."
+  },
+  "notifyItemGone": "That reminder's item has been deleted.",
+  "@notifyItemGone": {
+    "description": "Shown when a tapped reminder's item no longer exists."
   }
 }

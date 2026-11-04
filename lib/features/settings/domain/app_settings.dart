@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 
 import '../../../core/money/money.dart';
 import '../../demo/domain/demo_household.dart';
+import '../../reminders/domain/reminder_plan.dart';
 
 enum AppLanguage { en, ur }
 
@@ -14,6 +15,12 @@ abstract final class SettingKeys {
   static const largeText = 'large_text';
   static const defaultCurrency = 'default_currency';
   static const demoHousehold = 'demo_household';
+  static const remindersEnabled = 'reminders_enabled';
+  static const reminderMinute = 'reminder_minute';
+  static const summaryEnabled = 'summary_enabled';
+  static const summaryMinute = 'summary_minute';
+  static const reminderTitles = 'reminder_titles';
+  static const reminderPromptHidden = 'reminder_prompt_hidden';
 }
 
 /// The user's preferences.
@@ -25,6 +32,7 @@ final class AppSettings {
     this.largeText = false,
     this.defaultCurrency = 'PKR',
     this.demoHousehold,
+    this.reminders = const ReminderPrefs(),
   });
 
   /// Reads what the store holds. Unknown or damaged values fall back to the
@@ -42,6 +50,18 @@ final class AppSettings {
           ? currency
           : 'PKR',
       demoHousehold: DemoHousehold.byName(entries[SettingKeys.demoHousehold]),
+      reminders: ReminderPrefs(
+        enabled: entries[SettingKeys.remindersEnabled] != 'false',
+        remindMinute:
+            _minute(entries[SettingKeys.reminderMinute]) ??
+            const ReminderPrefs().remindMinute,
+        morningSummary: entries[SettingKeys.summaryEnabled] != 'false',
+        summaryMinute:
+            _minute(entries[SettingKeys.summaryMinute]) ??
+            const ReminderPrefs().summaryMinute,
+        showTitles: entries[SettingKeys.reminderTitles] == 'true',
+        promptHidden: entries[SettingKeys.reminderPromptHidden] == 'true',
+      ),
     );
   }
 
@@ -58,6 +78,10 @@ final class AppSettings {
   /// The made-up family shown instead of the user's own items, if any.
   final DemoHousehold? demoHousehold;
 
+  /// When and how reminders go off. On by default; nothing shows until the
+  /// phone allows Yaadi's notifications.
+  final ReminderPrefs reminders;
+
   /// The currency new amounts start in, and whose billers search knows.
   String get householdCurrency => demoHousehold?.currency ?? defaultCurrency;
 
@@ -67,6 +91,7 @@ final class AppSettings {
     bool? largeText,
     String? defaultCurrency,
     Object? demoHousehold = _keep,
+    ReminderPrefs? reminders,
   }) => AppSettings(
     language: identical(language, _keep)
         ? this.language
@@ -77,6 +102,7 @@ final class AppSettings {
     demoHousehold: identical(demoHousehold, _keep)
         ? this.demoHousehold
         : demoHousehold as DemoHousehold?,
+    reminders: reminders ?? this.reminders,
   );
 
   @override
@@ -86,20 +112,35 @@ final class AppSettings {
       other.theme == theme &&
       other.largeText == largeText &&
       other.defaultCurrency == defaultCurrency &&
-      other.demoHousehold == demoHousehold;
+      other.demoHousehold == demoHousehold &&
+      other.reminders == reminders;
 
   @override
-  int get hashCode =>
-      Object.hash(language, theme, largeText, defaultCurrency, demoHousehold);
+  int get hashCode => Object.hash(
+    language,
+    theme,
+    largeText,
+    defaultCurrency,
+    demoHousehold,
+    reminders,
+  );
 
   @override
   String toString() =>
       'AppSettings(language: ${language?.name ?? 'device'}, '
       'theme: ${theme.name}, largeText: $largeText, '
-      'currency: $defaultCurrency, demo: ${demoHousehold?.name ?? 'none'})';
+      'currency: $defaultCurrency, demo: ${demoHousehold?.name ?? 'none'}, '
+      '$reminders)';
 }
 
 const Object _keep = Object();
+
+/// A time of day stored as minutes after midnight, or null when the stored
+/// value is not one.
+int? _minute(String? stored) {
+  final minute = stored == null ? null : int.tryParse(stored);
+  return minute != null && minute >= 0 && minute < 1440 ? minute : null;
+}
 
 T? _byName<T extends Enum>(List<T> values, String? name) {
   for (final value in values) {

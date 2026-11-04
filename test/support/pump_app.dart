@@ -8,6 +8,8 @@ import 'package:yaadi/core/time/clock.dart';
 import 'package:yaadi/core/time/time_format.dart';
 import 'package:yaadi/features/demo/data/demo_seed.dart';
 import 'package:yaadi/features/demo/domain/demo_household.dart';
+import 'package:yaadi/features/reminders/application/reminder_providers.dart';
+import 'package:yaadi/features/reminders/data/reminder_gateway.dart';
 import 'package:yaadi/vault/app_storage.dart';
 
 import 'fake_storage.dart';
@@ -27,6 +29,7 @@ Future<void> pumpApp(
   Size size = phoneSize,
   DateTime? now,
   List<Uri>? openedLinks,
+  ReminderGateway? reminders,
 }) async {
   tester.view
     ..physicalSize = size
@@ -43,6 +46,8 @@ Future<void> pumpApp(
           openedLinks?.add(uri);
           return true;
         }),
+        if (reminders != null)
+          reminderGatewayProvider.overrideWithValue(reminders),
       ],
       child: const YaadiApp(),
     ),

@@ -2,7 +2,7 @@
 
 Yaadi turns household papers into reminders: bills, appointments, expiry dates, medicine times and tasks, in English and Urdu, on the phone and offline. This document covers Milestone 1 (a SQLCipher vault whose encryption at rest is tested on the Windows test VM and on every Linux CI run, items added by hand, the Today screen, offline search, a bilingual UI and demo households) and the decisions that leave room for later milestones:
 
-- **M2:** reminders that repair themselves after reboots and time-zone changes, and a home-screen widget.
+- **M2:** reminders that repair themselves after reboots and time-zone changes (built, section 18) and the first Android build; the home-screen widget moves later.
 - **M3:** camera, PDF and share capture, using the server proxy from flutter-ai-chat-starter.
 - **M4:** voice, Explain, Ask my papers, WhatsApp share and app lock.
 
@@ -30,6 +30,7 @@ Versions and APIs were checked on Flutter 3.47.8 and Dart 3.13.7 by running them
 | Web demo | `web` 1.1.2 | `window.sessionStorage` only |
 | Fonts | Noto Nastaliq Urdu (OFL), Roboto (Apache-2.0) | Bundled; Roboto copied from the pinned Flutter SDK |
 | Links | `url_launcher` 6.3.3 | The About links and the web picker's source link open in the browser |
+| Reminders | `flutter_local_notifications` 22.3.3, `timezone` 0.11.2, `flutter_timezone` 5.1.1 | Scheduled notifications on phones (section 18); the web demo has none |
 
 Not used: the end-of-life `sqlcipher_flutter_libs`, codegen for a few models (`riverpod_generator`, `freezed`), a router for four tabs, and `shared_preferences` (phone settings live in the vault).
 
@@ -359,11 +360,28 @@ GitHub Actions on Ubuntu 24.04 (pinned while `ubuntu-latest` moves to 26.04) wit
 
 The Noto Nastaliq Urdu and Roboto licences ship in `assets/fonts` and appear on the in-app licence page. The SQLCipher and OpenSSL notices ship in `assets/licenses`. `registerBundledLicenses` adds SQLCipher to the licence page of phone builds, and OpenSSL where the library links it: Android, not iOS. The web demo has no database library and lists neither. A test checks both platforms. Desktop is left out of M1: Windows plugin builds need Developer Mode, and desktop keyrings need their own threat-model rows.
 
-## 18. Later constraints (M2 to M4)
+## 18. Reminders (M2) and later constraints
 
-- **Notifications (M2).** Scheduled notifications are stored outside the vault, so payloads carry the item id and generic text. Rescheduling runs after the first unlock, because the key is unavailable before it. Notification ids are 32-bit, so schema v2 maps them to UUIDs. Nonexistent local times move to the next valid minute; ambiguous ones take the first.
-- **Background access (M2).** Separate engines open their own connections, kept safe by WAL, `busy_timeout` and file locking.
-- **Widget (M2).** Counts by default, titles only on request; Settings says that data lives outside the vault.
+### Reminders
+
+`flutter_local_notifications` 22.3, `timezone` 0.11 (the 10-year database) and `flutter_timezone` 5.1. The plugin keeps scheduled notifications in Android's alarm system and its boot and update receivers put them back after a restart or an app update.
+
+- **One pure plan.** `planReminders` (`features/reminders/domain`) turns the items, today, the current minute and the Settings choices into wall-clock reminders, soonest first, at most 150 on Android (Samsung refuses more than 500 alarms per app; iOS keeps 64). The app runs it on launch, on every resume and 0.8 seconds after any change to items, today's marks, Settings or the language, then replaces the whole schedule. That is what repairs reminders after edits, completions, midnight and time-zone changes: nothing is patched in place.
+- **What is reminded.** Bills the day before and on the day, at the bill's time or the reminder time (9:00 unless changed); tasks on the day; appointments the day before and an hour before their time, or on the day when untimed; expiry dates 30, 7 and 1 days before and on the day; each typed medicine time for three days ahead, minus today's marked ones; one-off medicine times. Only what is still ahead: an overdue item appears in the morning summary instead of nagging on its own. The morning summary is the Today screen's summary computed for each of the next seven mornings, skipped on quiet days.
+- **Privacy.** Scheduled notifications live outside the vault, so by default they say what kind of thing is due ("A bill is due today") and never name it. "Show titles in notifications" is off by default and Settings says why. References and notes never appear either way, and the payload carries only the item id, the occurrence date and a dose minute. Notifications are `VISIBILITY_PRIVATE` on the lock screen.
+- **Buttons act in the foreground.** Paid, Done, Tomorrow and Taken open Yaadi (`showsUserInterface`) and run the same quick action as the Today screen, with the same stale checks and Undo. No background engine writes the vault, so the key never has to be read before the first unlock and there is no second writer. A tap on the notification opens the item; a reminder for a deleted item says so.
+- **Time.** Wall-clock times become instants at the very end, in the zone the phone names before each pass (`wallClock`). A minute that does not exist (spring forward) moves to the next one that does; a minute that happens twice takes the first. Tested in London, Santiago and the date line zones.
+- **Ids.** FNV-1a of `item|date|minute|reason`, 31 bits, stable while the reminder is unchanged and unique within a plan; 1 is kept for the test reminder. No schema change was needed.
+- **Exact times.** `SCHEDULE_EXACT_ALARM` is requested from Settings, not assumed (`USE_EXACT_ALARM` is for alarm-clock and calendar apps). Without it reminders fall back to inexact alarms while idle.
+- **Will reminders arrive?** Settings shows whether notifications are allowed, whether exact times are allowed and whether battery optimisation leaves Yaadi alone, each with a Fix button that opens the system screen; makers known to stop alarms (Xiaomi, Oppo, Vivo, Realme, Infinix, Tecno and others) get an Autostart tip. A small `MethodChannel` in `MainActivity.kt` reads the battery state and the maker. Yaadi never asks to be exempted directly. "Send a test reminder" arrives ten seconds later.
+- **Asking for permission.** Never at launch. The Today screen shows a "Turn on reminders?" card once while notifications are blocked and the vault has items; turning reminders on in Settings asks too.
+- **Demo households pause reminders**, since their items are made up and the user's own are not on screen. The web demo has none (`NoReminders`).
+- **Not verified yet:** delivery on real phones after a restart, under battery savers, and on iOS (no iOS build has run).
+
+### Later constraints
+
+- **Background access.** Separate engines would open their own connections, kept safe by WAL, `busy_timeout` and file locking. M2 needs none.
+- **Widget.** Counts by default, titles only on request; Settings says that data lives outside the vault. Moved to a later milestone.
 - **Capture (M3).** Photos and PDFs are encrypted file by file under keys derived from the vault secret; temporary copies are deleted and nothing goes to the gallery.
 - **Server (M3).** "Our server stores nothing" becomes checkable statements: no copies, no payload logs, the provider's retention named.
 - **App lock (M4).** A UI gate that never becomes the only custody of the key and never blocks background work.
@@ -386,6 +404,9 @@ The Noto Nastaliq Urdu and Roboto licences ship in `assets/fonts` and appear on 
 | Undo tied to its repository | Any repository shown | A demo item never enters the vault. Cost: an Undo is lost when storage switches |
 | Pure-Dart search | FTS5 | Urdu and Roman Urdu folding, works on the web. Cost: linear work per keystroke, measured |
 | Hard delete, `secure_delete`, WAL truncation | Soft delete | Deleted items leave the file. Cost: Undo lasts only while its snack bar shows |
+| Replace the whole reminder schedule after every change | Patching scheduled notifications one by one | One pure plan, nothing to drift out of step. Cost: up to 150 platform calls per pass, after a 0.8 second pause |
+| Notification buttons open the app | Writing the vault from a background engine | One writer, no key read before the first unlock. Cost: Paid on a notification shows the app for a moment |
+| Generic notification text by default | Titles | Nothing named outside the vault. Cost: "A bill is due today" says less until titles are turned on |
 | Nastaliq line height fixed at 1.9 | Easing it down at large scales | Large text stays readable. Cost: taller Urdu rows at 2.0 |
 
 ## 20. Verified and not verified yet
